@@ -1,0 +1,26 @@
+{
+  "name": "autotrading_bitskins",
+  "version": "1.0.0",
+  "description": "Bite",
+  "main": "rechercheduprofit.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bitskins",
+    "csgo",
+    "skins",
+    "argent",
+    "moula",
+    "trading",
+    "automatique",
+    "affrontelesarabes"
+  ],
+  "author": "Jeydolen & Echopraxium",
+  "license": "SEE LICENSE IN License.txt",
+  "dependencies": {
+    "notp": "^2.0.3",
+    "request": "^2.88.2",
+    "thirty-two": "^1.0.2"
+  }
+}
