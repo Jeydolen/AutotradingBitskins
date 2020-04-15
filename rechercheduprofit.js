@@ -1,5 +1,4 @@
 const fs = require('fs');
-const https   = require('https');
 const request = require('request');
 
 const totp    = require('notp').totp;
@@ -42,11 +41,14 @@ const onError = function(err, result)
 const myBackEndLogic = async function() {
   try 
   {
-      const json_data = await downloadPage(query)
+      result = await downloadPage(query)
       console.log('SHOULD WORK:');
-      console.log(json_data);
-      fs.writeFile ("response.json", json_data, onError);
-      result = json_data;
+      // console.log(json_data);
+      fs.unlinkSync('response.json', (err) => {
+        if (err) throw err;
+        console.log('successfully deleted response.json');
+      });
+      fs.writeFileSync ("response.json", result, onError);
   } 
   catch (error) 
   {
@@ -56,8 +58,5 @@ const myBackEndLogic = async function() {
   }
 }; // myBackEndLogic
 exports.myBackEndLogic = myBackEndLogic;
-
-// run your async function
-myBackEndLogic().then(r => console.log("result = " + result));
-
+exports.result = result;
 ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js

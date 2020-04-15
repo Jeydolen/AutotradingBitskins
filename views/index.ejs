@@ -1,0 +1,21 @@
+<!-- https://scotch.io/tutorials/use-ejs-to-template-your-node-application -->
+
+<!DOCTYPE html>
+<html lang="fr">
+
+<body class="container">
+
+<main>
+    <div class="jumbotron">
+        <h1>This is great</h1>
+        <p><%= tagline %></p>
+        <ul>
+            <% items.forEach(function(item) { %>
+                <li><%= item.item_id %> </li>
+            <% }); %>
+        </ul>
+    </div>
+</main>
+
+</body>
+</html>
