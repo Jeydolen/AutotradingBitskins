@@ -44,10 +44,15 @@ const myBackEndLogic = async function() {
       result = await downloadPage(query)
       console.log('SHOULD WORK:');
       // console.log(json_data);
-      fs.unlinkSync('response.json', (err) => {
-        if (err) throw err;
-        console.log('successfully deleted response.json');
-      });
+      if (fs.existsSync ('response.json'))
+      {
+
+        fs.unlinkSync('response.json', (err) => {
+          if (err) throw err;
+          console.log('successfully deleted response.json'); 
+        });
+      }
+      
       fs.writeFileSync ("response.json", result, onError);
   } 
   catch (error) 

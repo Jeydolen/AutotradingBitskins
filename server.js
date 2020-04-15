@@ -2,6 +2,7 @@ const rdp = require('./rechercheduprofit.js');
 const ejs = require ('ejs');
 const express = require ('express')
 const fs = require('fs'); 
+const mysql = require('mysql');
 
 
 class ExtracedItem {
@@ -10,6 +11,7 @@ class ExtracedItem {
         console.log("item_id: " + this.item_id)
         this.market_hash_name = input_item.market_hash_name;
         this.item_rarity = input_item.item_rarity;
+        this.float_value = input_item.float_value;
     }
 }
 
@@ -24,8 +26,9 @@ var responseReady = false;
 while (! responseReady)
 {
    responseReady = fs.existsSync('response.json');
-   jsonData = fs.readFileSync ('response.json', 'utf8');
+   process.stdout.write(".");
 }
+jsonData = fs.readFileSync ('response.json', 'utf8');
 //---------------------------------------------------------------------
 
 //-------------------- 2. Parsing des données --------------------
@@ -55,7 +58,32 @@ console.log("extracted_items:" + extracted_items.length);
 
 //---------------------------------------------------------------------
 // return 0;
-//-------------------- 4. Serveur Http --------------------
+//-------------------- 4. Connection DB --------------------
+ /* 
+ 
+ 
+ 
+ 
+ 
+ var con = mysql.createConnection({
+    host: "localhost",
+    user: "RDP",
+    password: "HOjpg@Moeo0Siy5Oatp^1ptnq6pipVfbxh^9WJraDSPgR8QaoL5EZ21QeCYFk0D8TP8^gpPK2lIPvx0P$LkL*Lr7ZL11T8$VDiI"
+
+  });
+  con.connect(function(err) {
+    if (err) throw err;
+    console.log("Connected!");
+  });
+
+
+
+
+
+  */
+//---------------------------------------------------------------------
+
+//-------------------- 5. Serveur Http --------------------
 var app = express();
 var tagline = "Affronte le profit"
 // set the view engine to ejs
