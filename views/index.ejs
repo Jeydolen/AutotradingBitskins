@@ -9,11 +9,23 @@
     <div class="jumbotron">
         <h1>This is great</h1>
         <p><%= tagline %></p>
-        <ul>
+        <table border="1px">
             <% items.forEach(function(item) { %>
-                <li><%= item.item_id %> </li>
+            <tr>
+                <td>    <%= item.market_hash_name %>  
+                    <br>  <a href="https://bskn.co/view_item?app_id=730&item_id=<%= item.item_id %>">
+                            <img width="128px" height="128px"  src=" <%= item.image %> "> 
+                          </a>
+                </td>
+                <td>
+                    <%= item.price %> $
+                    <br>
+                    <%= item.suggested_price  %> $ 
+                </td>
+                
+            </tr>
             <% }); %>
-        </ul>
+        </table>
     </div>
 </main>
 

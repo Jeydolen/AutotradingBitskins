@@ -7,11 +7,14 @@ const mysql = require('mysql');
 
 class ExtracedItem {
     constructor(input_item) {
-        this.item_id = input_item['item_id'];
+        this.item_id = input_item.item_id;
         console.log("item_id: " + this.item_id)
         this.market_hash_name = input_item.market_hash_name;
         this.item_rarity = input_item.item_rarity;
         this.float_value = input_item.float_value;
+        this.image = input_item.image;
+        this.price = input_item.price;
+        this.suggested_price = input_item.suggested_price;
     }
 }
 
@@ -59,7 +62,7 @@ console.log("extracted_items:" + extracted_items.length);
 //---------------------------------------------------------------------
 // return 0;
 //-------------------- 4. Connection DB --------------------
- /* 
+ 
  
  
  
@@ -67,8 +70,10 @@ console.log("extracted_items:" + extracted_items.length);
  
  var con = mysql.createConnection({
     host: "localhost",
-    user: "RDP",
-    password: "HOjpg@Moeo0Siy5Oatp^1ptnq6pipVfbxh^9WJraDSPgR8QaoL5EZ21QeCYFk0D8TP8^gpPK2lIPvx0P$LkL*Lr7ZL11T8$VDiI"
+    port: "3308",
+    user: "rdp_admin",
+    password: "UZ14xdQ7E",
+    database: 'bitskins_csgo'
 
   });
   con.connect(function(err) {
@@ -80,7 +85,7 @@ console.log("extracted_items:" + extracted_items.length);
 
 
 
-  */
+
 //---------------------------------------------------------------------
 
 //-------------------- 5. Serveur Http --------------------
