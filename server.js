@@ -19,31 +19,56 @@ class ExtracedItem {
 }
 
 
+var items_count = 1;
+var page_index = 0;
 
-//-------------------- 1. Récupération des Données --------------------
-// https://javascript.info/task/async-from-regular
-var jsonData = "nodata1";
-rdp.myBackEndLogic();
+// rdp.deleteResponseFile(0);
 
-var responseReady = false;
-while (! responseReady)
+while (items_count > 0 )
 {
-   responseReady = fs.existsSync('response.json');
-   process.stdout.write(".");
-}
-jsonData = fs.readFileSync ('response.json', 'utf8');
-//---------------------------------------------------------------------
+    //-------------------- 1. Récupération des Données --------------------
+    // https://javascript.info/task/async-from-regular
+    page_index += 1;
+    console.log('page : ' +page_index);
 
-//-------------------- 2. Parsing des données --------------------
-var jsonObj = "nodata2";
-try {
-    jsonObj = JSON.parse(jsonData.toString());
-} catch(e) {
-    console.log(e); // error in the above string (in this case, yes)!
-} 
-console.log(jsonObj);
-console.log("jsonData size:" + jsonData.length);
-//---------------------------------------------------------------------
+    var jsonData = "nodata1";
+
+    //========== fetchItems ==========
+    rdp.fetchItems(page_index);
+
+    var responseReady = false;
+    while (! responseReady)
+    {
+        responseReady = fs.existsSync(rdp.buildFileName(page_index));
+        // process.stdout.write(".");
+    }
+    jsonData = fs.readFileSync (rdp.buildFileName(page_index), 'utf8');
+   //---------------------------------------------------------------------
+
+   //-------------------- 2. Parsing des données --------------------
+    var jsonObj = "nodata2";
+    try 
+    {
+        jsonObj = JSON.parse(jsonData.toString());
+    }    
+    catch(e) {
+        console.log(e); // error in the above string (in this case, yes)!
+    } 
+    //-------------------- 2. Parsing des données 
+
+    //fs.unlinkFileSync (rdp.buildFileName(page_index), 'utf8');
+    rdp.deleteResponseFile(page_index);
+
+    console.log(jsonObj['data']['page']);
+    console.log("jsonData size:" + jsonData.length);
+
+    items_count = jsonObj['data']['items'].length;
+    console.log("items count :" +items_count);
+    console.log('firstItem : ' + jsonObj['data']['items'][0].market_hash_name);
+    //---------------------------------------------------------------------
+}; // while (items_count > 0 )
+
+return 0;
 
 //-------------------- 3. Extraction des items --------------------
 var read_items = jsonObj['data']['items'];
@@ -57,17 +82,11 @@ for (var i = 0, len = read_items.length; i < len; i++) {
 }
 console.log("extracted_items:" + extracted_items.length);
 
-
-
 //---------------------------------------------------------------------
-// return 0;
+
+
 //-------------------- 4. Connection DB --------------------
- 
- 
- 
- 
- 
- 
+
  var con = mysql.createConnection({
     host: "localhost",
     port: "3308",
@@ -80,11 +99,6 @@ console.log("extracted_items:" + extracted_items.length);
     if (err) throw err;
     console.log("Connected!");
   });
-
-
-
-
-
 
 //---------------------------------------------------------------------
 
