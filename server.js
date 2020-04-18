@@ -3,7 +3,11 @@ const ejs = require ('ejs');
 const express = require ('express')
 const fs = require('fs'); 
 const mysql = require('mysql');
+const ERROR_NO_DATA = "NO_DATA";
 
+
+var jsonData = ERROR_NO_DATA;
+var jsonObj = ERROR_NO_DATA;
 
 class ExtracedItem {
     constructor(input_item) {
@@ -18,24 +22,61 @@ class ExtracedItem {
     }
 }
 
+// rdp.deleteResponseFile(0);
+var query_result = 
+{
+   "json_data" : ERROR_NO_DATA
+};
+
+const parseOnResponseReady = function(json_data)
+{
+   //-------------------- Parsing des données --------------------
+   jsonData = json_data;
+   console.log("parseOnResponseReady json_data:" + json_data)
+   jsonObj = ERROR_NO_DATA;
+   try 
+   {
+       console.log("Try Parsing");
+       jsonObj = JSON.parse(json_data.toString());
+
+       console.log(jsonObj);
+       console.log("jsonData size:" + jsonData.length);
+   
+       items_count = jsonObj['data']['items'].length;
+       console.log("items count :" +items_count);
+       console.log('firstItem : ' + jsonObj['data']['items'][0].market_hash_name);
+       page_index += 1;
+   }    
+   catch(e) {
+       console.log("Error when Parsing");
+       console.log(e); // error in the above string (in this case, yes)!
+   } 
+   //-------------------- Parsing des données 
+   return jsonObj;
+} // parseOnResponseReady()
+
+const checkPageReady = function() 
+{
+    console.log("après pause de 6 sec");
+    return (page_index > current_page_index);
+}; // checkPageReady()
 
 var items_count = 1;
-var page_index = 0;
+var page_index = 1;
+var current_page_index = page_index;
 
-// rdp.deleteResponseFile(0);
+//-------------------- 1. Récupération des Données --------------------
+// https://javascript.info/task/async-from-regular
+//console.log('page : ' + page_index);
 
-while (items_count > 0 )
-{
-    //-------------------- 1. Récupération des Données --------------------
-    // https://javascript.info/task/async-from-regular
-    page_index += 1;
-    console.log('page : ' +page_index);
+//========== fetchItems ==========
+rdp.fetchItems(page_index, parseOnResponseReady);
+console.log("avant pause de 6 sec");
+var page_ready = setTimeout(parseOnResponseReady, 6000);
 
-    var jsonData = "nodata1";
 
-    //========== fetchItems ==========
-    rdp.fetchItems(page_index);
-
+console.log(jsonData);
+    /*
     var responseReady = false;
     while (! responseReady)
     {
@@ -43,30 +84,9 @@ while (items_count > 0 )
         // process.stdout.write(".");
     }
     jsonData = fs.readFileSync (rdp.buildFileName(page_index), 'utf8');
+    */
    //---------------------------------------------------------------------
-
-   //-------------------- 2. Parsing des données --------------------
-    var jsonObj = "nodata2";
-    try 
-    {
-        jsonObj = JSON.parse(jsonData.toString());
-    }    
-    catch(e) {
-        console.log(e); // error in the above string (in this case, yes)!
-    } 
-    //-------------------- 2. Parsing des données 
-
-    //fs.unlinkFileSync (rdp.buildFileName(page_index), 'utf8');
-    rdp.deleteResponseFile(page_index);
-
-    console.log(jsonObj['data']['page']);
-    console.log("jsonData size:" + jsonData.length);
-
-    items_count = jsonObj['data']['items'].length;
-    console.log("items count :" +items_count);
-    console.log('firstItem : ' + jsonObj['data']['items'][0].market_hash_name);
     //---------------------------------------------------------------------
-}; // while (items_count > 0 )
 
 return 0;
 

@@ -16,18 +16,6 @@ const buildFileName = function (page_index)
    // return "response_" + page_index +".json";
 }; // buildFileName()
 
-const deleteResponseFile = function(page_index)
-{
-  if (fs.existsSync (buildFileName(page_index)))
-  {
-
-    fs.unlinkSync(buildFileName(page_index), (err) => {
-      if (err) throw err;
-      console.log('successfully deleted response.json'); 
-    });
-  }
-}; // deleteResponseFile()
-
 
 const buildQuery = function (page_index)
 {
@@ -40,16 +28,25 @@ const buildQuery = function (page_index)
 			  
 
 ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
-const downloadPage = function (url) {
-  return new Promise((resolve, reject) => {
-      request(url, (error, response, body) => {
+const downloadPage = function (url, on_response_ready) 
+{
+  var result =  new Promise((resolve, reject) => 
+  {
+      request(url, (error, response, body) => 
+      {
           if (error) reject(error);
-          if (response.statusCode != 200) {
+          if (response.statusCode != 200) 
+          {
               reject('Invalid status code <' + response.statusCode + '>');
+          }
+          else
+          {
+            on_response_ready(body);
           }
           resolve(body);
       });
   });
+  return result;
 }; // downloadPage()
 
 const onError = function(err, result)
@@ -57,23 +54,13 @@ const onError = function(err, result)
   if (err) console.log('error', err);
 };
 
-const fetchItems = async function(page_index) 
+const fetchItems = async function(page_index, on_response_ready) 
 {
   try 
   {
-      result = await downloadPage(buildQuery(page_index))
+      result = await downloadPage(buildQuery(page_index), on_response_ready)
       console.log('SHOULD WORK:');
-      // console.log(json_data);
-  /*    if (fs.existsSync (buildFileName(page_index)))
-      {
-
-        fs.unlinkSync(buildFileName(page_index), (err) => {
-          if (err) throw err;
-          console.log('successfully deleted response.json'); 
-        });
-      }
-      */
-      fs.writeFileSync (buildFileName(page_index), result, onError);
+      // console.log (result);
   } 
   catch (error) 
   {
@@ -83,7 +70,6 @@ const fetchItems = async function(page_index)
   }
 }; // fetchItems
 exports.fetchItems = fetchItems;
-exports.result = result;
-exports.buildFileName = buildFileName;
-exports.deleteResponseFile = deleteResponseFile;
+//exports.result = result;
+//exports.buildFileName = buildFileName;
 ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
