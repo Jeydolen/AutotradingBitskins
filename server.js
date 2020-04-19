@@ -4,7 +4,7 @@ const express = require ('express')
 const fs = require('fs'); 
 const mysql = require('mysql');
 const ERROR_NO_DATA = "NO_DATA";
-
+const async_npm = require ('async')
 
 var jsonData = ERROR_NO_DATA;
 var jsonObj = ERROR_NO_DATA;
@@ -32,20 +32,23 @@ const parseOnResponseReady = function(json_data)
 {
    //-------------------- Parsing des données --------------------
    jsonData = json_data;
-   console.log("parseOnResponseReady json_data:" + json_data)
+   // console.log("parseOnResponseReady json_data:" + json_data)
    jsonObj = ERROR_NO_DATA;
    try 
    {
-       console.log("Try Parsing");
+      // console.log("Try Parsing");
        jsonObj = JSON.parse(json_data.toString());
 
-       console.log(jsonObj);
-       console.log("jsonData size:" + jsonData.length);
+       //console.log(jsonObj);
+      // console.log("jsonData size:" + jsonData.length);
    
-       items_count = jsonObj['data']['items'].length;
-       console.log("items count :" +items_count);
+      // items_count = jsonObj['data']['items'].length;
+      // console.log("items count :" +items_count);
        console.log('firstItem : ' + jsonObj['data']['items'][0].market_hash_name);
-       page_index += 1;
+       console.log ("page :" +jsonObj['data']['page'])
+       if (items_count == 0)
+       { exitFetchItems = true; }
+       //page_index += 1;
    }    
    catch(e) {
        console.log("Error when Parsing");
@@ -57,10 +60,12 @@ const parseOnResponseReady = function(json_data)
 
 const checkPageReady = function() 
 {
-    console.log("après pause de 6 sec");
+    //console.log("après pause de 6 sec");
     return (page_index > current_page_index);
 }; // checkPageReady()
 
+var exitFetchItems = false;
+var ItemsCount = 480;
 var items_count = 1;
 var page_index = 1;
 var current_page_index = page_index;
@@ -70,22 +75,37 @@ var current_page_index = page_index;
 //console.log('page : ' + page_index);
 
 //========== fetchItems ==========
-rdp.fetchItems(page_index, parseOnResponseReady);
-console.log("avant pause de 6 sec");
-var page_ready = setTimeout(parseOnResponseReady, 6000);
+// https://caolan.github.io/async/v3/docs.html#whilst
+async_npm.whilst( 
+// Test
+function test(cb) 
+{
+    //var exitCondition = ( ItemsCount > 0) || (page_index < 21);
+    var exitCondition = (page_index < 999 || exitFetchItems);
+    cb(null, exitCondition); 
+},
 
+// iter
+function iter(cb) 
+{
+    //ItemsCount = 0;
+    console.log("Traitement récurrent page_index: " + page_index);
+    rdp.fetchItems(page_index, parseOnResponseReady);
+   // console.log("avant pause de 6 sec");
+    var page_ready = setTimeout(cb, 6000); 
+    page_index++;
+},
+
+// End
+  function (err) {
+    // All things are done!
+    console.log(".");
+  }
+); // async.whilst()
+
+return 0;
 
 console.log(jsonData);
-    /*
-    var responseReady = false;
-    while (! responseReady)
-    {
-        responseReady = fs.existsSync(rdp.buildFileName(page_index));
-        // process.stdout.write(".");
-    }
-    jsonData = fs.readFileSync (rdp.buildFileName(page_index), 'utf8');
-    */
-   //---------------------------------------------------------------------
     //---------------------------------------------------------------------
 
 return 0;

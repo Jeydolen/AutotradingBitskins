@@ -10,13 +10,6 @@ const API_KEY         = "3c75df64-c4c1-4066-8e65-34de828dd08e";
 
 var result   = null;
 
-const buildFileName = function (page_index)
-{
-   return "response.json";
-   // return "response_" + page_index +".json";
-}; // buildFileName()
-
-
 const buildQuery = function (page_index)
 {
 
@@ -59,7 +52,7 @@ const fetchItems = async function(page_index, on_response_ready)
   try 
   {
       result = await downloadPage(buildQuery(page_index), on_response_ready)
-      console.log('SHOULD WORK:');
+    //  console.log('SHOULD WORK:');
       // console.log (result);
   } 
   catch (error) 

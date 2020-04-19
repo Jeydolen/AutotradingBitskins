@@ -19,6 +19,7 @@
   "author": "Jeydolen & Echopraxium",
   "license": "SEE LICENSE IN License.txt",
   "dependencies": {
+    "async": "^3.2.0",
     "ejs": "^3.0.2",
     "express": "^4.17.1",
     "mysql": "^2.18.1",
