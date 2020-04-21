@@ -33,7 +33,7 @@ const saveSkinSellOrders = function (json_obj)
     {
         var skin_sell_order = new SkinSellOrder(read_items[i]);
         skin_sell_orders.push(skin_sell_order);
-        // storeSkinSellOrder (skin_sell_order);
+        storeSkinSellOrder (skin_sell_order);
     }
     console.log ("Number of skins saved : " + skin_sell_orders.length);
 
@@ -89,7 +89,7 @@ const checkPageReady = function()
   \__/\  /  \___  >____/\___  >____/|__|_|  /\___  >  |__|  \____/   |__| |___|  /\___  >  \___  >____/\____ |\___  >
        \/       \/          \/            \/     \/                            \/     \/       \/           \/    \/ 
 ----------------------------------------------------------------------------------------------------------------------*/
-
+var skin_sell_orders = [];
 var exitFetchItems = false;
 var ItemsCount = 480;
 var items_count = 1;
@@ -107,7 +107,7 @@ var current_page_index = page_index;
 //======================================================================
 //==========   Boucle sur les "SellOrders" du SERVEUR Bitskins  ========
 //======================================================================
-var skin_sell_orders = [];
+
 
 async_npm.until( 
 // Test
@@ -157,8 +157,8 @@ function iter(cb)
 
 const storeSkinSellOrder = (skin_sell_order) =>
 {
-    var db_query =   'INSERT INTO skin_sell_order (item_id) '
-                         + ' VALUES (' + skin_sell_order.item_id + ');';
+    var db_query =   "INSERT INTO `skin_sell_order` (`sell_order_id`) "
+                        + "VALUES ( '"+ skin_sell_order.item_id +"' );";
     var query_result = mysql_db.query
     ( db_query, 
       function (error, results, fields) 
@@ -191,7 +191,7 @@ app.get('/', function(req, res) {
     res.render('index', 
     {
         "tagline" : tagline,
-        "items": extracted_items
+        "items": skin_sell_orders
 
     })
 });

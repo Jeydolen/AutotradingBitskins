@@ -28,7 +28,7 @@ const downloadPage = function (url, on_response_ready)
       request(url, (error, response, body) => 
       {
           if (error) reject(error);
-          if (response.statusCode != 200) 
+          if (response != undefined && response.statusCode != 200)
           {
               reject('Invalid status code <' + response.statusCode + '>');
           }
