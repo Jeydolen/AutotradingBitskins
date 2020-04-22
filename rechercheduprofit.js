@@ -6,7 +6,6 @@ const base32     = require('thirty-two');
 const SECRET_BITSKINS = "ZW3LWWCSRIAVMVNR";
 const API_KEY         = "3c75df64-c4c1-4066-8e65-34de828dd08e";
 
-//var   _2FA_CODE      =  totp.gen(base32.decode(SECRET_BITSKINS));
 
 var result   = null;
 

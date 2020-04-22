@@ -1,10 +1,14 @@
-const rdp = require('./rechercheduprofit.js');
+
 const ejs = require ('ejs');
 const express = require ('express')
 const fs = require('fs'); 
 const mysql = require('mysql');
+const async_npm = require ('async');
+
+const db = require ('./db.js');
+const rdp = require('./rechercheduprofit.js');
 const ERROR_NO_DATA = "NO_DATA";
-const async_npm = require ('async')
+
 
 var jsonData = ERROR_NO_DATA;
 var jsonObj = ERROR_NO_DATA;
@@ -12,13 +16,40 @@ var jsonObj = ERROR_NO_DATA;
 
 class SkinSellOrder {
     constructor(input_item) {
-        this.item_id = input_item.item_id;
+        this.sell_order_id_str = input_item.item_id;
         this.market_hash_name = input_item.market_hash_name;
         this.item_rarity = input_item.item_rarity;
-        this.float_value = input_item.float_value;
+        this.state = this.computeState (input_item.float_value);
         this.image = input_item.image;
         this.price = input_item.price;
         this.suggested_price = input_item.suggested_price;
+    }
+
+    computeState (value) 
+    {
+      
+      var state = 0;
+      if ( value >= 0.45  &&  value < 1.00 )
+      {
+        state = 1
+      }
+      else if ( value >= 0.38  &&  value < 0.45 )
+      {
+        state = 2
+      }
+      else if ( value >= 0.15  &&  value < 0.38 )
+      {
+        state = 3
+      }
+      else if ( value >= 0.07  &&  value < 0.15 )
+      {
+        state = 4
+      }
+      else if ( value >= 0  &&  value < 0.07 )
+      {
+        state = 5
+      }
+      return state;
     }
 }
 
@@ -33,7 +64,7 @@ const saveSkinSellOrders = function (json_obj)
     {
         var skin_sell_order = new SkinSellOrder(read_items[i]);
         skin_sell_orders.push(skin_sell_order);
-        storeSkinSellOrder (skin_sell_order);
+        db.storeSkinSellOrder (skin_sell_order);
     }
     console.log ("Number of skins saved : " + skin_sell_orders.length);
 
@@ -96,6 +127,9 @@ var items_count = 1;
 var page_index = 98;
 var current_page_index = page_index;
 
+
+db.connect();
+db.clearTables ();
 //-------------------- 1. Récupération des Données --------------------
 // https://javascript.info/task/async-from-regular
 //console.log('page : ' + page_index);
@@ -135,49 +169,6 @@ function iter(cb)
     console.log(".");
   }
 ); // async.whilst()
-
-
-//-------------------- 4. Connection DB --------------------
-
- var mysql_db = mysql.createConnection({
-    host: "localhost",
-    port: "3308",
-    user: "rdp_admin",
-    password: "UZ14xdQ7E",
-    database: 'bitskins_csgo'
-
-  });
-  mysql_db.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
-  });
-
-//---------------------------------------------------------------------
-
-
-const storeSkinSellOrder = (skin_sell_order) =>
-{
-    var db_query =   "INSERT INTO `skin_sell_order` (`sell_order_id`) "
-                        + "VALUES ( '"+ skin_sell_order.item_id +"' );";
-    var query_result = mysql_db.query
-    ( db_query, 
-      function (error, results, fields) 
-      {
-        if (error) throw error;
-        console.log('Insertion completed with success');
-      }
-    );
-}
-
-
-
-
-
-
-
-
-
-
 
 
 //-------------------- 5. Serveur Http --------------------
