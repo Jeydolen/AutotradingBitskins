@@ -1,10 +1,8 @@
-
-const ejs = require ('ejs');
-const express = require ('express')
-const fs = require('fs'); 
-const mysql = require('mysql');
+const commander = require('commander');
 const async_npm = require ('async');
 
+
+const httpserver = require ('./httpserver.js')
 const db = require ('./db.js');
 const rdp = require('./rechercheduprofit.js');
 const ERROR_NO_DATA = "NO_DATA";
@@ -108,7 +106,45 @@ const checkPageReady = function()
     //console.log("après pause de 6 sec");
     return (page_index > current_page_index);
 }; // checkPageReady()
+const clearDb = () =>
+{
+  db.connect();
+  db.clearTables ();
+};
 
+
+
+const updateDb = () => 
+{
+    clearDb();
+  
+    async_npm.until( 
+    
+    function test(cb) 
+    {
+      console.log("exitFetchItems: " + exitFetchItems);
+      cb(null, exitFetchItems); 
+    },
+  
+    function iter(cb) 
+    {
+      //ItemsCount = 0;
+      console.log("Traitement récurrent page_index: " + page_index);
+      rdp.fetchItems(page_index, parseOnResponseReady);
+      // console.log("avant pause de 6 sec");
+      var page_ready = setTimeout(cb, 6000); 
+      page_index++;
+    },
+  
+    // End
+    function (err) 
+    {
+      // All things are done!
+      console.log(".");
+    }
+  ); // async.whilst()
+
+}; // updateDb ()
 
 // http://www.patorjk.com/software/taag/#p=display&f=Graffiti&t=Type%20Something%20
 
@@ -128,68 +164,19 @@ var page_index = 98;
 var current_page_index = page_index;
 
 
-db.connect();
-db.clearTables ();
-//-------------------- 1. Récupération des Données --------------------
-// https://javascript.info/task/async-from-regular
-//console.log('page : ' + page_index);
-
-//========== fetchItems ==========
-// https://caolan.github.io/async/v3/docs.html#whilst
-
-
-//======================================================================
-//==========   Boucle sur les "SellOrders" du SERVEUR Bitskins  ========
-//======================================================================
+ 
+commander
+  .version('0.1.0')
+  .command('update', 'Update database', updateDb)
+  .command('clear', 'Clear database', clearDb)
+  .command('server', 'Launch http server', httpserver.start)
+  .parse(process.argv);
 
 
-async_npm.until( 
-// Test
-function test(cb) 
-{
-    console.log("exitFetchItems: " + exitFetchItems);
-    //var exitCondition = ( ItemsCount > 0) || (page_index < 21);
-    cb(null, exitFetchItems); 
-},
-
-// iter
-function iter(cb) 
-{
-    //ItemsCount = 0;
-    console.log("Traitement récurrent page_index: " + page_index);
-    rdp.fetchItems(page_index, parseOnResponseReady);
-   // console.log("avant pause de 6 sec");
-    var page_ready = setTimeout(cb, 6000); 
-    page_index++;
-},
-
-// End
-  function (err) {
-    // All things are done!
-    console.log(".");
-  }
-); // async.whilst()
 
 
-//-------------------- 5. Serveur Http --------------------
-var app = express();
-var tagline = "Affronte le profit"
-// set the view engine to ejs
-app.set('view engine', 'ejs');
-// use res.render to load up an ejs view file
-// index page  
-app.get('/', function(req, res) {
-    res.render('index', 
-    {
-        "tagline" : tagline,
-        "items": skin_sell_orders
 
-    })
-});
-app.listen(8080);
-console.log('8080 is the magic port');
 
-//----------------------------------------------------------
 
 
 
