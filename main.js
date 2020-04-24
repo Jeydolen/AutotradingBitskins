@@ -1,12 +1,12 @@
+
 const commander = require('commander');
 const async_npm = require ('async');
 
 
-const httpserver = require ('./httpserver.js')
+const http_server = require ('./httpserver.js')
 const db = require ('./db.js');
 const rdp = require('./rechercheduprofit.js');
 const ERROR_NO_DATA = "NO_DATA";
-
 
 var jsonData = ERROR_NO_DATA;
 var jsonObj = ERROR_NO_DATA;
@@ -167,12 +167,24 @@ var current_page_index = page_index;
  
 commander
   .version('0.1.0')
-  .command('update', 'Update database', updateDb)
-  .command('clear', 'Clear database', clearDb)
-  .command('server', 'Launch http server', httpserver.start)
-  .parse(process.argv);
+  .option('-u, --update', 'Update database')
+  .option('clear', 'Clear database')
+  .option('-s, --server', 'Launch http server');
 
+commander.parse(process.argv);
 
+if (commander.server) 
+{
+  http_server.start(skin_sell_orders)
+}
+if (commander.update) 
+{
+  updateDb();
+}
+if (commander.clear) 
+{
+  clearDb();
+}
 
 
 
