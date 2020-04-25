@@ -2,7 +2,6 @@
 const commander = require('commander');
 const async_npm = require ('async');
 
-
 const http_server = require ('./httpserver.js')
 const db = require ('./db.js');
 const rdp = require('./rechercheduprofit.js');
@@ -10,7 +9,6 @@ const ERROR_NO_DATA = "NO_DATA";
 
 var jsonData = ERROR_NO_DATA;
 var jsonObj = ERROR_NO_DATA;
-
 
 class SkinSellOrder {
     constructor(input_item) {
@@ -50,6 +48,9 @@ class SkinSellOrder {
       return state;
     }
 }
+
+
+
 
 const saveSkinSellOrders = function (json_obj)
 {
@@ -168,8 +169,9 @@ var current_page_index = page_index;
 commander
   .version('0.1.0')
   .option('-u, --update', 'Update database')
-  .option('clear', 'Clear database')
-  .option('-s, --server', 'Launch http server');
+  .option('-c, --clear', 'Clear database')
+  .option('-s, --server', 'Launch http server')
+  .option ('-b, --backup', 'backup database');
 
 commander.parse(process.argv);
 
@@ -185,7 +187,10 @@ if (commander.clear)
 {
   clearDb();
 }
-
+if (commander.backup)
+{
+  db.backupDB();
+}
 
 
 
