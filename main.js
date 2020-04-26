@@ -171,7 +171,8 @@ commander
   .option('-u, --update', 'Update database')
   .option('-c, --clear', 'Clear database')
   .option('-s, --server', 'Launch http server')
-  .option ('-b, --backup', 'backup database');
+  .option ('-b, --backup', 'Backup database')
+  .option ('-r, --restore [sql_file]', 'Restore database');
 
 commander.parse(process.argv);
 
@@ -191,7 +192,8 @@ if (commander.backup)
 {
   db.backupDB();
 }
-
+if (commander.restore)
+db.restoreDB()
 
 
 
