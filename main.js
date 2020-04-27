@@ -10,45 +10,68 @@ const ERROR_NO_DATA = "NO_DATA";
 var jsonData = ERROR_NO_DATA;
 var jsonObj = ERROR_NO_DATA;
 
-class SkinSellOrder {
-    constructor(input_item) {
-        this.sell_order_id_str = input_item.item_id;
-        this.market_hash_name = input_item.market_hash_name;
-        this.item_rarity = input_item.item_rarity;
-        this.state = this.computeState (input_item.float_value);
-        this.image = input_item.image;
+class SkinSellOrder { // 1) Valeur db 2) Valeur JSON
+    constructor(input_item) 
+    {
+        this.id_str = input_item.item_id;
+        this.market_name = input_item.market_hash_name;
+        this.item_rarity = this.computeRarityID(input_item.item_rarity);
+        this.state = this.computeStateID (input_item.float_value);
+      //  this.image_url = input_item.image;
         this.price = input_item.price;
-        this.suggested_price = input_item.suggested_price;
+        this.recommanded_price = input_item.suggested_price;
     }
 
-    computeState (value) 
+    computeStateID (value) 
     {
-      
-      var state = 0;
-      if ( value >= 0.45  &&  value < 1.00 )
-      {
-        state = 1
-      }
+      var id = 0;
+      if      ( value >= 0.45  &&  value < 1.00 )
+        id = 1
       else if ( value >= 0.38  &&  value < 0.45 )
-      {
-        state = 2
-      }
+        id = 2
       else if ( value >= 0.15  &&  value < 0.38 )
-      {
-        state = 3
-      }
+        id = 3
       else if ( value >= 0.07  &&  value < 0.15 )
-      {
-        state = 4
-      }
+        id = 4
       else if ( value >= 0  &&  value < 0.07 )
-      {
-        state = 5
-      }
-      return state;
+        id = 5
+      return id;
+    }
+
+    computeRarityID (value)
+    {
+      var id = 0;
+      if      ( value == 'Consumer Grade' )
+        id = 1
+      else if ( value == 'Industrial Grade' )
+        id = 2
+      else if ( value == 'Mil-Spec Grade' )
+        id = 3
+      else if ( value == 'Restricted' )
+        id = 4
+      else if ( value == 'Classified' )
+        id = 5
+      else if ( value == 'Covert' )
+        id = 6
+      else if ( value == 'Contraband' )
+        id = 7
+      return id;
+    }
+} // SkinSellOrder class 
+
+class Skin 
+{
+  constructor(input_item) 
+    {
+        this.id_str = input_item.item_id;
+        this.market_name = input_item.market_hash_name;
+        this.item_rarity = this.computeRarityID(input_item.item_rarity);
+        this.state = this.computeStateID (input_item.float_value);
+      //  this.image_url = input_item.image;
+        this.price = input_item.price;
+        this.recommanded_price = input_item.suggested_price;
     }
 }
-
 
 
 

@@ -88,7 +88,7 @@ const storeSkinSellOrder = (skin_sell_order) =>
 {
     if (skin_sell_order.sell_order_id_str == undefined)
     {
-        console.log ('Mysql erro skin_sell_order.sell_order_id: ' + skin_sell_order.sell_order_id_str);
+        console.log ('Mysql erro skin_sell_order.id: ' + skin_sell_order.id_str);
         return 0;
     } 
 
