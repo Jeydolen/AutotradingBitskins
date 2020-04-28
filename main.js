@@ -1,16 +1,22 @@
-
 const commander = require('commander');
 const async_npm = require ('async');
+const MxI        = require('../mixin_interface_api.js').MxI;
 
-const http_server = require ('./httpserver.js')
+const http_server = require ('./httpserver.js');
 const db = require ('./db.js');
 const rdp = require('./rechercheduprofit.js');
+const ISerializable = require('./ISerializable.js').ISerializable;
+
 const ERROR_NO_DATA = "NO_DATA";
 
 var jsonData = ERROR_NO_DATA;
 var jsonObj = ERROR_NO_DATA;
 
-class SkinSellOrder { // 1) Valeur db 2) Valeur JSON
+//-------------------------------------------------------------
+//-------------------- SkinSellOrder class --------------------
+//-------------------------------------------------------------
+class SkinSellOrder extends MxI.$Implementation(MxI.$Object).$with(ISerializable) 
+{ // 1) Valeur db 2) Valeur JSON
     constructor(input_item) 
     {
         this.id_str = input_item.item_id;
@@ -57,7 +63,28 @@ class SkinSellOrder { // 1) Valeur db 2) Valeur JSON
         id = 7
       return id;
     }
+
+    save(args) 
+    {
+      console.log("ISerializable(SkinSellOrder).load()");
+      if (! args instanceof Map)
+      {
+         console.log ("args c pa une map")
+         return false ;
+      }
+    } // ISerializable.save()
+    
+    load(args)
+    {
+        console.log("ISerializable(SkinSellOrder).load()");
+        if (! args instanceof Map)
+        {
+           console.log ("args c pa une map")
+           return false ;
+        }
+    } // ISerializable.load()
 } // SkinSellOrder class 
+//-------------------- SkinSellOrder class --------------------
 
 class Skin 
 {

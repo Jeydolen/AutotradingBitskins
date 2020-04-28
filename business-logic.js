@@ -21,11 +21,11 @@ class ItemsetRule extends BusinessRule
     {
         console.log ('type de args : ' + typeof args );
         if (! args instanceof Map)
-       {
+        {
            console.log ("Starfoullah c pa une map")
            return false ;
-       }
-       console.log ('Reçu mon général');
+        }
+        console.log ('Reçu mon général');
     }
 } 
 

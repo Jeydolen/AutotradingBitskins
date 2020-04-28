@@ -1,4 +1,3 @@
-const fs         = require('fs');
 const request    = require('request');
 const totp       = require('notp').totp;
 const base32     = require('thirty-two');
