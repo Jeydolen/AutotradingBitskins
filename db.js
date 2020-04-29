@@ -2,10 +2,14 @@ const timestamp = require ('time-stamp');
 const exec = require('child_process').exec;
 const mysql = require('mysql');
 
+
+const sql_u = require ('./sql_utilities.js');
+
 var MysqlDbConnection = null ;
 var connected_databases = {}
 
-const DATA_PATH = 'D:/Data/Github/AutotradingBitskins/data/';
+const DATA_PATH = './data/';
+//const DATA_PATH = 'D:/Data/Github/AutotradingBitskins/data/';
 const DB_NAME    = 'bitskins_csgo';
 const ADMIN_NAME = "rdp_admin";
 const ADMIN_PWD   = 'UZ14xdQ7E';
@@ -43,23 +47,17 @@ const restoreDB = (file_path) =>
     console.log ('Restore succesfuly completed')
 }; // restoreDB ()
 
-const executeQuery = (query) =>
-{
-    var sql_cmd = query.split(" ");
-    var query = MysqlDbConnection.query
-    ( query, 
-    function (error, results, fields) 
-    {
-    if (error) throw error;
-    console.log(sql_cmd[0] + ' completed with success');
-        }
-    );
-};
+
 
 const clearTables = () =>
 {
     var db_query =   "TRUNCATE TABLE `" + DB_NAME + "`.`skin_sell_order` ;";
-   executeQuery (db_query);
+    sql_u.executeQuery (MysqlDbConnection, db_query);
+};
+
+const getDBConnection = () =>
+{
+   return MysqlDbConnection;
 };
 
 const connect = () =>
@@ -76,7 +74,11 @@ const connect = () =>
     );
         mysql_db_connection.connect(function(err) 
         {
-        if (err) throw err;
+        if (err)
+        {
+            console.log ("Affronte le lancement de WAMP");
+            return 0;
+        }
         console.log("Connected!");
         });
   
@@ -98,7 +100,7 @@ const storeSkinSellOrder = (skin_sell_order) =>
                         +  skin_sell_order.state
                         + "  );";
 
-    executeQuery (store_sell_order_query);
+    sql_u.executeQuery (MysqlDbConnection, store_sell_order_query);
 };
 
 exports.connect = connect ;
@@ -107,3 +109,4 @@ exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
 exports.isConnected = isConnected ;
 exports.restoreDB = restoreDB ;
+exports.getDBConnection = getDBConnection ;

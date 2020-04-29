@@ -1,4 +1,4 @@
-const MxI = require ('mixin-interface').MxI;
+const MxI = require ('mixin-interface-api/src/mixin_interface_api.js').MxI;
 const Enum = require('enum');
 
 
@@ -27,3 +27,7 @@ class ISerializable extends MxI.$Interface(MxI.$IBaseInterface)
 MxI.$setAsInterface(ISerializable).$asChildOf(MxI.$IBaseInterface);
   
 exports.ISerializable = ISerializable;
+exports.MEDIA_TYPE = MEDIA_TYPE;
+exports.MEDIA = MEDIA ;
+exports.FILE_TYPE = FILE_TYPE ;
+exports.SERIALIZATION_ARGS = SERIALIZATION_ARGS ;

@@ -1,104 +1,17 @@
 const commander = require('commander');
 const async_npm = require ('async');
-const MxI        = require('../mixin_interface_api.js').MxI;
+
 
 const http_server = require ('./httpserver.js');
 const db = require ('./db.js');
 const rdp = require('./rechercheduprofit.js');
-const ISerializable = require('./ISerializable.js').ISerializable;
+const B_L = require ('./business-logic.js');
+const sql_utilities = require ('./sql_utilities')
 
 const ERROR_NO_DATA = "NO_DATA";
 
 var jsonData = ERROR_NO_DATA;
 var jsonObj = ERROR_NO_DATA;
-
-//-------------------------------------------------------------
-//-------------------- SkinSellOrder class --------------------
-//-------------------------------------------------------------
-class SkinSellOrder extends MxI.$Implementation(MxI.$Object).$with(ISerializable) 
-{ // 1) Valeur db 2) Valeur JSON
-    constructor(input_item) 
-    {
-        this.id_str = input_item.item_id;
-        this.market_name = input_item.market_hash_name;
-        this.item_rarity = this.computeRarityID(input_item.item_rarity);
-        this.state = this.computeStateID (input_item.float_value);
-      //  this.image_url = input_item.image;
-        this.price = input_item.price;
-        this.recommanded_price = input_item.suggested_price;
-    }
-
-    computeStateID (value) 
-    {
-      var id = 0;
-      if      ( value >= 0.45  &&  value < 1.00 )
-        id = 1
-      else if ( value >= 0.38  &&  value < 0.45 )
-        id = 2
-      else if ( value >= 0.15  &&  value < 0.38 )
-        id = 3
-      else if ( value >= 0.07  &&  value < 0.15 )
-        id = 4
-      else if ( value >= 0  &&  value < 0.07 )
-        id = 5
-      return id;
-    }
-
-    computeRarityID (value)
-    {
-      var id = 0;
-      if      ( value == 'Consumer Grade' )
-        id = 1
-      else if ( value == 'Industrial Grade' )
-        id = 2
-      else if ( value == 'Mil-Spec Grade' )
-        id = 3
-      else if ( value == 'Restricted' )
-        id = 4
-      else if ( value == 'Classified' )
-        id = 5
-      else if ( value == 'Covert' )
-        id = 6
-      else if ( value == 'Contraband' )
-        id = 7
-      return id;
-    }
-
-    save(args) 
-    {
-      console.log("ISerializable(SkinSellOrder).load()");
-      if (! args instanceof Map)
-      {
-         console.log ("args c pa une map")
-         return false ;
-      }
-    } // ISerializable.save()
-    
-    load(args)
-    {
-        console.log("ISerializable(SkinSellOrder).load()");
-        if (! args instanceof Map)
-        {
-           console.log ("args c pa une map")
-           return false ;
-        }
-    } // ISerializable.load()
-} // SkinSellOrder class 
-//-------------------- SkinSellOrder class --------------------
-
-class Skin 
-{
-  constructor(input_item) 
-    {
-        this.id_str = input_item.item_id;
-        this.market_name = input_item.market_hash_name;
-        this.item_rarity = this.computeRarityID(input_item.item_rarity);
-        this.state = this.computeStateID (input_item.float_value);
-      //  this.image_url = input_item.image;
-        this.price = input_item.price;
-        this.recommanded_price = input_item.suggested_price;
-    }
-}
 
 
 
@@ -111,7 +24,8 @@ const saveSkinSellOrders = function (json_obj)
     
     for (var i = 0, len = read_items.length; i < len; i++) 
     {
-        var skin_sell_order = new SkinSellOrder(read_items[i]);
+        var skin_sell_order = new B_L.SkinSellOrder(db.getDBConnection(), read_items[i]);
+        var skin_set = B_L.SkinSet.Create (db.getDBConnection(), read_items[i]) ; 
         skin_sell_orders.push(skin_sell_order);
         db.storeSkinSellOrder (skin_sell_order);
     }
