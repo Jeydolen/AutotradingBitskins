@@ -86,25 +86,9 @@ const connect = () =>
         connected_databases [DB_NAME] = mysql_db_connection;
 };
 
-const storeSkinSellOrder = (skin_sell_order) =>
-{
-    if (skin_sell_order.sell_order_id_str == undefined)
-    {
-        console.log ('Mysql erro skin_sell_order.id: ' + skin_sell_order.id_str);
-        return 0;
-    } 
 
-    var store_sell_order_query =   "INSERT INTO `skin_sell_order` (`sell_order_id_str`,`skin_state`) "
-                        + "VALUES ( '"
-                        +  skin_sell_order.sell_order_id_str +"',"
-                        +  skin_sell_order.state
-                        + "  );";
-
-    sql_u.executeQuery (MysqlDbConnection, store_sell_order_query);
-};
 
 exports.connect = connect ;
-exports.storeSkinSellOrder = storeSkinSellOrder ;
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
 exports.isConnected = isConnected ;

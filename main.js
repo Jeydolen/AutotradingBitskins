@@ -24,10 +24,11 @@ const saveSkinSellOrders = function (json_obj)
     
     for (var i = 0, len = read_items.length; i < len; i++) 
     {
+        var skin            = B_L.Skin.Create (db.getDBConnection(), read_items[i]) ;    
+        var skin_set        = B_L.SkinSet.Create (db.getDBConnection(), read_items[i]) ; 
         var skin_sell_order = new B_L.SkinSellOrder(db.getDBConnection(), read_items[i]);
-        var skin_set = B_L.SkinSet.Create (db.getDBConnection(), read_items[i]) ; 
         skin_sell_orders.push(skin_sell_order);
-        db.storeSkinSellOrder (skin_sell_order);
+        skin_sell_order.storeInDB ();
     }
     console.log ("Number of skins saved : " + skin_sell_orders.length);
 
@@ -121,12 +122,13 @@ const updateDb = () =>
   \__/\  /  \___  >____/\___  >____/|__|_|  /\___  >  |__|  \____/   |__| |___|  /\___  >  \___  >____/\____ |\___  >
        \/       \/          \/            \/     \/                            \/     \/       \/           \/    \/ 
 ----------------------------------------------------------------------------------------------------------------------*/
-var skin_sell_orders = [];
+//var skin_sell_orders = [];
 var exitFetchItems = false;
 var ItemsCount = 480;
 var items_count = 1;
 var page_index = 98;
 var current_page_index = page_index;
+
 
 
  
@@ -142,7 +144,13 @@ commander.parse(process.argv);
 
 if (commander.server) 
 {
-  http_server.start(skin_sell_orders)
+  var dictionary = B_L.SkinSellOrder.GetInstances();
+  var values = Object.keys(dictionary).map(function(key)
+  {
+    return dictionary[key];
+  });
+
+  http_server.start(values)
 }
 if (commander.update) 
 {
