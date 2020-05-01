@@ -85,30 +85,29 @@ const updateDb = () =>
     clearDb();
   
     async_npm.until( 
-    
-    function test(cb) 
-    {
-      console.log("exitFetchItems: " + exitFetchItems);
-      cb(null, exitFetchItems); 
-    },
+      function test(cb) 
+      {
+        console.log("exitFetchItems: " + exitFetchItems);
+        cb(null, exitFetchItems); 
+      },
   
-    function iter(cb) 
-    {
-      //ItemsCount = 0;
-      console.log("Traitement récurrent page_index: " + page_index);
-      rdp.fetchItems(page_index, parseOnResponseReady);
-      // console.log("avant pause de 6 sec");
-      var page_ready = setTimeout(cb, 6000); 
-      page_index++;
-    },
+      function iter(cb) 
+      {
+        //ItemsCount = 0;
+        console.log("Traitement récurrent page_index: " + page_index);
+        rdp.fetchItems(page_index, parseOnResponseReady);
+        // console.log("avant pause de 6 sec");
+        var page_ready = setTimeout(cb, 6000); 
+        page_index++;
+      },
   
-    // End
-    function (err) 
-    {
-      // All things are done!
-      console.log(".");
-    }
-  ); // async.whilst()
+      // End
+      function (err) 
+      {
+        // All things are done!
+        console.log(".");
+       }
+    ); // async.whilst()
 
 }; // updateDb ()
 

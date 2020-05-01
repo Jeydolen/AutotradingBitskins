@@ -47,7 +47,6 @@ class SkinSellOrder
         this.db_connection = db_connection ;
         this.id_str = input_item.item_id;
         this.market_name = input_item.market_hash_name;
-        this.item_rarity = this.computeRarityID(input_item.item_rarity);
         this.state = this.computeStateID (input_item.float_value);
       //  this.image_url = input_item.image;
         this.price = input_item.price;
@@ -73,39 +72,14 @@ class SkinSellOrder
 
     computeStateID (value) 
     {
-      var id = 0;
-      if      ( value >= 0.45  &&  value < 1.00 )
-        id = 1
-      else if ( value >= 0.38  &&  value < 0.45 )
-        id = 2
-      else if ( value >= 0.15  &&  value < 0.38 )
-        id = 3
-      else if ( value >= 0.07  &&  value < 0.15 )
-        id = 4
-      else if ( value >= 0  &&  value < 0.07 )
-        id = 5
-      return id;
+      return  ( value < 0.07  ) ? 5 :
+              ( value < 0.15  ) ? 4 :
+              ( value < 0.38  ) ? 3 : 
+              ( value < 0.45 )  ? 2 : 
+              ( value < 1.00 )  ? 1 :
+                                  0 ;
     }
 
-    computeRarityID (value)
-    {
-      var id = 0;
-      if      ( value == 'Consumer Grade' )
-        id = 1
-      else if ( value == 'Industrial Grade' )
-        id = 2
-      else if ( value == 'Mil-Spec Grade' )
-        id = 3
-      else if ( value == 'Restricted' )
-        id = 4
-      else if ( value == 'Classified' )
-        id = 5
-      else if ( value == 'Covert' )
-        id = 6
-      else if ( value == 'Contraband' )
-        id = 7
-      return id;
-    }
 
     static GetInstances ()
     {
@@ -251,6 +225,7 @@ class Skin
       this.name = input_item['tags']['itemset'] ;
       this.image_url = input_item.image ;
       this.hasStatTrak = (input_item['tags']['quality'].search("StatTrak") != -1);
+      this.item_rarity = this.computeRarityID(input_item.item_rarity);
   }
   
   getName () 
@@ -262,6 +237,18 @@ class Skin
   {
       var instance_count = Object.keys(Skin.Instances).length ; 
       return instance_count;
+  }
+
+  computeRarityID (value)
+  {
+    return  ( value == 'Contraband'  )        ? 7 :
+            ( value == 'Covert'  )            ? 6 :
+            ( value == 'Classified'  )        ? 5 : 
+            ( value == 'Restricted' )         ? 4 : 
+            ( value == 'Mil-Spec Grade' )     ? 3 :
+            ( value == 'Industrial Grade' )   ? 2 :
+            ( value == 'Consumer Grade' )     ? 1 :
+                                                0 ;
   }
 
   static Create (input_item)

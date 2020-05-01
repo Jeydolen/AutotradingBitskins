@@ -5,26 +5,23 @@ const mysql = require('mysql');
 
 const sql_u = require ('./sql_utilities.js');
 
-var MysqlDbConnection = null ;
-var connected_databases = {}
+
 
 const DATA_PATH = './data/';
 //const DATA_PATH = 'D:/Data/Github/AutotradingBitskins/data/';
-const DB_NAME    = 'bitskins_csgo';
-const ADMIN_NAME = "rdp_admin";
-const ADMIN_PWD   = 'UZ14xdQ7E';
 
 
 
-const isConnected = (db_name) => 
+
+const isRegistered = (db_name) => 
 {
-    return (connected_databases.hasOwnProperty (db_name));
+    return (registered_databases.hasOwnProperty (db_name));
 };
 
 const backupDB = () =>
 {
     connect ();
-    if (! isConnected (DB_NAME))
+    if (! isRegistered (DB_NAME))
     {
         console.log("Database " + DB_NAME + "is not connected");
         return -1 ;
@@ -35,6 +32,10 @@ const backupDB = () =>
     console.log ('Backup succesfuly completed')
 }; // backupDB ()
 
+
+//-----------------------------------------------------
+//--------------------  restoreDB  --------------------
+//-----------------------------------------------------
 const restoreDB = (file_path) =>
 {
     connect ();
@@ -46,7 +47,7 @@ const restoreDB = (file_path) =>
     var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' < ' + file_path);
     console.log ('Restore succesfuly completed')
 }; // restoreDB ()
-
+//--------------------  restoreDB  --------------------
 
 
 const clearTables = () =>
@@ -60,37 +61,9 @@ const getDBConnection = () =>
    return MysqlDbConnection;
 };
 
-const connect = () =>
-{
-    var mysql_db_connection = mysql.createConnection
-    (
-        {
-        host: "localhost",
-        port: "3308",
-        user: ADMIN_NAME,
-        password: ADMIN_PWD,
-        database: DB_NAME
-        }
-    );
-        mysql_db_connection.connect(function(err) 
-        {
-        if (err)
-        {
-            console.log ("Affronte le lancement de WAMP");
-            return 0;
-        }
-        console.log("Connected!");
-        });
-  
-        MysqlDbConnection = mysql_db_connection;
-        connected_databases [DB_NAME] = mysql_db_connection;
-};
-
-
-
 exports.connect = connect ;
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
-exports.isConnected = isConnected ;
+exports.isRegistered = isRegistered ;
 exports.restoreDB = restoreDB ;
 exports.getDBConnection = getDBConnection ;
