@@ -6,7 +6,7 @@ const http_server = require ('./httpserver.js');
 const db = require ('./db.js');
 const rdp = require('./rechercheduprofit.js');
 const B_L = require ('./business-logic.js');
-const sql_utilities = require ('./sql_utilities')
+const sql_u = require ('./sql_utilities')
 
 const ERROR_NO_DATA = "NO_DATA";
 
@@ -26,11 +26,14 @@ const saveSkinSellOrders = function (json_obj)
     {
         var skin            = B_L.Skin.Create (db.getDBConnection(), read_items[i]) ;    
         var skin_set        = B_L.SkinSet.Create (db.getDBConnection(), read_items[i]) ; 
-        var skin_sell_order = new B_L.SkinSellOrder(db.getDBConnection(), read_items[i]);
-        skin_sell_orders.push(skin_sell_order);
+        var skin_sell_order = B_L.SkinSellOrder.Create (db.getDBConnection(), read_items[i]);
+        // skin_sell_orders.push(skin_sell_order);
+
+        skin.storeInDB();
+        skin_set.storeInDB();
         skin_sell_order.storeInDB ();
     }
-    console.log ("Number of skins saved : " + skin_sell_orders.length);
+    console.log ("Number of skins saved : " + B_L.SkinSellOrder.GetInstances().length);
 
 };
 
@@ -74,7 +77,7 @@ const checkPageReady = function()
 }; // checkPageReady()
 const clearDb = () =>
 {
-  db.connect();
+  sql_u.connectSync();
   db.clearTables ();
 };
 

@@ -11,21 +11,25 @@ const DATA_PATH = './data/';
 //const DATA_PATH = 'D:/Data/Github/AutotradingBitskins/data/';
 
 
-
-
 const isRegistered = (db_name) => 
 {
-    return (registered_databases.hasOwnProperty (db_name));
+    if (db_name == undefined)
+        db_name = sql_u.DB_NAME ;
+    var is_registered = sql_u.registered_databases.hasOwnProperty (db_name);
+    
+    if (! is_registered)
+    {
+        console.log("Database " + db_name + "is not registered");
+        return false;
+    }
+    return true;
 };
 
 const backupDB = () =>
 {
-    connect ();
-    if (! isRegistered (DB_NAME))
-    {
-        console.log("Database " + DB_NAME + "is not connected");
-        return -1 ;
-    }
+    sql_u.connectSync ();
+    if (! isRegistered ()) return Konst.RC.KO ;
+    
     var now_time_stamp = timestamp('YYYY_MM_DD_HH_mm');
     var fullpath_to_sql_output_file = DATA_PATH + DB_NAME + '_' + now_time_stamp + '.sql';
     var child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' > ' + fullpath_to_sql_output_file);
@@ -38,30 +42,28 @@ const backupDB = () =>
 //-----------------------------------------------------
 const restoreDB = (file_path) =>
 {
-    connect ();
-    if (! isConnected (DB_NAME))
-    {
-        console.log("Database " + DB_NAME + "is not connected");
-        return -1 ;
-    }
-    var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' < ' + file_path);
+    sql_u.connectSync ();
+    if (! isRegistered ()) return Konst.RC.KO ;
+   
+    var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  sql_u.DB_NAME + ' < ' + file_path);
     console.log ('Restore succesfuly completed')
 }; // restoreDB ()
 //--------------------  restoreDB  --------------------
 
 
 const clearTables = () =>
-{
-    var db_query =   "TRUNCATE TABLE `" + DB_NAME + "`.`skin_sell_order` ;";
-    sql_u.executeQuery (MysqlDbConnection, db_query);
+{   
+    if (! isRegistered()) return Konst.RC.KO
+
+    var db_query =   "TRUNCATE TABLE `" + sql_u.DB_NAME + "`.`skin_sell_order` ;";
+    sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
 };
 
 const getDBConnection = () =>
 {
-   return MysqlDbConnection;
+   return sql_u.MysqlDbServer;
 };
 
-exports.connect = connect ;
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
 exports.isRegistered = isRegistered ;

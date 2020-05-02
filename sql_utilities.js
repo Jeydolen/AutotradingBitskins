@@ -1,9 +1,7 @@
 const mysql = require ('mysql');
-const MySqlSync = require('sync-mysql');
 const async_npm = require ('async')
 
-const RC_OK = 0;
-const RC_KO = 1;
+const Konst = require ('./constants.js');
 
 var isDBConnected = false;
 var MysqlDbServer = null ;
@@ -35,18 +33,19 @@ const executeQuery = (db_connection, query) =>
             if (error)
             {
                 console.log ('Le probleme est ici ' + error );
-                return RC_KO;
-            }   
-            console.log(sql_cmd[0] + ' completed with success');
+                return Konst.RC.KO;
+            } 
+            if (sql_cmd[0] != 'INSERT')
+                  console.log(sql_cmd[0] + ' completed with success');
             isDBConnected = true;
-            return RC_OK;
+            return Konst.RC.OK;
         } 
     );
 }; // executeQuery()
 
 
 //-----------------------------------------------------------
-const connect = () =>
+const _connect = () =>
 {   
     // https://stackoverflow.com/questions/32850045/node-js-synchronous-queries-with-mysql
     var mysql_db_server = mysql.createConnection( CONNECTION_ARGS);
@@ -55,7 +54,7 @@ const connect = () =>
         if (err)
         {
             console.log ("Affronte le lancement de WAMP");
-            return RC_KO;
+            return Konst.RC.KO;
         }
         console.log("Connected!");
     });
@@ -63,7 +62,7 @@ const connect = () =>
     MysqlDbServer = mysql_db_server;
     registered_databases [DB_NAME] = mysql_db_server;
     return mysql_db_server;
-}; // connect()
+}; // _connect()
 //-----------------------------------------------------------
 
 
@@ -82,7 +81,7 @@ const connectSync = () =>
         // Boucle tant que Condition de sortie non remplie
         function iter(cb) 
         {
-           mysql_db_connection = connect();
+           mysql_db_connection = _connect();
            var rc = executeQuery(mysql_db_connection, SHOW_TABLES_QUERY);
            console.log("connectSync ...");
         },
@@ -106,3 +105,7 @@ test();
 
 
 exports.executeQuery = executeQuery ;
+exports.connectSync = connectSync ;
+exports.DB_NAME = DB_NAME ;
+exports.registered_databases = registered_databases ;
+exports.MysqlDbServer = MysqlDbServer ;
