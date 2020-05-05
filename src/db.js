@@ -1,9 +1,10 @@
 const timestamp = require ('time-stamp');
-const exec = require('child_process').exec;
-const mysql = require('mysql');
-const MxI = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
+const exec      = require('child_process').exec;
+const mysql     = require('mysql');
+const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI;
+const async_npm = require ('async');
 
-const sql_u            = require ('./sql_utilities.js');
+const sql_u     = require ('./sql_utilities.js');
 const ColorConsole     = require ('./ColorConsole.js');
 
 
@@ -25,6 +26,40 @@ const isRegistered = (db_name) =>
     }
     return true;
 };
+
+const SelectInDB = (table, fields) =>
+
+{
+    sql_u.connectSync ();
+    if (! isRegistered ()) return Konst.RC.KO ;
+    if (fields == undefined || fields.length == 0) fields = '*';
+    if (table == undefined ) table = 'skin_set';
+
+    var db_query = "SELECT " + fields + " FROM `" + table + "` ;";
+    MxI.$Log.write (db_query);
+    
+    var result = undefined
+
+    async_npm.until( 
+        function test(cb) 
+        {
+          cb(null, (result != undefined)); 
+        },
+    
+        function iter(cb) 
+        {
+          result = sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
+        
+        },
+    
+        // End
+        function (err) 
+        {
+          // All things are done!
+          MxI.$Log.write("Select result : " + result.toString(), ColorConsole.LOG_LEVEL.MSG);
+         }
+      ); // async.whilst()
+}
 
 const backupDB = () =>
 {
@@ -75,8 +110,10 @@ const getDBConnection = () =>
    return sql_u.MysqlDbServer;
 };
 
+
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
 exports.isRegistered = isRegistered ;
 exports.restoreDB = restoreDB ;
 exports.getDBConnection = getDBConnection ;
+exports.SelectInDB = SelectInDB ;

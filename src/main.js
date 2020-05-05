@@ -81,17 +81,12 @@ const checkPageReady = function()
     //console.log("après pause de 6 sec");
     return (page_index > current_page_index);
 }; // checkPageReady()
-const clearDb = () =>
-{
-  sql_u.connectSync();
-  db.clearTables ();
-};
 
 
 
 const updateDb = () => 
 {
-    clearDb();
+    db.clearDb();
   
     async_npm.until( 
       function test(cb) 
@@ -146,9 +141,18 @@ commander
   .option('-c, --clear', 'Clear database')
   .option('-s, --server', 'Launch http server')
   .option ('-b, --backup', 'Backup database')
-  .option ('-r, --restore [sql_file]', 'Restore database');
+  .option ('-r, --restore [sql_file]', 'Restore database')
+  .option ('-x, --select ', 'Select fields in table')
+  .command ('select [table]')
+  .action ((table) => 
+  {
+    db.SelectInDB(table)
+  });
+
+
 
 commander.parse(process.argv);
+
 
 if (commander.server) 
 {
@@ -160,20 +164,14 @@ if (commander.server)
 
   http_server.start(values)
 }
-if (commander.update) 
-{
-  updateDb();
-}
-if (commander.clear) 
-{
-  clearDb();
-}
-if (commander.backup)
-{
-  db.backupDB();
-}
-if (commander.restore)
-db.restoreDB()
+if (commander.update)    updateDb();
+
+if (commander.clear)   db.clearDb();
+
+if (commander.backup)  db.backupDB();
+
+if (commander.restore) db.restoreDB();
+
 
 
 

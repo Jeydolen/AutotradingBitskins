@@ -12,6 +12,7 @@ const DB_NAME    = 'bitskins_csgo';
 const ADMIN_NAME = "rdp_admin";
 const ADMIN_PWD   = 'UZ14xdQ7E';
 var registered_databases = {}
+
 const CONNECTION_ARGS = 
 {
     host: "localhost",
@@ -27,7 +28,9 @@ const SHOW_TABLES_QUERY = "SHOW TABLES ;"
 
 const executeQuery = (db_connection, query) =>
 {
-    var sql_cmd = query.split(" ");
+    var sql_query_words = query.split(" ");
+    var sql_cmd = sql_query_words[0];
+
     var query = db_connection.query
     (   query, 
         function (error, results, fields) 
@@ -37,10 +40,20 @@ const executeQuery = (db_connection, query) =>
                 MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, ColorConsole.LOG_LEVEL.ERROR);
                 return Konst.RC.KO;
             } 
-            if (sql_cmd[0] != 'INSERT')
-                MxI.$Log.write(sql_cmd[0] + ' completed with success', ColorConsole.LOG_LEVEL.OK);
+
+            if (sql_cmd != 'INSERT')
+                MxI.$Log.write(sql_cmd + ' completed with success', ColorConsole.LOG_LEVEL.OK);
+
             isDBConnected = true;
+            
+            if (sql_cmd == 'SELECT') 
+            {
+                MxI.$Log.write(query + '\n completed with success', ColorConsole.LOG_LEVEL.MSG);
+                return results ;
+            }
+
             return Konst.RC.OK;
+
         } 
     );
 }; // executeQuery()
@@ -50,7 +63,7 @@ const executeQuery = (db_connection, query) =>
 const _connect = () =>
 {   
     // https://stackoverflow.com/questions/32850045/node-js-synchronous-queries-with-mysql
-    var mysql_db_server = mysql.createConnection( CONNECTION_ARGS);
+    var mysql_db_server = mysql.createConnection(CONNECTION_ARGS);
     mysql_db_server.connect(function(err) 
     {
         if (err)
@@ -84,7 +97,6 @@ const connectSync = () =>
         function iter(cb) 
         {
            mysql_db_connection = _connect();
-           var rc = executeQuery(mysql_db_connection, SHOW_TABLES_QUERY);
            console.log("connectSync ...");
         },
     

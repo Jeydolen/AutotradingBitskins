@@ -1,14 +1,19 @@
 const MxI = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
-
+const timestamp = require ('time-stamp');
 const ISerializable    = require('./ISerializable.js').ISerializable;
 const db               = require ('./db.js');
 const sql_u            = require ('./sql_utilities.js');
 const Konst            = require ('./constants.js');
 const ColorConsole     = require ('./ColorConsole.js');
+const FileLogger      = require ('./FileLogSink.js').FileLogger ;
 
 
 var color_logger = new ColorConsole.ColorConsole();
 MxI.$Log.addSink(color_logger);
+
+var file_logger = new FileLogger("./data/log/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
+MxI.$Log.addSink(file_logger)
+
 
 class BusinessRule 
 {   
