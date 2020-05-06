@@ -26,36 +26,48 @@ const SHOW_TABLES_QUERY = "SHOW TABLES ;"
 
 
 
-const executeQuery = (db_connection, query) =>
+const executeQuery = (db_connection, query, cb) =>
 {
+    console.log("executeQuery()  query:" + query);
+
     var sql_query_words = query.split(" ");
     var sql_cmd = sql_query_words[0];
 
-    var query = db_connection.query
-    (   query, 
-        function (error, results, fields) 
+    console.log("executeQuery()  sql_cmd:" + sql_cmd);
+
+    const executeQuery_default_cb = (error, results, fields) =>
+    {
+        console.log("executeQuery_default_cb: ");
+        if (error)
         {
-            if (error)
-            {
-                MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, ColorConsole.LOG_LEVEL.ERROR);
-                return Konst.RC.KO;
-            } 
-
-            if (sql_cmd != 'INSERT')
-                MxI.$Log.write(sql_cmd + ' completed with success', ColorConsole.LOG_LEVEL.OK);
-
-            isDBConnected = true;
-            
-            if (sql_cmd == 'SELECT') 
-            {
-                MxI.$Log.write(query + '\n completed with success', ColorConsole.LOG_LEVEL.MSG);
-                return results ;
-            }
-
-            return Konst.RC.OK;
-
+            MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, ColorConsole.LOG_LEVEL.ERROR);
+            return Konst.RC.KO;
         } 
-    );
+
+        if (sql_cmd != 'INSERT')
+            MxI.$Log.write(sql_cmd + ' completed with success', ColorConsole.LOG_LEVEL.OK);
+       
+        if (sql_cmd == 'SELECT')
+        {
+           /* console.log("executeQuery results: " + JSON.stringify(results));
+            console.log("executeQuery results: " + results.length);
+            console.log("executeQuery cb(SELECT)"); */
+            return results;
+        }
+        return Konst.RC.OK; 
+    }; // executeQuery_default_cb()
+
+    if (cb == undefined) 
+    {
+        console.log("cb was undefined");
+        cb = executeQuery_default_cb;
+    }
+
+    console.log("executeQuery()  cb: " + cb.name + "()");
+
+    //============================== QUERY ==============================
+    var query = db_connection.query( query, cb );
+    //============================== QUERY ==============================
 }; // executeQuery()
 
 

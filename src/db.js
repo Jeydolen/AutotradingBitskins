@@ -4,8 +4,9 @@ const mysql     = require('mysql');
 const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI;
 const async_npm = require ('async');
 
-const sql_u     = require ('./sql_utilities.js');
+const sql_u    = require ('./sql_utilities.js');
 const ColorConsole     = require ('./ColorConsole.js');
+const Konst            = require ('./constants.js');
 
 
 
@@ -27,8 +28,29 @@ const isRegistered = (db_name) =>
     return true;
 };
 
-const SelectInDB = (table, fields) =>
 
+//-----------------------------------------------------
+//--------------------  SelectInDB  -------------------
+//-----------------------------------------------------
+const executeQuery_SelectInDB_cb = (error, results, fields) =>
+{
+        console.log("executeQuery_SelectInDB_cb()");
+        if (error)
+        {
+            MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, ColorConsole.LOG_LEVEL.ERROR);
+            return Konst.RC.KO;
+        } 
+
+        MxI.$Log.write(' completed with success', ColorConsole.LOG_LEVEL.OK);
+       
+        // console.log("executeQuery results: " + JSON.stringify(results));
+        console.log("executeQuery results: " + results.length);
+        //console.log("executeQuery cb(SELECT)"); 
+        return results;
+        //return Konst.RC.OK; 
+}; // executeQuery_SelectInDB_cb(')
+
+const SelectInDB = (table, fields) =>
 {
     sql_u.connectSync ();
     if (! isRegistered ()) return Konst.RC.KO ;
@@ -38,28 +60,45 @@ const SelectInDB = (table, fields) =>
     var db_query = "SELECT " + fields + " FROM `" + table + "` ;";
     MxI.$Log.write (db_query);
     
-    var result = undefined
+    var results = undefined
 
+    results = sql_u.executeQuery (sql_u.MysqlDbServer, db_query, executeQuery_SelectInDB_cb);
+
+
+    if (results == undefined) 
+        return Konst.RC.KO
+    else  
+        console.log ("Result test () : " + JSON.stringify(results));
+
+     /*
     async_npm.until( 
         function test(cb) 
         {
-          cb(null, (result != undefined)); 
+            console.log ("Result test () : " + JSON.stringify(result));
+            var exit_condition = false ;
+            cb(null, (exit_condition)); 
+            
         },
     
         function iter(cb) 
         {
+
+          console.log ("Result iter () : " + JSON.stringify(result));
           result = sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
-        
+          
         },
     
         // End
         function (err) 
         {
           // All things are done!
-          MxI.$Log.write("Select result : " + result.toString(), ColorConsole.LOG_LEVEL.MSG);
+          console.log ("Saucisse")
+          MxI.$Log.write("Select result : " + JSON.stringify(result), ColorConsole.LOG_LEVEL.MSG);
          }
       ); // async.whilst()
-}
+      */
+}; // SelectInDB()
+//--------------------  SelectInDB
 
 const backupDB = () =>
 {
@@ -92,14 +131,14 @@ const clearTables = () =>
 {   
     if (! isRegistered()) return Konst.RC.KO
 
-    var db_query =   "TRUNCATE TABLE `" + sql_u.DB_NAME + "`.`skin_sell_order` ;";
+    var db_query =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin_sell_order` ;";
     sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
 
-    db_query =   "TRUNCATE TABLE `" + sql_u.DB_NAME + "`.`skin` ;";
+    db_query =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin` ;";
     sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
 
    
-    db_query =   "TRUNCATE TABLE `" + sql_u.DB_NAME + "`.`skin_set` ;";
+    db_query =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin_set` ;";
     sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
 
     

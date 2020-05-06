@@ -86,7 +86,7 @@ const checkPageReady = function()
 
 const updateDb = () => 
 {
-    db.clearDb();
+    db.clearTables();
   
     async_npm.until( 
       function test(cb) 
@@ -142,12 +142,8 @@ commander
   .option('-s, --server', 'Launch http server')
   .option ('-b, --backup', 'Backup database')
   .option ('-r, --restore [sql_file]', 'Restore database')
-  .option ('-x, --select ', 'Select fields in table')
-  .command ('select [table]')
-  .action ((table) => 
-  {
-    db.SelectInDB(table)
-  });
+  .option ('--select [table]', 'Select all from the specified table')
+
 
 
 
@@ -166,12 +162,14 @@ if (commander.server)
 }
 if (commander.update)    updateDb();
 
-if (commander.clear)   db.clearDb();
+if (commander.clear)   db.clearTables();
 
 if (commander.backup)  db.backupDB();
 
 if (commander.restore) db.restoreDB();
 
+if (commander.select && commander.select != true) db.SelectInDB(commander.select);
+else db.SelectInDB() ;
 
 
 
