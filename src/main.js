@@ -8,12 +8,14 @@ const db = require ('./db.js');
 const rdp = require('./rechercheduprofit.js');
 const B_L = require ('./business-logic.js');
 const sql_u = require ('./sql_utilities')
-const ColorConsole     = require ('./ColorConsole.js');
+const konsole   = require('./bb_log.js').konsole;
+const LOG_LEVEL = require('./bb_log.js').LOG_LEVEL;
+
 
 
 const ERROR_NO_DATA = "NO_DATA";
 
-var jsonData = ERROR_NO_DATA;
+//var jsonData = ERROR_NO_DATA;
 var jsonObj = ERROR_NO_DATA;
 
 
@@ -43,37 +45,39 @@ const saveSkinSellOrders = function (json_obj)
 
 };
 
-const parseOnResponseReady = function(json_data)
+const parseOnResponseReady = function( json_data )
 {
-   //-------------------- Parsing des données --------------------
-   jsonData = json_data;
-   jsonObj = ERROR_NO_DATA;
-   try 
-   {
-        var items_count = 0;
-        // console.log("Try Parsing");
-        jsonObj = JSON.parse(json_data.toString());
+  //-------------------- Parsing des données --------------------
+  //jsonData = json_data;
+  json_obj = ERROR_NO_DATA;
+  try 
+  {
+    var items_count = 0;
+    // console.log("Try Parsing");
+    json_obj = JSON.parse(json_data.toString());
 
-        if (   jsonObj['data'] != undefined  
-           && jsonObj['data']['items'] != undefined
-           && jsonObj['data']['items'].length > 0
-          )
-        {
-            items_count = jsonObj['data']['items'].length;
-            MxI.$Log.write('firstItem : ' + jsonObj['data']['items'][0].market_hash_name, ColorConsole.LOG_LEVEL.MSG);
-            MxI.$Log.write("page :" +jsonObj['data']['page'], ColorConsole.LOG_LEVEL.MSG)
-            saveSkinSellOrders(jsonObj);  
-        };
+    if (      json_obj['data'] != undefined  
+           && json_obj['data']['items'] != undefined
+           && json_obj['data']['items'].length > 0
+    )
+    {
+      items_count = json_obj['data']['items'].length;
+      MxI.$Log.write('firstItem : ' + json_obj['data']['items'][0].market_hash_name, LOG_LEVEL.MSG);
+      MxI.$Log.write("page :" +json_obj['data']['page'], LOG_LEVEL.MSG)
+      saveSkinSellOrders(json_obj);  
+    };
 
-        // console.log("items_count : "+ items_count);
-        exitFetchItems = (items_count == 0);
-    }
-   catch(errorCode) {
-       MxI.$Log.write("Main.parseOnResponseReady () : Error when Parsing", ColorConsole.LOG_LEVEL.ERROR);
-       console.log("error code: " + errorCode); // error in the above string (in this case, yes)!
-   } 
-   //-------------------- Parsing des données 
-   return jsonObj;
+    // console.log("items_count : "+ items_count);
+    exitFetchItems = (items_count == 0);
+  }
+  catch( errorCode ) 
+  {
+    konsole.log("Main.parseOnResponseReady () : Error when Parsing", LOG_LEVEL.ERROR);
+    konsole.log("error code: \n" + errorCode, LOG_LEVEL.ERROR); // error in the above string (in this case, yes)!
+  } 
+  //-------------------- Parsing des données
+
+   return json_obj;
 } // parseOnResponseReady()
 
 const checkPageReady = function() 
@@ -98,7 +102,7 @@ const updateDb = () =>
       function iter(cb) 
       {
         //ItemsCount = 0;
-        MxI.$Log.write("Traitementde la page : " + page_index, ColorConsole.LOG_LEVEL.MSG);
+        MxI.$Log.write("Traitementde la page : " + page_index, LOG_LEVEL.MSG);
         rdp.fetchItems(page_index, parseOnResponseReady);
         // console.log("avant pause de 6 sec");
         var page_ready = setTimeout(cb, 6000); 
@@ -109,7 +113,7 @@ const updateDb = () =>
       function (err) 
       {
         // All things are done!
-        MxI.$Log.write("Main.updateDB() : Fin de traitement des pages.", ColorConsole.LOG_LEVEL.MSG);
+        MxI.$Log.write("Main.updateDB() : Fin de traitement des pages.", LOG_LEVEL.MSG);
        }
     ); // async.whilst()
 
@@ -169,7 +173,7 @@ if (commander.backup)  db.backupDB();
 if (commander.restore) db.restoreDB();
 
 if (commander.select && commander.select != true) db.SelectInDB(commander.select);
-else db.SelectInDB() ;
+
 
 
 

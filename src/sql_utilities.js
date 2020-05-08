@@ -3,8 +3,11 @@ const async_npm = require ('async');
 const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
 const Enum      = require('enum');
 
-const ColorConsole  = require ('./ColorConsole.js');
+
 const Konst         = require ('./constants.js');
+const bb_log        = require ('./bb_log.js'); 
+const konsole       = require ('./bb_log.js').konsole;
+const LOG_LEVEL     = require ('./bb_log.js').LOG_LEVEL;
 
 var isDBConnected = false;
 var MysqlDbServer = null ;
@@ -13,7 +16,7 @@ const DB_NAME     = 'bitskins_csgo';
 const ADMIN_NAME  = "rdp_admin";
 const ADMIN_PWD   = 'UZ14xdQ7E';
 
-var registered_databases = {}
+var registered_databases = {};
 
 const CONNECTION_ARGS = 
 {
@@ -28,15 +31,27 @@ const CMD_TYPE = new Enum (['NOTHING', 'DELETE', 'SHOW', 'INSERT', 'SELECT']);
 
 const SHOW_TABLES_QUERY = "SHOW TABLES ;"
 
+var color_logger = new bb_log.ColorConsole();
+MxI.$Log.addSink(color_logger);
+
+var file_logger = new bb_log.FileLogger("../data/log/log_.txt");
+MxI.$Log.addSink(file_logger)
+
+
+
+MxI.$Log.write("sql_utilities: class declarations"); 
+console.log(" C'est quoi ce bordel ?");
+
 //---------------------------------------------------------------------------
 //------------------------------  BB_SqlQuery  ------------------------------
 //---------------------------------------------------------------------------
+// https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
 class BB_SqlQuery 
 {
     //           requis  requis     requis
     constructor( bb_db, cmd_type, query_text ) 
     {
-        MxI.$Log.write("BB_SqlQuery constructor", ColorConsole.LOG_LEVEL.MSG);
+        MxI.$Log.write("BB_SqlQuery constructor", LOG_LEVEL.MSG);
         this.bb_db      = bb_db;
         this.cmd_type   = cmd_type;
         this.query_text = query_text;
@@ -75,17 +90,17 @@ class BB_SqlQuery
 
     execute( query_text, args )
     {   
-        MxI.$Log.write("BB_SqlQuery execute()", ColorConsole.LOG_LEVEL.MSG);
+        MxI.$Log.write("BB_SqlQuery execute()", LOG_LEVEL.MSG);
 
         if ( this.cmd_type == CMD_TYPE.NOTHING )
         { 
-            MxI.$Log.write("BB_SqlQuery execute() Affronte les arabes !!", ColorConsole.LOG_LEVEL.ERROR);
+            MxI.$Log.write("BB_SqlQuery execute() Affronte les arabes !!", LOG_LEVEL.ERROR);
             return Konst.RC.KO;
         }
 
         if ( query_text != undefined )
         {
-            var cmd_type = _getCmdType(query_text);
+            var cmd_type = BB_SqlQuery._ExtractCmdType(query_text);
             if (cmd_type != CMD_TYPE.NOTHING)
             {
                 this.cmd_type = cmd_type;
@@ -93,9 +108,7 @@ class BB_SqlQuery
             } 
         }
         
-        MxI.$Log.write("BB_SqlQuery execute(): send to MySql server", ColorConsole.LOG_LEVEL.MSG);
-
-        return 0;
+        MxI.$Log.write("BB_SqlQuery execute(): send to MySql server", LOG_LEVEL.MSG);
 
         return new Promise
             ( 
@@ -111,7 +124,7 @@ class BB_SqlQuery
                         {
                             if ( err )
                             {
-                                MxI.$Log.write("BB_SqlQuery execute(): \n" + err , ColorConsole.LOG_LEVEL.ERROR);
+                                MxI.$Log.write("BB_SqlQuery execute(): \n" + err , LOG_LEVEL.ERROR);
                                 return reject( err );
                             }
                                 
@@ -127,7 +140,7 @@ class BB_SqlQuery
     //                    ex: "SELECT * FROM ..."     []
     static Create( bb_db,   query_text    ,         tables ) 
     {
-        MxI.$Log.write("BB_SqlQuery.Create()", ColorConsole.LOG_LEVEL.MSG);
+        MxI.$Log.write("BB_SqlQuery.Create()", LOG_LEVEL.MSG);
 
         if (BB_SqlQuery.NULL_QUERY == undefined)
             BB_SqlQuery.NULL_QUERY = new BB_SqlQuery(null, Konst.NOTHING);
@@ -165,7 +178,6 @@ BB_SqlQuery.CLEAR_TABLES;
 //------------------------------  BB_SqlQuery
 
 
-
 //---------------------------------------------------------------------------
 //------------------------------  BB_Database  ------------------------------
 //---------------------------------------------------------------------------
@@ -173,7 +185,7 @@ class BB_Database
 {
     constructor( connection_args ) 
     {
-        MxI.$Log.write("BB_Database constructor", ColorConsole.LOG_LEVEL.MSG);
+        MxI.$Log.write("BB_Database constructor", LOG_LEVEL.MSG);
         if (connection_args == undefined) connection_args = CONNECTION_ARGS ;
         this.connection = mysql.createConnection( connection_args );
         this.query = BB_SqlQuery.GetNullObject();
@@ -198,7 +210,7 @@ class BB_Database
 
     static Create( connection_args ) 
     {
-        MxI.$Log.write("BB_Database.Create()", ColorConsole.LOG_LEVEL.MSG);
+        MxI.$Log.write("BB_Database.Create()", LOG_LEVEL.MSG);
 
         if (this.connection_args  == undefined) 
             connection_args = CONNECTION_ARGS ;
@@ -219,27 +231,27 @@ const executeQuery = (db_connection, query, cb) =>
     var sql_query_words = query.split(" ");
     var sql_cmd = sql_query_words[0];
 
-    console.log("executeQuery()  sql_cmd:" + sql_cmd);
+    konsole.log("executeQuery()  sql_cmd:" + sql_cmd, LOG_LEVEL.MSG);
 
     const executeQuery_default_cb = (error, results, fields) =>
     {
         console.log("executeQuery_default_cb: ");
         if (error)
         {
-            MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, ColorConsole.LOG_LEVEL.ERROR);
+            MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, LOG_LEVEL.ERROR);
             return Konst.RC.KO;
         } 
 
         if (sql_cmd != 'INSERT')
-            MxI.$Log.write(sql_cmd + ' completed with success', ColorConsole.LOG_LEVEL.OK);
+            MxI.$Log.write(sql_cmd + ' completed with success', LOG_LEVEL.OK);
        
         if (sql_cmd == 'SELECT')
         {
-           /* console.log("executeQuery results: " + JSON.stringify(results));
+            console.log("executeQuery results: " + JSON.stringify(results));
             console.log("executeQuery results: " + results.length);
-            console.log("executeQuery cb(SELECT)"); */
+            console.log("executeQuery cb(SELECT)"); 
             return results;
-        }
+        } 
         return Konst.RC.OK; 
     }; // executeQuery_default_cb()
 
@@ -252,7 +264,7 @@ const executeQuery = (db_connection, query, cb) =>
     console.log("executeQuery()  cb: " + cb.name + "()");
 
     //============================== QUERY ==============================
-    var query = db_connection.query( query, cb );
+    var query = MysqlDbServer.query( query, cb );
     //============================== QUERY ==============================
 }; // executeQuery()
 
@@ -266,10 +278,10 @@ const _connect = () =>
     {
         if (err)
         {
-            MxI.$Log.write("Affronte le lancement de WAMP", ColorConsole.LOG_LEVEL.ERROR);
+            MxI.$Log.write("Affronte le lancement de WAMP", LOG_LEVEL.ERROR);
             return Konst.RC.KO;
         }
-        MxI.$Log.write("Connected!", ColorConsole.LOG_LEVEL.OK);
+        MxI.$Log.write("Connected!", LOG_LEVEL.OK);
     });
   
     MysqlDbServer = mysql_db_server;
@@ -311,29 +323,71 @@ const connectSync = () =>
 //-----------------------------------------------------------
 const run_connectSync_UT = () =>
 {
-    connectSync()
+    connectSync();
     return 0;
 } // testconnectSync
 
 //-----------------------------------------------------------
-const run_BB_DB_UT = () =>
+const run_BB_DB_UT = ( table, fields ) =>
 {
+    MxI.$Log.write("sql_utilities: run_BB_DB_UT()", LOG_LEVEL.MSG);
     var bb_db = BB_Database.Create();
-    var query = BB_SqlQuery.Create(bb_db, "SHOW TABLE ;");
-    query.execute();
+    var query_obj = BB_SqlQuery.Create(bb_db, "SHOW TABLE ;");
+
+    if (table == undefined || table == '' ) return Konst.RC.KO;
+
+    var table_str = '`' + table + '`';
+
+    var fields_str = '*';
+    if (fields != undefined ) 
+    { 
+        var fields_str = ' ';
+        if (typeof fields === 'string' || fields instanceof String)
+            fields = [ fields];
+
+        var count  = 0;
+        var suffix = '';
+        for (var i=0; i < fields.length; i++)
+        {
+            konsole.log("iter count " + count);
+            suffix = ' , ';
+            if ( (count + 1) == fields.length) suffix = '';
+            var field = fields[i];
+            fields_str = fields_str + '`' + field + '` ' + suffix;
+            count++;
+        }
+    }
+
+    var query_str =  'SELECT ' + fields_str + ' FROM ' + table_str + ' ; ';
+    MxI.$Log.write("run_BB_DB_UT: query_str: \n " + query_str, LOG_LEVEL.INFO);
+    MxI.$Log.write("run_BB_DB_UT: KéKOnFé main nan ?", LOG_LEVEL.MSG);
+
+    query_obj.execute( query_str )
+    .then( rows => {
+        // do something with the result
+        MxI.$Log.write("run_BB_DB_UT: KéKOnFé main nan ?", LOG_LEVEL.MSG);
+        for (var i=0; i < rows.length; i++)
+        {
+            //var msg = JSON.stringify(rows[i]);
+            var msg = rows[i]['name'];
+            MxI.$Log.write(msg , LOG_LEVEL.INFO);
+        }
+    } );
     return 0;
 } // testBB_DB
 
 //-----------------------------------------------------------
 const runUnitTests = () =>
 {
-    MxI.$Log.write("runUnitTests()", ColorConsole.LOG_LEVEL.MSG);
+    MxI.$Log.write("runUnitTests()", LOG_LEVEL.MSG);
     // run_connectSync_UT()
-    run_BB_DB_UT()
+    run_BB_DB_UT( 'skin', 'name');
     return 0;
 } // runUnitTests
 
-runUnitTests();
+
+MxI.$Log.write("sql_utilities: runUnitTests()", LOG_LEVEL.MSG);
+//runUnitTests();
 
 
 exports.executeQuery = executeQuery ;

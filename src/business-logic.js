@@ -4,14 +4,14 @@ const ISerializable    = require('./ISerializable.js').ISerializable;
 const db               = require ('./db.js');
 const sql_u            = require ('./sql_utilities.js');
 const Konst            = require ('./constants.js');
-const ColorConsole     = require ('./ColorConsole.js');
-const FileLogger      = require ('./FileLogSink.js').FileLogger ;
+const bb_log           = require ('./bb_log.js');
+const konsole          = require ('./bb_log.js').konsole;
 
 
-var color_logger = new ColorConsole.ColorConsole();
+var color_logger = new bb_log.ColorConsole();
 MxI.$Log.addSink(color_logger);
 
-var file_logger = new FileLogger("./data/log/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
+var file_logger = new bb_log.FileLogger("../data/log/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
 MxI.$Log.addSink(file_logger)
 
 
@@ -67,7 +67,7 @@ class SkinSellOrder
     {
       if (this.id_str == undefined)
       {
-        MxI.$Log.write('business-logic.SkinSellOrder.storeinDB() : Sql error skin_sell_order.id: ' + this.id_str, ColorConsole.LOG_LEVEL.ERROR);
+        konsole.log('business-logic.SkinSellOrder.storeinDB() : Sql error skin_sell_order.id: ' + this.id_str, LOG_LEVEL.ERROR);
         return Konst.RC.KO;
       } 
 
@@ -127,7 +127,7 @@ class SkinSellOrder
         }
         else 
         {
-            MxI.$Log.write ('Sell order déja créé : ' + item_name, ColorConsole.LOG_LEVEL.WARNING)
+            MxI.$Log.write ('Sell order déja créé : ' + item_name, LOG_LEVEL.WARNING)
             sell_order = SkinSellOrder.Instances[item_name] ;
         }
         return sell_order ;
@@ -174,7 +174,7 @@ class SkinSet
     {
       if (this.name == undefined)
       {
-        MxI.$Log.write('Skinset storeinDB() Sql error name : ' + this.name, ColorConsole.LOG_LEVEL.ERROR);
+        MxI.$Log.write('Skinset storeinDB() Sql error name : ' + this.name, LOG_LEVEL.ERROR);
         return Konst.RC.KO;
       } 
 
@@ -247,7 +247,7 @@ class SkinSet
             }
             else
             {
-                MxI.$Log.write ('Skin Set déja créé : ' + name, ColorConsole.LOG_LEVEL.ERROR);
+                MxI.$Log.write ('Skin Set déja créé : ' + name, LOG_LEVEL.ERROR);
                 skin_set = SkinSet.Instances[name] ;
             }
         }
@@ -329,7 +329,7 @@ class Skin
   { 
     if (this.name == undefined)
     {
-      MxI.$Log.write ('Mysql error name : ' + this.name, ColorConsole.LOG_LEVEL.ERROR);
+      MxI.$Log.write ('Mysql error name : ' + this.name, LOG_LEVEL.ERROR);
       return Konst.RC.KO;
     } 
 

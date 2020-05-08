@@ -5,7 +5,8 @@ const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI;
 const async_npm = require ('async');
 
 const sql_u    = require ('./sql_utilities.js');
-const ColorConsole     = require ('./ColorConsole.js');
+const konsole   = require('./bb_log.js').konsole;
+const LOG_LEVEL = require('./bb_log.js').LOG_LEVEL;
 const Konst            = require ('./constants.js');
 
 
@@ -22,7 +23,7 @@ const isRegistered = (db_name) =>
     
     if (! is_registered)
     {
-        MxI.$Log.write("Database " + db_name + "is not registered", ColorConsole.LOG_LEVEL.ERROR);
+        MxI.$Log.write("Database " + db_name + " is not registered ", LOG_LEVEL.ERROR);
         return false;
     }
     return true;
@@ -37,11 +38,11 @@ const executeQuery_SelectInDB_cb = (error, results, fields) =>
         console.log("executeQuery_SelectInDB_cb()");
         if (error)
         {
-            MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, ColorConsole.LOG_LEVEL.ERROR);
+            MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, LOG_LEVEL.ERROR);
             return Konst.RC.KO;
         } 
 
-        MxI.$Log.write(' completed with success', ColorConsole.LOG_LEVEL.OK);
+        MxI.$Log.write(' completed with success', LOG_LEVEL.OK);
        
         // console.log("executeQuery results: " + JSON.stringify(results));
         console.log("executeQuery results: " + results.length);
@@ -54,6 +55,7 @@ const SelectInDB = (table, fields) =>
 {
     sql_u.connectSync ();
     if (! isRegistered ()) return Konst.RC.KO ;
+
     if (fields == undefined || fields.length == 0) fields = '*';
     if (table == undefined ) table = 'skin_set';
 
@@ -108,7 +110,7 @@ const backupDB = () =>
     var now_time_stamp = timestamp('YYYY_MM_DD_HH_mm');
     var fullpath_to_sql_output_file = DATA_PATH + DB_NAME + '_' + now_time_stamp + '.sql';
     var child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' > ' + fullpath_to_sql_output_file);
-    MxI.$Log.write('Backup succesfuly completed', ColorConsole.LOG_LEVEL.OK)
+    MxI.$Log.write('Backup succesfuly completed', LOG_LEVEL.OK)
 }; // backupDB ()
 
 
@@ -122,14 +124,14 @@ const restoreDB = (file_path) =>
    
     var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  sql_u.DB_NAME + ' < ' + file_path);
 
-    MxI.$Log.write('Restore succesfuly completed', ColorConsole.LOG_LEVEL.OK)
+    MxI.$Log.write('Restore succesfuly completed', LOG_LEVEL.OK)
 }; // restoreDB ()
 //--------------------  restoreDB  --------------------
 
 
 const clearTables = () =>
 {   
-    if (! isRegistered()) return Konst.RC.KO
+    if (! isRegistered()) sql_u.connectSync();
 
     var db_query =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin_sell_order` ;";
     sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
