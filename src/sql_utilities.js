@@ -31,15 +31,8 @@ const CMD_TYPE = new Enum (['NOTHING', 'DELETE', 'SHOW', 'INSERT', 'SELECT']);
 
 const SHOW_TABLES_QUERY = "SHOW TABLES ;"
 
-var color_logger = new bb_log.ColorConsole();
-MxI.$Log.addSink(color_logger);
 
-var file_logger = new bb_log.FileLogger("../data/log/log_.txt");
-MxI.$Log.addSink(file_logger)
-
-
-
-MxI.$Log.write("sql_utilities: class declarations"); 
+//MxI.$Log.write("sql_utilities: class declarations"); 
 console.log(" C'est quoi ce bordel ?");
 
 //---------------------------------------------------------------------------
@@ -49,10 +42,10 @@ console.log(" C'est quoi ce bordel ?");
 class BB_SqlQuery 
 {
     //           requis  requis     requis
-    constructor( bb_db, cmd_type, query_text ) 
+    constructor( db_obj, cmd_type, query_text ) 
     {
-        MxI.$Log.write("BB_SqlQuery constructor", LOG_LEVEL.MSG);
-        this.bb_db      = bb_db;
+        //MxI.$Log.write("BB_SqlQuery constructor", LOG_LEVEL.MSG);
+        this.db_obj     = db_obj;
         this.cmd_type   = cmd_type;
         this.query_text = query_text;
     } // constructor  
@@ -90,7 +83,8 @@ class BB_SqlQuery
 
     execute( query_text, args )
     {   
-        MxI.$Log.write("BB_SqlQuery execute()", LOG_LEVEL.MSG);
+        konsole.log("BB_SqlQuery execute()", LOG_LEVEL.MSG);
+        konsole.log("query: " + this.query_text, LOG_LEVEL.MSG);
 
         if ( this.cmd_type == CMD_TYPE.NOTHING )
         { 
@@ -110,12 +104,37 @@ class BB_SqlQuery
         
         MxI.$Log.write("BB_SqlQuery execute(): send to MySql server", LOG_LEVEL.MSG);
 
+        if (this.db_obj == undefined)
+        {
+
+            return new Promise
+            ( 
+                ( resolve, reject ) => 
+                {
+                    konsole.log("BB_SqlQuery.execute() db_obj is undefined", LOG_LEVEL.ERROR);
+                } 
+            );
+        }
+
+        if (this.db_obj.getConnection() == undefined)
+        {
+
+            return new Promise
+            ( 
+                ( resolve, reject ) => 
+                {
+                    konsole.log("BB_SqlQuery.execute() db_obj.GetConnection() is undefined", LOG_LEVEL.ERROR);
+
+                } 
+            );
+        }
+
         return new Promise
             ( 
                 ( resolve, reject ) => 
                 {
                     //========== QUERY ==========
-                    this.bb_db.getConnection().query
+                    this.db_obj.getConnection().query
                     (   
                         this.query_text, 
                         args, 
@@ -138,19 +157,19 @@ class BB_SqlQuery
 
     //            requis     requis                optionnel
     //                    ex: "SELECT * FROM ..."     []
-    static Create( bb_db,   query_text    ,         tables ) 
+    static Create( db_obj,   query_text    ,         tables ) 
     {
-        MxI.$Log.write("BB_SqlQuery.Create()", LOG_LEVEL.MSG);
+        //MxI.$Log.write("BB_SqlQuery.Create()", LOG_LEVEL.MSG);
 
         if (BB_SqlQuery.NULL_QUERY == undefined)
             BB_SqlQuery.NULL_QUERY = new BB_SqlQuery(null, Konst.NOTHING);
 
-        if ( query_text == undefined || bb_db == undefined)
+        if ( query_text == undefined || db_obj == undefined)
             return BB_SqlQuery.NULL_QUERY;
 
         var cmd_type = BB_SqlQuery._ExtractCmdType( query_text );
         if (cmd_type != CMD_TYPE.NOTHING)
-               return new BB_SqlQuery( bb_db, cmd_type, query_text );
+               return new BB_SqlQuery( db_obj, cmd_type, query_text );
               
         return BB_SqlQuery.NULL_QUERY;   
     } // Create()  
@@ -168,13 +187,14 @@ class BB_SqlQuery
         return this.as_text;
     } // GetNullObject()  
 
-    getCommandType()
+    getCommand()
     {
         return this.cmd_type.toString();
     } // getCommand()  
 } // BB_SqlQuery class
 BB_SqlQuery.NULL_QUERY;
 BB_SqlQuery.CLEAR_TABLES;
+exports.BB_SqlQuery = BB_SqlQuery;
 //------------------------------  BB_SqlQuery
 
 
@@ -185,7 +205,12 @@ class BB_Database
 {
     constructor( connection_args ) 
     {
-        MxI.$Log.write("BB_Database constructor", LOG_LEVEL.MSG);
+        if (connection_args == Konst.NOTHING)
+        {
+            //MxI.$Log.write("BB_Database constructor: " + Konst.NOTHING, LOG_LEVEL.MSG);
+            return;
+        }
+
         if (connection_args == undefined) connection_args = CONNECTION_ARGS ;
         this.connection = mysql.createConnection( connection_args );
         this.query = BB_SqlQuery.GetNullObject();
@@ -210,7 +235,7 @@ class BB_Database
 
     static Create( connection_args ) 
     {
-        MxI.$Log.write("BB_Database.Create()", LOG_LEVEL.MSG);
+        // MxI.$Log.write("BB_Database.Create()", LOG_LEVEL.MSG);
 
         if (this.connection_args  == undefined) 
             connection_args = CONNECTION_ARGS ;
@@ -219,7 +244,27 @@ class BB_Database
 
        return bb_db;
     } // Create()  
+
+    static IsRegistered( db_name)
+    {
+        if (db_name == undefined)
+            db_name = DB_NAME ;
+
+        if (BB_Database.NULL_DB == undefined)
+            BB_Database.NULL_DB = new BB_Database(Konst.NOTHING);
+
+        var is_registered = registered_databases.hasOwnProperty( db_name );
+        
+        if (! is_registered)
+        {
+            MxI.$Log.write("Database " + db_name + " is not registered ", LOG_LEVEL.ERROR);
+            return false;
+        }
+        return true;
+    }; // IsRegistered()
 } // BB_Database class
+BB_Database.NULL_DB;
+exports.BB_Database = BB_Database ;
 //------------------------------  BB_Database
 
 
@@ -235,7 +280,7 @@ const executeQuery = (db_connection, query, cb) =>
 
     const executeQuery_default_cb = (error, results, fields) =>
     {
-        console.log("executeQuery_default_cb: ");
+        //console.log("executeQuery_default_cb: ");
         if (error)
         {
             MxI.$Log.write('Le probleme est ici ' + error +'\n' + query, LOG_LEVEL.ERROR);
@@ -386,7 +431,7 @@ const runUnitTests = () =>
 } // runUnitTests
 
 
-MxI.$Log.write("sql_utilities: runUnitTests()", LOG_LEVEL.MSG);
+//MxI.$Log.write("sql_utilities: runUnitTests()", LOG_LEVEL.MSG);
 //runUnitTests();
 
 

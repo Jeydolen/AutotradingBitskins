@@ -4,30 +4,32 @@ const mysql     = require('mysql');
 const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI;
 const async_npm = require ('async');
 
-const sql_u    = require ('./sql_utilities.js');
-const konsole   = require('./bb_log.js').konsole;
-const LOG_LEVEL = require('./bb_log.js').LOG_LEVEL;
-const Konst            = require ('./constants.js');
+const sql_u        = require ('./sql_utilities.js');
+const konsole      = require('./bb_log.js').konsole;
+const LOG_LEVEL    = require('./bb_log.js').LOG_LEVEL;
+const ColorConsole = require('./bb_log.js').ColorConsole;
+const FileLogger   = require('./bb_log.js').FileLogger;
+const BB_Database  = require('./sql_utilities.js').BB_Database;
+const BB_SqlQuery  = require('./sql_utilities.js').BB_SqlQuery;
+const Konst        = require ('./constants.js');
 
+/*
+var color_logger = new ColorConsole();
+MxI.$Log.addSink(color_logger);
 
+var file_logger = new FileLogger("../data/log/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
+MxI.$Log.addSink(file_logger)
+*/
 
 const DATA_PATH = './data/';
+
+var Bitskin_DB = BB_Database.Create(Konst.Nothing);
 //const DATA_PATH = 'D:/Data/Github/AutotradingBitskins/data/';
 
-
-const isRegistered = (db_name) => 
+const GetCurrentDB = () =>
 {
-    if (db_name == undefined)
-        db_name = sql_u.DB_NAME ;
-    var is_registered = sql_u.registered_databases.hasOwnProperty (db_name);
-    
-    if (! is_registered)
-    {
-        MxI.$Log.write("Database " + db_name + " is not registered ", LOG_LEVEL.ERROR);
-        return false;
-    }
-    return true;
-};
+    return Bitskin_DB;
+}
 
 
 //-----------------------------------------------------
@@ -51,10 +53,11 @@ const executeQuery_SelectInDB_cb = (error, results, fields) =>
         //return Konst.RC.OK; 
 }; // executeQuery_SelectInDB_cb(')
 
+
 const SelectInDB = (table, fields) =>
 {
     sql_u.connectSync ();
-    if (! isRegistered ()) return Konst.RC.KO ;
+    if (! BB_Database.IsRegistered ()) return Konst.RC.KO ;
 
     if (fields == undefined || fields.length == 0) fields = '*';
     if (table == undefined ) table = 'skin_set';
@@ -105,7 +108,7 @@ const SelectInDB = (table, fields) =>
 const backupDB = () =>
 {
     sql_u.connectSync ();
-    if (! isRegistered ()) return Konst.RC.KO ;
+    if (! BB_Database.IsRegistered ()) return Konst.RC.KO ;
     
     var now_time_stamp = timestamp('YYYY_MM_DD_HH_mm');
     var fullpath_to_sql_output_file = DATA_PATH + DB_NAME + '_' + now_time_stamp + '.sql';
@@ -120,7 +123,7 @@ const backupDB = () =>
 const restoreDB = (file_path) =>
 {
     sql_u.connectSync ();
-    if (! isRegistered ()) return Konst.RC.KO ;
+    if (! BB_Database.IsRegistered ()) return Konst.RC.KO ;
    
     var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  sql_u.DB_NAME + ' < ' + file_path);
 
@@ -131,20 +134,29 @@ const restoreDB = (file_path) =>
 
 const clearTables = () =>
 {   
-    if (! isRegistered()) sql_u.connectSync();
+    //if (! BB_Database.IsRegistered()) sql_u.connectSync();
+    if (! BB_Database.IsRegistered()) 
+        Bitskin_DB = BB_Database.Create();
 
-    var db_query =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin_sell_order` ;";
-    sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
+    var query_txt =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin_sell_order` ;";
+    var query_obj = BB_SqlQuery.Create( Bitskin_DB, query_txt );
+    query_obj.execute( )
+    .then( rows => {
+        konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+    } );
 
-    db_query =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin` ;";
-    sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
+    query_txt =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin` ;";
+    query_obj.execute(query_txt )
+    .then( rows => {
+        konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+    } );
 
-   
-    db_query =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin_set` ;";
-    sql_u.executeQuery (sql_u.MysqlDbServer, db_query);
-
-    
-};
+    query_txt =   "DELETE FROM `" + sql_u.DB_NAME + "`.`skin_set` ;";
+    query_obj.execute(query_txt )
+    .then( rows => {
+        konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+    } );
+}; // clearTables()
 
 const getDBConnection = () =>
 {
@@ -154,7 +166,7 @@ const getDBConnection = () =>
 
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
-exports.isRegistered = isRegistered ;
 exports.restoreDB = restoreDB ;
 exports.getDBConnection = getDBConnection ;
 exports.SelectInDB = SelectInDB ;
+exports.GetCurrentDB = GetCurrentDB ;

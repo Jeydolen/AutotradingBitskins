@@ -1,4 +1,4 @@
-const Enum = require('enum');
+const Enum  = require('enum');
 const chalk = require ('chalk')
 
 const RC = new Enum (['OK', 'KO']);

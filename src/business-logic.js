@@ -1,20 +1,13 @@
 const MxI = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
-const timestamp = require ('time-stamp');
 const ISerializable    = require('./ISerializable.js').ISerializable;
-const db               = require ('./db.js');
 const sql_u            = require ('./sql_utilities.js');
+const BB_SqlQuery      = require ('./sql_utilities.js').BB_SqlQuery;
 const Konst            = require ('./constants.js');
-const bb_log           = require ('./bb_log.js');
 const konsole          = require ('./bb_log.js').konsole;
 
-
-var color_logger = new bb_log.ColorConsole();
-MxI.$Log.addSink(color_logger);
-
-var file_logger = new bb_log.FileLogger("../data/log/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
-MxI.$Log.addSink(file_logger)
-
-
+//--------------------------------------------------------------
+//--------------------  BusinessRule class  --------------------
+//--------------------------------------------------------------
 class BusinessRule 
 {   
     constructor (children)
@@ -28,10 +21,13 @@ class BusinessRule
         this.checked = false ;    
         return this.checked ;
     }
+} // BusinessRule class
+//--------------------  BusinessRule class
 
-}
 
-
+//--------------------------------------------------------------
+//--------------------  ItemsetRule class  ---------------------
+//--------------------------------------------------------------
 class ItemsetRule extends BusinessRule 
 {
     check (args)
@@ -44,39 +40,46 @@ class ItemsetRule extends BusinessRule
         }
         console.log ('Reçu mon général');
     }
-} 
+} // ItemsetRule class
+//--------------------  ItemsetRule class
 
 
 //-------------------------------------------------------------
 //-------------------- SkinSellOrder class --------------------
 //-------------------------------------------------------------
-
 class SkinSellOrder
 {   // 1) Valeur db 2) Valeur JSON
-    constructor(db_connection, input_item) 
+    constructor( db_obj, input_item) 
     {
-        this.db_connection = db_connection ;
+        this.db_obj = db_obj ;
         this.id_str = input_item.item_id;
         this.market_name = input_item.market_hash_name;
         this.state = this.computeStateID (input_item.float_value);
         this.price = input_item.price;
         this.recommanded_price = input_item.suggested_price;
-    }
+    } // constructor
 
     storeInDB ()
     {
-      if (this.id_str == undefined)
-      {
-        konsole.log('business-logic.SkinSellOrder.storeinDB() : Sql error skin_sell_order.id: ' + this.id_str, LOG_LEVEL.ERROR);
-        return Konst.RC.KO;
-      } 
+        if (this.id_str == undefined)
+        {
+          konsole.log('business-logic.SkinSellOrder.storeinDB() : Sql error skin_sell_order.id: ' + this.id_str, LOG_LEVEL.ERROR);
+          return Konst.RC.KO;
+        } 
 
-      var insert_query =   'INSERT INTO `skin_sell_order` (`id_str`, `market_name`, `item_state`) '
+        var insert_query =   'INSERT INTO `skin_sell_order` (`id_str`, `market_name`, `item_state`) '
           + ' VALUES ( '
           +  '"'+ this.id_str + '", "' +  this.market_name + '", ' +  this.state + '  );';
 
-      sql_u.executeQuery (this.db_connection, insert_query);
-    }
+        var query_obj = BB_SqlQuery.Create( this.db_obj );
+        query_obj.execute( insert_query )
+        .then( rows => 
+        {
+            konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+        } );
+
+      // sql_u.executeQuery (this.db_connection, insert_query);
+    } // storeInDB()
 
     getName () 
     {
@@ -104,7 +107,7 @@ class SkinSellOrder
         return SkinSellOrder.Instances;
     }
 
-    static Create (db_connection, input_item)
+    static Create (db_obj, input_item)
     {
         var sell_order = undefined ;
 
@@ -122,7 +125,7 @@ class SkinSellOrder
         {
            // MxI.$Log.write ('Détection nouvel élément: ' + item_name, ColorConsole.LOG_LEVEL.OK)
             //console.log ('Détection nouvel élément: ' + item_name) ;
-            sell_order = new SkinSellOrder (db_connection, input_item);
+            sell_order = new SkinSellOrder (db_obj, input_item);
             SkinSellOrder.Instances[sell_order.getName()] = sell_order ;
         }
         else 
@@ -163,29 +166,36 @@ exports.SkinSellOrder = SkinSellOrder;
 //-------------------------------------------------------------
 class SkinSet
 {
-    constructor(db_connection, name) 
+    constructor(db_obj, name) 
     {
-        this.db_connection = db_connection ;
+        this.db_obj = db_obj ;
         this.name = name ; 
         this.stored = false;
-    }
+    } // constructor
 
     storeInDB ()
     {
-      if (this.name == undefined)
-      {
-        MxI.$Log.write('Skinset storeinDB() Sql error name : ' + this.name, LOG_LEVEL.ERROR);
-        return Konst.RC.KO;
-      } 
+        if (this.name == undefined)
+        {
+            MxI.$Log.write('Skinset storeinDB() Sql error name : ' + this.name, LOG_LEVEL.ERROR);
+            return Konst.RC.KO;
+        } 
 
-      if (this.stored) return Konst.RC.KO;
+        if (this.stored) return Konst.RC.KO;
 
-      // MxI.$Log.write("SkinSet.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK);
+        // MxI.$Log.write("SkinSet.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK);
 
-      var insert_query =   "INSERT INTO `skin_set` (`name`) "
-          + "VALUES ( '" +  this.name + "'  );";
+        var insert_query = "INSERT INTO `skin_set` (`name`) "
+                         + "VALUES ( '" +  this.name + "'  );";
+               
+        var query_obj = BB_SqlQuery.Create( this.db_obj );
+        query_obj.execute( insert_query )
+        .then( rows => 
+        {
+            konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+        } );
 
-      sql_u.executeQuery (this.db_connection, insert_query);
+      //sql_u.executeQuery (this.db_connection, insert_query);
 
       this.stored = true;
     } // storeInDB()
@@ -218,7 +228,7 @@ class SkinSet
     }
 
 
-    static Create (db_connection, input_item)
+    static Create ( db_obj, input_item)
     {
         if (SkinSet.NULL_SKINSET == undefined)
             SkinSet.NULL_SKINSET = new SkinSet (null, "NOTHING");
@@ -241,7 +251,7 @@ class SkinSet
             if (SkinSet.Instances[name] == undefined )
             {
                 // console.log ('Détection nouveau skin set') ;
-                skin_set = new SkinSet (db_connection, name);
+                skin_set = new SkinSet (db_obj, name);
                 // MxI.$Log.write (skin_set.getName(), ColorConsole.LOG_LEVEL.MSG);
                 SkinSet.Instances[name] = skin_set ;
             }
@@ -266,22 +276,22 @@ exports.SkinSet = SkinSet ;
 //-------------------------------------------------------------
 class Skin 
 {
-  constructor(db_connection, arg) 
+  constructor(db_obj, arg) 
   {      
-      this.db_connection = db_connection ;
-      //                      Flag       WP_name |  Skin name  (State(float_value))
-      // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
-      //console.log("Skin constructor : " + arg);
+    this.db_obj = db_obj ;
+    //                      Flag       WP_name |  Skin name  (State(float_value))
+    // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
+    //console.log("Skin constructor : " + arg);
 
-      if (arg == "NOTHING")
-      {
+    if (arg == "NOTHING")
+    {
         this.image_url = Konst.DEFAULT_NAMES.NOTHING ;
         this.hasStatTrak = false;
         this.name = Konst.DEFAULT_NAMES.NOTHING ;
         this.item_rarity = Konst.DEFAULT_NAMES.NOTHING ;
-      }
-      else
-      {
+    }
+    else
+    {
         var input_item = arg;
         this.image_url = input_item.image ;
         this.hasStatTrak = (input_item['tags']['quality'].search("StatTrak") != -1);
@@ -306,14 +316,11 @@ class Skin
             }     
         }          
 
-
         this.item_rarity = this.computeRarityID(input_item.item_rarity);
-      }
+    } 
 
-      
-
-      this.stored = false;
-  }
+    this.stored = false;
+  } // constructor()
   
   getName () 
   {
@@ -339,8 +346,15 @@ class Skin
 
     var insert_query =   "INSERT INTO `skin` (`name`) "
         + "VALUES ( '" +  this.name + "'  );";
+               
+    var query_obj = BB_SqlQuery.Create( this.db_obj );
+    query_obj.execute( insert_query )
+    .then( rows => 
+    {
+        konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+    } );
 
-    sql_u.executeQuery (this.db_connection, insert_query);
+    //sql_u.executeQuery (this.db_connection, insert_query);
 
     this.stored = true;
   } // storeInDB()

@@ -25,13 +25,11 @@ const saveSkinSellOrders = function (json_obj)
     var read_items = json_obj['data']['items'];
     // console.log("read_items: " + read_items.length);
     
-
-    
     for (var i = 0, len = read_items.length; i < len; i++) 
     {
-        var skin            = B_L.Skin.Create (db.getDBConnection(), read_items[i]) ;    
-        var skin_set        = B_L.SkinSet.Create (db.getDBConnection(), read_items[i]) ; 
-        var skin_sell_order = B_L.SkinSellOrder.Create (db.getDBConnection(), read_items[i]);
+        var skin            = B_L.Skin.Create          ( db.GetCurrentDB(), read_items[i] ) ;    
+        var skin_set        = B_L.SkinSet.Create       ( db.GetCurrentDB(), read_items[i] ) ; 
+        var skin_sell_order = B_L.SkinSellOrder.Create ( db.GetCurrentDB(), read_items[i] ) ;
         // skin_sell_orders.push(skin_sell_order);
 
         skin.storeInDB();
@@ -42,13 +40,15 @@ const saveSkinSellOrders = function (json_obj)
         skin_sell_order.storeInDB ();
     }
     // console.log ("Number of skins saved : " + B_L.SkinSellOrder.GetInstances().length);
+}; // saveSkinSellOrders()
 
-};
 
-const parseOnResponseReady = function( json_data )
+const parseOnResponseReady = ( json_data ) =>
 {
   //-------------------- Parsing des données --------------------
   //jsonData = json_data;
+  konsole.log("parseOnResponseReady " + json_data);
+  
   json_obj = ERROR_NO_DATA;
   try 
   {
@@ -103,7 +103,7 @@ const updateDb = () =>
       {
         //ItemsCount = 0;
         MxI.$Log.write("Traitementde la page : " + page_index, LOG_LEVEL.MSG);
-        rdp.fetchItems(page_index, parseOnResponseReady);
+        rdp.fetchItems( page_index, parseOnResponseReady );
         // console.log("avant pause de 6 sec");
         var page_ready = setTimeout(cb, 6000); 
         page_index++;
@@ -131,48 +131,13 @@ const updateDb = () =>
 ----------------------------------------------------------------------------------------------------------------------*/
 //var skin_sell_orders = [];
 var exitFetchItems = false;
-var ItemsCount = 480;
-var items_count = 1;
 var page_index = 98;
 var current_page_index = page_index;
 
 
-
+exports.updateDb = updateDb ;
  
-commander
-  .version('0.1.0')
-  .option('-u, --update', 'Update database')
-  .option('-c, --clear', 'Clear database')
-  .option('-s, --server', 'Launch http server')
-  .option ('-b, --backup', 'Backup database')
-  .option ('-r, --restore [sql_file]', 'Restore database')
-  .option ('--select [table]', 'Select all from the specified table')
 
-
-
-
-commander.parse(process.argv);
-
-
-if (commander.server) 
-{
-  var dictionary = B_L.SkinSellOrder.GetInstances();
-  var values = Object.keys(dictionary).map(function(key)
-  {
-    return dictionary[key];
-  });
-
-  http_server.start(values)
-}
-if (commander.update)    updateDb();
-
-if (commander.clear)   db.clearTables();
-
-if (commander.backup)  db.backupDB();
-
-if (commander.restore) db.restoreDB();
-
-if (commander.select && commander.select != true) db.SelectInDB(commander.select);
 
 
 

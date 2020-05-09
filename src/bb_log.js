@@ -1,8 +1,29 @@
 const MxI = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
 const Enum = require('enum');
 const chalk = require ('chalk');
+const timestamp = require ('time-stamp');
+const path = require('path');
+global.appRoot = path.resolve(__dirname);
 
 const LOG_LEVEL = new Enum (['OK', 'ERROR', 'WARNING', 'MSG', 'INFO'])
+
+var is_initialized = false;
+
+const init_log_sinks = () =>
+{
+    if (is_initialized) return;
+
+    var color_logger = new ColorConsole();
+    MxI.$Log.addSink(color_logger);
+    
+    var data_path = appRoot + "/../data/log/";
+    konsole.log("init_log_sinks(): data_path: " + data_path);
+    var file_logger = new FileLogger( data_path + "/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
+    MxI.$Log.addSink(file_logger);
+    konsole.log("Sinks succefuly inintialised", LOG_LEVEL.MSG);
+
+    is_initialized = true;
+} // init_log_sinks()
 
 class konsole
 {
@@ -74,6 +95,7 @@ class FileLogger extends MxI.$Implementation(MxI.$FileLogSink).$with(MxI.$ILogSi
   MxI.$setClass(FileLogger).$asImplementationOf(MxI.$ILogSink);
   exports.FileLogger = FileLogger;
 
+  init_log_sinks();
 
   exports.konsole = konsole;
   exports.LOG_LEVEL = LOG_LEVEL ;
