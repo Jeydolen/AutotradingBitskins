@@ -3,9 +3,13 @@ const Enum = require('enum');
 const chalk = require ('chalk');
 const timestamp = require ('time-stamp');
 const path = require('path');
+const assert = require("assert");
+
+const Konst   = require ('./constants.js'); 
+
 global.appRoot = path.resolve(__dirname);
 
-const LOG_LEVEL = new Enum (['OK', 'ERROR', 'WARNING', 'MSG', 'INFO'])
+const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO','ERROR', 'CRITICAL' ])
 
 var is_initialized = false;
 
@@ -49,19 +53,30 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
     {
         if      (log_level == LOG_LEVEL.OK ) console.log(chalk.green(arg_msg));
 
-        else if (log_level == LOG_LEVEL.ERROR )
-            console.log(chalk.hex('#D8D8D8').bgHex('#8A0808')( "*** " + arg_msg + " ***"));
-
-        else if (log_level == LOG_LEVEL.WARNING )
-            console.log(chalk.yellow( "!!! " + arg_msg));
-
         else if (log_level == LOG_LEVEL.MSG )
             console.log(chalk.hex('#FE2EF7')(arg_msg));
 
         else if (log_level == LOG_LEVEL.INFO )
             console.log(chalk.hex('#a2dcfa')(arg_msg));
+
+        else if (log_level == LOG_LEVEL.WARNING )
+            console.log(chalk.yellow( "!!! " + arg_msg));
+
+        else if (log_level == LOG_LEVEL.ERROR )
+            console.log(chalk.hex('#D8D8D8').bgHex('#8A0808')( "*** " + arg_msg + " ***"));
+
+        else if (log_level == LOG_LEVEL.CRITICAL )
+        {
+            var critical_msg = "  F* word  [ " + arg_msg + " ] F* word  ";
+
+            console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(critical_msg.length)) );
+            console.log( chalk.white.bold.bgHex('#FF00FF')(critical_msg));
+            console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(critical_msg.length)));
+            assert(false);
+        }
         
-        else console.log(chalk.white(arg_msg));
+        else 
+            console.log(chalk.white(arg_msg));
             
     } // $ILogSink.log()
 } // 'ColorConsole' class

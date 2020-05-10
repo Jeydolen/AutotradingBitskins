@@ -2,6 +2,7 @@ const mysql     = require ('mysql');
 const async_npm = require ('async');
 const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
 const Enum      = require('enum');
+const assert     = require('assert');
 
 
 const Konst         = require ('./constants.js');
@@ -41,11 +42,12 @@ console.log(" C'est quoi ce bordel ?");
 // https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
 class BB_SqlQuery 
 {
-    //           requis  requis     requis
-    constructor( db_obj, cmd_type, query_text ) 
+    //            requis     requis
+    constructor( cmd_type, query_text ) 
     {
         //MxI.$Log.write("BB_SqlQuery constructor", LOG_LEVEL.MSG);
-        this.db_obj     = db_obj;
+        konsole.log("BB_SqlQuery constructor ");
+
         this.cmd_type   = cmd_type;
         this.query_text = query_text;
     } // constructor  
@@ -81,8 +83,11 @@ class BB_SqlQuery
         return cmd_type;
     } // _ExtractCmdType()
 
-    execute( query_text, args )
+    //       requis
+    execute( db_obj, query_text, args )
     {   
+        assert(db_obj != undefined); 
+
         konsole.log("BB_SqlQuery execute()", LOG_LEVEL.MSG);
         konsole.log("query: " + this.query_text, LOG_LEVEL.MSG);
 
@@ -102,21 +107,11 @@ class BB_SqlQuery
             } 
         }
         
-        MxI.$Log.write("BB_SqlQuery execute(): send to MySql server", LOG_LEVEL.MSG);
-
-        if (this.db_obj == undefined)
-        {
-
-            return new Promise
-            ( 
-                ( resolve, reject ) => 
-                {
-                    konsole.log("BB_SqlQuery.execute() db_obj is undefined", LOG_LEVEL.ERROR);
-                } 
-            );
-        }
-
-        if (this.db_obj.getConnection() == undefined)
+        konsole.log("BB_SqlQuery execute(): send to MySql server", LOG_LEVEL.MSG);
+        konsole.log("db_obj: " + db_obj);
+         
+        /*
+        if (this.db_obj.getConnection() == null)
         {
 
             return new Promise
@@ -124,17 +119,31 @@ class BB_SqlQuery
                 ( resolve, reject ) => 
                 {
                     konsole.log("BB_SqlQuery.execute() db_obj.GetConnection() is undefined", LOG_LEVEL.ERROR);
-
                 } 
             );
-        }
+        }*/
+
+        //konsole.log("BB_SqlQuery.execute() db_obj: ", db_obj);
+        //konsole.log("BB_SqlQuery.execute() typeof db_obj: ", typeof(db_obj));
+
+        /*
+        var db_connection = this.db_obj.getConnection();
+        return new Promise
+        ( 
+            ( resolve, reject ) => 
+            {
+                konsole.log("BB_SqlQuery.execute() TEST", LOG_LEVEL.ERROR);
+            } 
+        );
+        */
+
 
         return new Promise
             ( 
                 ( resolve, reject ) => 
                 {
                     //========== QUERY ==========
-                    this.db_obj.getConnection().query
+                    db_obj.getConnection().query
                     (   
                         this.query_text, 
                         args, 
@@ -155,30 +164,34 @@ class BB_SqlQuery
             );
     } // execute()  
 
-    //            requis     requis                optionnel
-    //                    ex: "SELECT * FROM ..."     []
-    static Create( db_obj,   query_text    ,         tables ) 
+    //               requis                optionnel
+    //           ex: "SELECT * FROM ..."     []
+    static Create( query_text    ,         tables ) 
     {
-        //MxI.$Log.write("BB_SqlQuery.Create()", LOG_LEVEL.MSG);
-
-        if (BB_SqlQuery.NULL_QUERY == undefined)
-            BB_SqlQuery.NULL_QUERY = new BB_SqlQuery(null, Konst.NOTHING);
-
-        if ( query_text == undefined || db_obj == undefined)
-            return BB_SqlQuery.NULL_QUERY;
+        konsole.log("BB_SqlQuery.Create()", LOG_LEVEL.MSG);
+        assert( query_text != undefined );
 
         var cmd_type = BB_SqlQuery._ExtractCmdType( query_text );
+
+        var new_query = BB_SqlQuery.GetNullObject();
         if (cmd_type != CMD_TYPE.NOTHING)
-               return new BB_SqlQuery( db_obj, cmd_type, query_text );
+        {
+            konsole.log("cmd_type : " + cmd_type);
+            new_query = new BB_SqlQuery( cmd_type, query_text );
+        }
+        else
+        {
+            konsole.log("cmd_type is NOTHING " + cmd_type, LOG_LEVEL.ERROR);
+        }
+            
               
-        return BB_SqlQuery.NULL_QUERY;   
+        return new_query;   
     } // Create()  
 
     static GetNullObject() 
     {
-        this.as_text = "NOTHING";
         if (BB_SqlQuery.NULL_QUERY == undefined)
-            BB_SqlQuery.NULL_QUERY = new BB_SqlQuery(null, Konst.NOTHING);
+            BB_SqlQuery.NULL_QUERY = new BB_SqlQuery( "NULL_QUERY");
         return BB_SqlQuery.NULL_QUERY;
     } // GetNullObject()  
 
@@ -205,19 +218,14 @@ class BB_Database
 {
     constructor( connection_args ) 
     {
-        if (connection_args == Konst.NOTHING)
-        {
-            //MxI.$Log.write("BB_Database constructor: " + Konst.NOTHING, LOG_LEVEL.MSG);
-            return;
-        }
-
+        konsole.log(">> ---- BB_Database constructor", LOG_LEVEL.MSG);
         if (connection_args == undefined) connection_args = CONNECTION_ARGS ;
         this.connection = mysql.createConnection( connection_args );
-        this.query = BB_SqlQuery.GetNullObject();
     } // constructor
 
     getConnection() 
     {
+        konsole.log("BB_Database.getConnection() this.connection " + this.connection, LOG_LEVEL.MSG)
         return this.connection;
     }
 
@@ -233,42 +241,28 @@ class BB_Database
         } );
     }
 
-    static Create( connection_args ) 
+    static GetSingleton(connection_args)
     {
-        // MxI.$Log.write("BB_Database.Create()", LOG_LEVEL.MSG);
-
-        if (this.connection_args  == undefined) 
+        konsole.log("BB_Database.GetSingleton() BB_Database.Singleton: " + BB_Database.Singleton);
+        if (connection_args  == undefined) 
             connection_args = CONNECTION_ARGS ;
 
-        var bb_db = new BB_Database(connection_args) ;
+        if (BB_Database.Singleton == undefined)
+            BB_Database.Singleton = new BB_Database(connection_args) ;
+        return BB_Database.Singleton;
+    } // GetSingleton()
 
-       return bb_db;
-    } // Create()  
-
-    static IsRegistered( db_name)
+    static Create( connection_args ) 
     {
-        if (db_name == undefined)
-            db_name = DB_NAME ;
-
-        if (BB_Database.NULL_DB == undefined)
-            BB_Database.NULL_DB = new BB_Database(Konst.NOTHING);
-
-        var is_registered = registered_databases.hasOwnProperty( db_name );
-        
-        if (! is_registered)
-        {
-            MxI.$Log.write("Database " + db_name + " is not registered ", LOG_LEVEL.ERROR);
-            return false;
-        }
-        return true;
-    }; // IsRegistered()
+       return  BB_Database.GetSingleton();
+    } // Create()  
 } // BB_Database class
-BB_Database.NULL_DB;
+BB_Database.Singleton;
 exports.BB_Database = BB_Database ;
 //------------------------------  BB_Database
 
 
-
+/*
 const executeQuery = (db_connection, query, cb) =>
 {
     console.log("executeQuery()  query:" + query);
@@ -312,6 +306,7 @@ const executeQuery = (db_connection, query, cb) =>
     var query = MysqlDbServer.query( query, cb );
     //============================== QUERY ==============================
 }; // executeQuery()
+*/
 
 
 //-----------------------------------------------------------
@@ -435,7 +430,7 @@ const runUnitTests = () =>
 //runUnitTests();
 
 
-exports.executeQuery = executeQuery ;
+//exports.executeQuery = executeQuery ;
 exports.connectSync = connectSync ;
 exports.DB_NAME = DB_NAME ;
 exports.registered_databases = registered_databases ;

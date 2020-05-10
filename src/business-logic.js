@@ -1,9 +1,94 @@
 const MxI = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
 const ISerializable    = require('./ISerializable.js').ISerializable;
+const assert           = require ('assert');
+
 const sql_u            = require ('./sql_utilities.js');
+const BB_Database      = require ('./sql_utilities.js').BB_Database;
 const BB_SqlQuery      = require ('./sql_utilities.js').BB_SqlQuery;
 const Konst            = require ('./constants.js');
 const konsole          = require ('./bb_log.js').konsole;
+const LOG_LEVEL        = require ('./bb_log.js').LOG_LEVEL ;
+const db               = require ('./db.js');
+
+/*
+$$$$$$$\                      $$\                               $$\     $$\                               
+$$  __$$\                     $$ |                              $$ |    \__|                              
+$$ |  $$ | $$$$$$\   $$$$$$$\ $$ | $$$$$$\   $$$$$$\  $$$$$$\ $$$$$$\   $$\  $$$$$$\  $$$$$$$\   $$$$$$$\ 
+$$ |  $$ |$$  __$$\ $$  _____|$$ | \____$$\ $$  __$$\ \____$$\\_$$  _|  $$ |$$  __$$\ $$  __$$\ $$  _____|
+$$ |  $$ |$$$$$$$$ |$$ /      $$ | $$$$$$$ |$$ |  \__|$$$$$$$ | $$ |    $$ |$$ /  $$ |$$ |  $$ |\$$$$$$\  
+$$ |  $$ |$$   ____|$$ |      $$ |$$  __$$ |$$ |     $$  __$$ | $$ |$$\ $$ |$$ |  $$ |$$ |  $$ | \____$$\ 
+$$$$$$$  |\$$$$$$$\ \$$$$$$$\ $$ |\$$$$$$$ |$$ |     \$$$$$$$ | \$$$$  |$$ |\$$$$$$  |$$ |  $$ |$$$$$$$  |
+\_______/  \_______| \_______|\__| \_______|\__|      \_______|  \____/ \__| \______/ \__|  \__|\_______/ 
+                                                                                                          */
+
+
+const parseOnResponseReady = ( json_data ) =>
+{
+  //-------------------- Parsing des données --------------------
+  //jsonData = json_data;
+  //konsole.log("parseOnResponseReady " + json_data);
+
+  var json_obj = { "NOTHING" : Konst.NOTHING } ;
+  try 
+  {
+    var items_count = 0;
+    // console.log("Try Parsing");
+    json_obj = JSON.parse(json_data.toString());
+    if 
+    (      json_obj['data'] != undefined  
+           && json_obj['data']['items'] != undefined
+           && json_obj['data']['items'].length > 0
+    )
+    {
+        items_count = json_obj['data']['items'].length;
+        MxI.$Log.write('firstItem : ' + json_obj['data']['items'][0].market_hash_name, LOG_LEVEL.MSG);
+        MxI.$Log.write("page :" +json_obj['data']['page'], LOG_LEVEL.MSG)
+
+        saveSkinSellOrders( json_obj ); 
+    };
+
+    // console.log("items_count : "+ items_count);
+    exitFetchItems = (items_count == 0);
+  }
+  catch( error ) 
+  {
+    konsole.log("B_L.parseOnResponseReady () : Error when Parsing", LOG_LEVEL.ERROR);
+    konsole.log("error code: \n" + error, LOG_LEVEL.ERROR); // error in the above string (in this case, yes)!
+  } 
+  //-------------------- Parsing des données
+
+   return json_obj;
+} // parseOnResponseReady()
+
+
+const saveSkinSellOrders = function (json_obj)
+{
+    var read_items = json_obj['data']['items'];
+    konsole.log("read_items: " + read_items.length, LOG_LEVEL.MSG);
+    
+    for (var i = 0, len = read_items.length; i < len; i++) 
+    {
+        // konsole.log("saveSkinSellOrders Trying tp create item( " + i + " )", LOG_LEVEL.MSG);
+
+        var skin            = Skin.Create          (read_items[i]) ;    
+        
+        /*
+        var skin_set        = SkinSet.Create       (read_items[i] ) ; 
+        var skin_sell_order = SkinSellOrder.Create (read_items[i] ) ;
+        // skin_sell_orders.push(skin_sell_order);
+        */
+
+        // skin.storeInDB();
+        
+        /*
+        if (skin_set != SkinSet.NULL_SKINSET)
+          skin_set.storeInDB();
+
+        skin_sell_order.storeInDB ();
+        */
+    }
+    // console.log ("Number of skins saved : " + B_L.SkinSellOrder.GetInstances().length);
+}; // saveSkinSellOrders()
 
 //--------------------------------------------------------------
 //--------------------  BusinessRule class  --------------------
@@ -48,10 +133,9 @@ class ItemsetRule extends BusinessRule
 //-------------------- SkinSellOrder class --------------------
 //-------------------------------------------------------------
 class SkinSellOrder
-{   // 1) Valeur db 2) Valeur JSON
-    constructor( db_obj, input_item) 
+{               // Valeur JSON
+    constructor( input_item) 
     {
-        this.db_obj = db_obj ;
         this.id_str = input_item.item_id;
         this.market_name = input_item.market_hash_name;
         this.state = this.computeStateID (input_item.float_value);
@@ -59,8 +143,13 @@ class SkinSellOrder
         this.recommanded_price = input_item.suggested_price;
     } // constructor
 
-    storeInDB ()
+    //          requis
+    storeInDB ( db_obj )
     {
+        konsole.log("SkinSellOrder.storeInDB()");
+
+        assert( db_obj != undefined );
+
         if (this.id_str == undefined)
         {
           konsole.log('business-logic.SkinSellOrder.storeinDB() : Sql error skin_sell_order.id: ' + this.id_str, LOG_LEVEL.ERROR);
@@ -71,7 +160,7 @@ class SkinSellOrder
           + ' VALUES ( '
           +  '"'+ this.id_str + '", "' +  this.market_name + '", ' +  this.state + '  );';
 
-        var query_obj = BB_SqlQuery.Create( this.db_obj );
+        var query_obj = BB_SqlQuery.Create( db_obj );
         query_obj.execute( insert_query )
         .then( rows => 
         {
@@ -107,7 +196,7 @@ class SkinSellOrder
         return SkinSellOrder.Instances;
     }
 
-    static Create (db_obj, input_item)
+    static Create (input_item)
     {
         var sell_order = undefined ;
 
@@ -125,7 +214,7 @@ class SkinSellOrder
         {
            // MxI.$Log.write ('Détection nouvel élément: ' + item_name, ColorConsole.LOG_LEVEL.OK)
             //console.log ('Détection nouvel élément: ' + item_name) ;
-            sell_order = new SkinSellOrder (db_obj, input_item);
+            sell_order = new SkinSellOrder (input_item);
             SkinSellOrder.Instances[sell_order.getName()] = sell_order ;
         }
         else 
@@ -166,15 +255,17 @@ exports.SkinSellOrder = SkinSellOrder;
 //-------------------------------------------------------------
 class SkinSet
 {
-    constructor(db_obj, name) 
+    constructor(name) 
     {
-        this.db_obj = db_obj ;
         this.name = name ; 
         this.stored = false;
     } // constructor
 
-    storeInDB ()
+    //         requis
+    storeInDB (db_obj)
     {
+        assert( db_obj != undefined );
+
         if (this.name == undefined)
         {
             MxI.$Log.write('Skinset storeinDB() Sql error name : ' + this.name, LOG_LEVEL.ERROR);
@@ -188,7 +279,7 @@ class SkinSet
         var insert_query = "INSERT INTO `skin_set` (`name`) "
                          + "VALUES ( '" +  this.name + "'  );";
                
-        var query_obj = BB_SqlQuery.Create( this.db_obj );
+        var query_obj = BB_SqlQuery.Create( db_obj );
         query_obj.execute( insert_query )
         .then( rows => 
         {
@@ -228,10 +319,18 @@ class SkinSet
     }
 
 
-    static Create ( db_obj, input_item)
+    static Create (input_item)
     {
+        konsole.log("SkinSet.Create() ", LOG_LEVEL.WARNING);
+
         if (SkinSet.NULL_SKINSET == undefined)
             SkinSet.NULL_SKINSET = new SkinSet (null, "NOTHING");
+
+        if ( db_obj == undefined )
+        {
+            konsole.log("SkinSet.Create() db_obj undefined !!");
+            return SkinSet.NULL_SKINSET;
+        }
 
         var skin_set = SkinSet.NULL_SKINSET ;
 
@@ -251,7 +350,7 @@ class SkinSet
             if (SkinSet.Instances[name] == undefined )
             {
                 // console.log ('Détection nouveau skin set') ;
-                skin_set = new SkinSet (db_obj, name);
+                skin_set = new SkinSet (name);
                 // MxI.$Log.write (skin_set.getName(), ColorConsole.LOG_LEVEL.MSG);
                 SkinSet.Instances[name] = skin_set ;
             }
@@ -276,14 +375,13 @@ exports.SkinSet = SkinSet ;
 //-------------------------------------------------------------
 class Skin 
 {
-  constructor(db_obj, arg) 
+  constructor( input_item ) 
   {      
-    this.db_obj = db_obj ;
     //                      Flag       WP_name |  Skin name  (State(float_value))
     // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
     //console.log("Skin constructor : " + arg);
 
-    if (arg == "NOTHING")
+    if (input_item == "NULL_SKIN")
     {
         this.image_url = Konst.DEFAULT_NAMES.NOTHING ;
         this.hasStatTrak = false;
@@ -291,37 +389,54 @@ class Skin
         this.item_rarity = Konst.DEFAULT_NAMES.NOTHING ;
     }
     else
-    {
-        var input_item = arg;
+    {  
+        assert(input_item != undefined);
+        //konsole.log("Skin constructor input_item != undefined");
+        //konsole.log("input_item " + input_item);
         this.image_url = input_item.image ;
-        this.hasStatTrak = (input_item['tags']['quality'].search("StatTrak") != -1);
+
+        var tags = input_item['tags'];
+
+        if (tags != undefined)
+        {
+            var quality = tags['quality'];
+            // konsole.log("quality: " + quality);
+            if (quality != undefined)
+                this.hasStatTrak = (quality.search("StatTrak") != -1);
+        }    
+        else
+            this.hasStatTrak = false;
 
         //                     ------ left ------   ---------- right ----------
         // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
-        var market_hash_name = input_item.market_hash_name;
-        // console.log("market_hash_name: '" + market_hash_name + "'");
-
-        this.name = market_hash_name;
-
-        if ( market_hash_name.search('|') != -1)
-        {
-            var parts = market_hash_name.split('|');
-            if (parts.length > 1)
-            {
-                var right_part =  market_hash_name.split('|')[1];
-             //   console.log("right_part: '" + right_part + "'");
-                right_part = right_part.trim();
-             // console.log("right_part trim: '" + right_part + "'");
-                this.name = right_part.split(' ')[0];
-            }     
-        }          
+        this.name = Skin.ExtractName(input_item.market_hash_name);       
 
         this.item_rarity = this.computeRarityID(input_item.item_rarity);
     } 
 
     this.stored = false;
   } // constructor()
+
+
+  static ExtractName(market_hash_name)
+  {
+    var name = market_hash_name;
+    if ( market_hash_name.search('|') != -1)
+    {
+        var parts = market_hash_name.split('|');
+        if (parts.length > 1)
+        {
+            var right_part =  market_hash_name.split('|')[1];
+         //   console.log("right_part: '" + right_part + "'");
+            right_part = right_part.trim();
+         // console.log("right_part trim: '" + right_part + "'");
+            name = right_part.split(' ')[0];
+        }     
+    }   
+    return name;
+  } // ExtractName()
   
+
   getName () 
   {
       return this.name ;
@@ -332,8 +447,11 @@ class Skin
       return this.stored ;
   }
 
-  storeInDB ()
+  //          requis
+  storeInDB ( db_obj )
   { 
+    assert(db_obj != undefined);
+
     if (this.name == undefined)
     {
       MxI.$Log.write ('Mysql error name : ' + this.name, LOG_LEVEL.ERROR);
@@ -347,7 +465,7 @@ class Skin
     var insert_query =   "INSERT INTO `skin` (`name`) "
         + "VALUES ( '" +  this.name + "'  );";
                
-    var query_obj = BB_SqlQuery.Create( this.db_obj );
+    var query_obj = BB_SqlQuery.Create();
     query_obj.execute( insert_query )
     .then( rows => 
     {
@@ -363,7 +481,7 @@ class Skin
   static GetSkin (name)
   {
     if (Skin.NULL_SKIN == undefined)
-        Skin.NULL_SKIN = new Skin (null, "NOTHING");
+        Skin.NULL_SKIN = new Skin (Konst.NOTHING.toString());
 
     var skin = Skin.Instances[name];
     if (skin != undefined)
@@ -390,36 +508,41 @@ class Skin
                                                 0 ;
   }
 
-  static Create (db_connection, input_item)
+  static GetNullObject() 
   {
-      if (Skin.NULL_SKIN == undefined)
-          Skin.NULL_SKIN = new Skin (db_connection, "NOTHING");
+    if (Skin.NULL_SKIN == undefined)
+        Skin.NULL_SKIN = new Skin( "NULL_SKIN");
+      return Skin.NULL_SKIN;
+  } // GetNullObject() 
 
-      var new_skin = Skin.NULL_SKIN ;
+  static Create ( input_item )
+  {
+    //konsole.log("Skin.Create()", LOG_LEVEL.WARNING);
 
-      if ( Skin.Instances === undefined ) 
-      {
-          //console.log ('Skin Dictionnaire init') ;
-          Skin.Instances = {} ;
-      }
+    var new_skin = Skin.GetNullObject() ;
 
-      //var name = input_item.tags.itemset ;
-      var name = input_item ;
+    if ( Skin.Instances === undefined ) 
+    {
+        //console.log ('Skin Dictionnaire init') ;
+        Skin.Instances = {} ;
+    }
 
+    var name = Skin.ExtractName(input_item.market_hash_name);
 
-      if (Skin.Instances[name] === undefined )
-      {
-          //console.log ('Détection nouveau skin') ;
-          new_skin = new Skin (db_connection, name);
-          Skin.Instances[new_skin.getName()] = new_skin ;
-      }
-      else 
-      {
-         // console.log ('Skin déja créé : ' + name );
-          new_skin = Skin.Instances[name] ;
-      }
-      return new_skin ;
-  }
+    if (Skin.Instances[name] === undefined )
+    {
+        //console.log ('Détection nouveau skin') ;
+        new_skin = new Skin ( input_item );
+        Skin.Instances[name] = new_skin ;
+    }
+    else 
+    {
+        // console.log ('Skin déja créé : ' + name );
+        new_skin = Skin.Instances[input_item] ;
+    }
+
+    return new_skin ;
+  } // Create()
 } // Skin class
 Skin.Instances ;
 Skin.NULL_SKIN ; 
@@ -435,3 +558,6 @@ const test = () =>
 }
 
 //test();
+
+exports.saveSkinSellOrders = saveSkinSellOrders;
+exports.parseOnResponseReady = parseOnResponseReady ;

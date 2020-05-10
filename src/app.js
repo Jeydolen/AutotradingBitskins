@@ -1,6 +1,6 @@
-const commander = require ('commander');
-const B_L = require ('./business-logic.js') ;
-const updateDb = require ('./main.js').updateDb ;
+const commander   = require ('commander');
+const B_L         = require ('./business-logic.js') ;
+const updateDb    = require ('./main.js').updateDb ;
 const http_server = require ('./httpserver.js');
 
 //====================================================================================================================
@@ -33,7 +33,7 @@ if (commander.server)
   http_server.start(values)
 }
 
-if (commander.update)                             updateDb();
+if (commander.update)                              updateDb();
 
 if (commander.clear)                               db.clearTables();
 
