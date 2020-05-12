@@ -1,3 +1,4 @@
+"use strict";
 const Enum  = require('enum');
 const chalk = require ('chalk')
 

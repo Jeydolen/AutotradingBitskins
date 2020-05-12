@@ -60,7 +60,7 @@ const fetchItems = async function(page_index, on_response_ready)
       result = error;
   }
 }; // fetchItems
+
+
 exports.fetchItems = fetchItems;
-//exports.result = result;
-//exports.buildFileName = buildFileName;
 ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js

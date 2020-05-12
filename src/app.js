@@ -1,14 +1,18 @@
-const commander   = require ('commander');
-const B_L         = require ('./business-logic.js') ;
-const updateDb    = require ('./main.js').updateDb ;
-const http_server = require ('./httpserver.js');
+"use strict";
+
+const commander     = require ('commander');
+
+const B_L           = require ('./business-logic.js') ;
+const http_server   = require ('./httpserver.js');
+const SkinSellOrder = require ('./skin_sell_order.js').SkinSellOrder;
+const db            = require ('./db.js');
 
 //====================================================================================================================
 //=================================================  main de app.js  =================================================
 //====================================================================================================================
 console.log (appRoot);
 
-const db        = require (appRoot + '/db.js');
+
 
 commander
   .version('0.1.0')
@@ -24,7 +28,7 @@ commander.parse(process.argv);
 
 if (commander.server) 
 {
-  var dictionary = B_L.SkinSellOrder.GetInstances();
+  var dictionary = SkinSellOrder.GetInstances();
   var values = Object.keys(dictionary).map(function(key)
   {
     return dictionary[key];
@@ -33,7 +37,7 @@ if (commander.server)
   http_server.start(values)
 }
 
-if (commander.update)                              updateDb();
+if (commander.update)                              db.updateDb();
 
 if (commander.clear)                               db.clearTables();
 

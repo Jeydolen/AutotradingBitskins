@@ -57,7 +57,7 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
             console.log(chalk.hex('#FE2EF7')(arg_msg));
 
         else if (log_level == LOG_LEVEL.INFO )
-            console.log(chalk.hex('#a2dcfa')(arg_msg));
+            console.log(chalk.hex('#3097B3')(arg_msg));
 
         else if (log_level == LOG_LEVEL.WARNING )
             console.log(chalk.yellow( "!!! " + arg_msg));
@@ -72,7 +72,8 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
             console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(critical_msg.length)) );
             console.log( chalk.white.bold.bgHex('#FF00FF')(critical_msg));
             console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(critical_msg.length)));
-            assert(false);
+            //assert(false);
+            process.exit(Konst.RC.KO);
         }
         
         else 
