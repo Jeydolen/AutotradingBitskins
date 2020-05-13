@@ -7,7 +7,7 @@ const Konst     = require ('./constants');
 const konsole   = require ('./bb_log').konsole;
 const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
 
-const CMD_TYPE = new Enum (['NOTHING', 'DELETE', 'SHOW', 'INSERT', 'SELECT']);
+const CMD_TYPE = new Enum (['NOTHING', 'DELETE', 'SHOW', 'INSERT', 'SELECT', 'ALTER']);
 
 
 
@@ -71,10 +71,11 @@ class BB_SqlQuery
             // else
             //    return "KO";        "KO"
             cmd_type = 
-                ( first_word == 'DELETE' ? CMD_TYPE.DELETE  :
+                ( first_word == 'DELETE' ? CMD_TYPE.DELETE :
                   first_word == 'INSERT' ? CMD_TYPE.INSERT :
                   first_word == 'SELECT' ? CMD_TYPE.SELECT :
-                  first_word == 'SHOW'   ? CMD_TYPE.SHOW :
+                  first_word == 'SHOW'   ? CMD_TYPE.SHOW   :
+                  first_word == 'ALTER'  ? CMD_TYPE.ALTER  :
                   CMD_TYPE.NOTHING
                 );
         }
@@ -117,19 +118,19 @@ class BB_SqlQuery
                     //========== QUERY ==========
                     db_obj.getConnection().query
                     (   
-                        this.query_text, 
-                        args, 
+                            this.query_text, 
+                            args, 
 
-                        ( err, rows ) => 
-                        {
-                            if ( err )
+                            ( err, rows ) => 
                             {
-                                konsole.log("BB_SqlQuery execute(): \n" + err , LOG_LEVEL.ERROR);
-                                return reject( err );
-                            }
-                                
-                            resolve( rows );
-                        } 
+                                if ( err )
+                                {
+                                    konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
+                                    return reject( err );
+                                }
+                                    
+                                resolve( rows );
+                            } 
                     )
                     //========== QUERY ==========
                 } 

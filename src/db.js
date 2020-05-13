@@ -1,6 +1,7 @@
 const timestamp    = require ('time-stamp');
 const exec         = require('child_process').exec;
 const async_npm    = require ('async');
+const assert       = require ('assert');
 
 const sql_u        = require ('./sql_utilities.js');
 const konsole      = require('./bb_log.js').konsole;
@@ -15,6 +16,37 @@ const DATA_PATH = './data/';
 
 
 var page_index = 120;
+
+// https://stackoverflow.com/questions/23266854/node-mysql-multiple-statements-in-one-query
+const executeClearQuery = (db, table) =>
+{
+    assert (table != undefined && table != "" && db != undefined);
+    var query_text =   "DELETE FROM `" + table + "` ; ALTER TABLE `" + table + "` AUTO_INCREMENT = 0 ; ";
+
+    var query_obj = BB_SqlQuery.Create() ;
+
+    var query_promise = query_obj.execute( db,  query_text )
+    .then( rows => 
+    {
+        konsole.log(query_obj.getCommand() + " successful DELETE and ALTER '" + table + "'", LOG_LEVEL.INFO);
+        query_obj = BB_SqlQuery.Create() ;
+    } );
+    return query_promise ;
+}; // executeClearQuery ()
+
+// !! Must be called like this: promise.then( rows => { insertNullObjectQuery((db, table) } )
+const insertNullObjectQuery = (db, table, field) =>
+{
+    assert (table != undefined && table != "" && db != undefined && field != undefined);
+    var query_text =   "INSERT INTO `" + table + "` (`id`,`"+ field + "`) VALUES (0,'NULL_" + table.toUpperCase() + "')";
+
+    var query_obj = BB_SqlQuery.Create() ;
+    query_obj.execute (db, query_text)
+    .then ( rows => 
+    { 
+            konsole.log(query_obj.getCommand() + " successful NULL_OBJECT '" + table + "'", LOG_LEVEL.INFO);
+    } );
+}; // insertNullObjectQuery ()
 
 const backupDB = () =>
 {
@@ -36,33 +68,15 @@ const restoreDB = (file_path) =>
 }; // restoreDB ()
 //--------------------  restoreDB  --------------------
 
-
 const clearTables = () =>
 {   
     var db = BB_Database.GetSingleton();
     konsole.log("db.clearTables() db: " + db.toString());
 
-    //-------------------- DELETE `skin_sell_order` --------------------
-    var query_txt =   "DELETE FROM `" + bb_db.DB_NAME + "`.`skin_sell_order` ;";
-    var query_obj = BB_SqlQuery.Create(query_txt) ;
-    query_obj.execute( db,  query_txt  )
-    .then( rows => {
-        konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
-    } );
+    executeClearQuery   (db, "skin_set").then (rows =>          { insertNullObjectQuery(db, "skin_set", "name" )});;
+    executeClearQuery   (db, "skin").then (rows =>              { insertNullObjectQuery(db, "skin", "name" )});
+    executeClearQuery   (db, "skin_sell_order").then (rows =>   { insertNullObjectQuery(db, "skin_sell_order", "market_name" )});;
 
-    //-------------------- DELETE `skin_sell_order` --------------------
-    query_txt =   "DELETE FROM `" + bb_db.DB_NAME + "`.`skin` ;";
-    query_obj.execute( db, query_txt )
-    .then( rows => {
-        konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
-    } );
-
-    //-------------------- DELETE `skin_set` --------------------
-    query_txt =   "DELETE FROM `" + bb_db.DB_NAME + "`.`skin_set` ;";
-    query_obj.execute(db , query_txt )
-    .then( rows => {
-        konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
-    } );
 }; // clearTables()
 
 

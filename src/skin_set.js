@@ -41,19 +41,28 @@ class SkinSet
 
         // MxI.$Log.write("SkinSet.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK);
 
-        var insert_query = "INSERT INTO `skin_set` (`name`) "
-                         + "VALUES ( '" +  this.name + "'  );";
-               
+
+        // INSERT INTO `skin` (name) SELECT 'Forest' FROM DUAL WHERE NOT EXISTS (SELECT name FROM skin WHERE name='Forest');
+        var conditional_insert_query = "INSERT INTO `skin_set` (`name`) SELECT '"+ this.name + "' FROM DUAL "
+        +  "WHERE NOT EXISTS (SELECT `name` FROM `skin_set` WHERE `name`= '"+ this.name + "');";
+
         var query_obj = BB_SqlQuery.Create();
-        query_obj.execute(db_obj, insert_query )
+        query_obj.execute(db_obj, conditional_insert_query )
         .then( rows => 
         {
-            konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+            //konsole.log(query_obj.getCommand() + " successful in 'skin_set' ", LOG_LEVEL.INFO);
         } );
 
 
       this.stored = true;
     } // storeInDB()
+
+    static GetNullObject() 
+    {
+        if (SkinSet.NULL_SKIN_SET == undefined)
+            SkinSet.NULL_SKIN_SET = new SkinSet( "NULL_SKIN_SET");
+        return SkinSet.NULL_SKIN_SET;
+    } // GetNullObject() 
 
     getName () 
     {
@@ -67,14 +76,11 @@ class SkinSet
 
     static GetSkinSet (name)
     {
-      if (SkinSet.NULL_SKINSET == undefined)
-          SkinSet.NULL_SKINSET = new SkinSet (null, "NULL");
+        var null_skin_set = SkinSet.GetNullObject();
   
-      var skin_set = SkinSet.Instances[name];
-      if (skin_set != undefined)
-        return skin_set;
-      else
-        return SkinSet.NULL_SKINSET;
+        var skin_set = SkinSet.Instances[name];
+        if (skin_set != undefined)  return skin_set;
+        else                        return null_skin_set;
     } // GetSkinSet()
     
     static GetInstances ()
@@ -85,18 +91,9 @@ class SkinSet
 
     static Create (input_item)
     {
-        konsole.log("SkinSet.Create() ", LOG_LEVEL.WARNING);
+        //konsole.log("SkinSet.Create() ", LOG_LEVEL.WARNING);
 
-        if (SkinSet.NULL_SKINSET == undefined)
-            SkinSet.NULL_SKINSET = new SkinSet (null, "NOTHING");
-
-        if ( db_obj == undefined )
-        {
-            konsole.log("SkinSet.Create() db_obj undefined !!");
-            return SkinSet.NULL_SKINSET;
-        }
-
-        var skin_set = SkinSet.NULL_SKINSET ;
+        var skin_set = SkinSet.GetNullObject();
 
         if ( SkinSet.Instances === undefined ) 
         {
@@ -104,23 +101,18 @@ class SkinSet
             SkinSet.Instances = {} ;
         }
       
-        var name = input_item['tags']['itemset'] ;
-
-        if (name == undefined)
-            skin_set =  SkinSet.NULL_SKINSET;
-        
-        else 
+        if (input_item != undefined  &&  input_item['tags'] != undefined  &&  input_item['tags']['itemset']!= undefined)
         {
+            var name = input_item['tags']['itemset'];
             if (SkinSet.Instances[name] == undefined )
             {
-                // console.log ('Détection nouveau skin set') ;
                 skin_set = new SkinSet (name);
                 // MxI.$Log.write (skin_set.getName(), ColorConsole.LOG_LEVEL.MSG);
                 SkinSet.Instances[name] = skin_set ;
             }
             else
             {
-                MxI.$Log.write ('Skin Set déja créé : ' + name, LOG_LEVEL.ERROR);
+                //konsole.log ('SkinSet déja créé : ' + name, LOG_LEVEL.WARNING);
                 skin_set = SkinSet.Instances[name] ;
             }
         }
@@ -129,6 +121,6 @@ class SkinSet
     }
 } // SkinSet class
 SkinSet.Instances ;
-SkinSet.NULL_SKINSET;
+SkinSet.NULL_SKIN_SET;
 exports.SkinSet = SkinSet ;
 //----------------------- SkinSet class -----------------------

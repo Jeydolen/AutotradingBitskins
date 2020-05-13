@@ -35,7 +35,7 @@ class SkinSellOrder
     //          requis
     storeInDB ( db_obj )
     {
-        konsole.log("SkinSellOrder.storeInDB()");
+        //konsole.log("SkinSellOrder.storeInDB()");
 
         assert( db_obj != undefined );
 
@@ -53,7 +53,7 @@ class SkinSellOrder
         query_obj.execute(db_obj, insert_query )
         .then( rows => 
         {
-            konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+            // konsole.log(query_obj.getCommand() + " successful skin_sell_order", LOG_LEVEL.INFO);
         } );
     } // storeInDB()
 
@@ -99,14 +99,14 @@ class SkinSellOrder
 
         if (SkinSellOrder.Instances[item_name] == undefined )
         {
-           // MxI.$Log.write ('Détection nouvel élément: ' + item_name, ColorConsole.LOG_LEVEL.OK)
+           // konsole.log ('Détection nouvel élément: ' + item_name, ColorConsole.LOG_LEVEL.OK)
             //console.log ('Détection nouvel élément: ' + item_name) ;
             sell_order = new SkinSellOrder (input_item);
             SkinSellOrder.Instances[sell_order.getName()] = sell_order ;
         }
         else 
         {
-            MxI.$Log.write ('Sell order déja créé : ' + item_name, LOG_LEVEL.WARNING)
+            konsole.log('Sell order déja créé (instance de SkinSellOrder): ' + item_name, LOG_LEVEL.WARNING)
             sell_order = SkinSellOrder.Instances[item_name] ;
         }
         return sell_order ;

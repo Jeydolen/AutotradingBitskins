@@ -17,7 +17,10 @@ const CONNECTION_ARGS =
     port: "3308",
     user: ADMIN_NAME,
     password: ADMIN_PWD,
-    database: DB_NAME
+    database: DB_NAME,
+    // https://stackoverflow.com/questions/23266854/node-mysql-multiple-statements-in-one-query
+    // !!! Security issues !!! (sql_injection)
+    multipleStatements: true
 }; // CONNECTION_ARGS
 
 
@@ -40,7 +43,14 @@ class BB_Database
     {
         konsole.log(">> ---- BB_Database constructor", LOG_LEVEL.MSG);
         if (connection_args == undefined) connection_args = CONNECTION_ARGS ;
-        this.connection = mysql.createConnection( connection_args );
+        try 
+        {
+            this.connection = mysql.createConnection( connection_args, );
+        }
+        catch (error) 
+        {
+            konsole.log("WAMP n'est pas dispo :( ", LOG_LEVEL.CRITICAL);
+        }
     } // constructor
 
     getConnection() 

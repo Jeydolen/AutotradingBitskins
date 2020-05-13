@@ -112,18 +112,18 @@ class Skin
 
     if (this.stored) return Konst.RC.KO;
 
-    // MxI.$Log.write("Skin.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK );
+    // konsole.log("Skin.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK );
 
     var name_value = this.name.replace ("'", "''");
 
-    var insert_query =   "INSERT INTO `skin` (`name`) "
-        + "VALUES ( '" +  name_value + "'  );";
+    // INSERT INTO `skin` (name) SELECT 'Forest' FROM DUAL WHERE NOT EXISTS (SELECT name FROM skin WHERE name='Forest');
+    var conditional_insert_query = "INSERT INTO `skin` (`name`) SELECT '"+ name_value + "' FROM DUAL "
+                                +  "WHERE NOT EXISTS (SELECT `name` FROM `skin` WHERE `name`= '"+ name_value + "');";
 
     var null_query = BB_SqlQuery.GetNullObject();
-    //konsole.log("null_query   type: " + null_query.getType());
                
     var query_obj = BB_SqlQuery.Create();
-    query_obj.execute(db_obj, insert_query )
+    query_obj.execute(db_obj, conditional_insert_query )
     .then( rows => 
     {
         //konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);

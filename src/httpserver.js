@@ -1,6 +1,5 @@
 const ejs = require ('ejs');
 const express = require ('express')
-const MxI = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
 
 const konsole   = require('./bb_log.js').konsole;
 const LOG_LEVEL = require('./bb_log.js').LOG_LEVEL;

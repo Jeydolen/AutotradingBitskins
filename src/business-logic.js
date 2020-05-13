@@ -1,11 +1,13 @@
 "use strict";
 
-const BB_Database      = require ('./bb_database.js').BB_Database;
-const BB_SqlQuery      = require ('./bb_sql_query.js').BB_SqlQuery;
-const Konst             = require ('./constants.js');
-const konsole           = require ('./bb_log.js').konsole;
-const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL ;
-const Skin              = require ('./skin.js').Skin ;
+const BB_Database                = require ('./bb_database.js').BB_Database;
+const BB_SqlQuery                = require ('./bb_sql_query.js').BB_SqlQuery;
+const Konst                      = require ('./constants.js');
+const konsole                    = require ('./bb_log.js').konsole;
+const LOG_LEVEL                  = require ('./bb_log.js').LOG_LEVEL ;
+const Skin                       = require ('./skin.js').Skin ;
+const SkinSet                    = require ('./skin_set.js').SkinSet ;
+const SkinSellOrder              = require ('./skin_sell_order.js').SkinSellOrder ;
 
 var exitFetchItems = false;
 
@@ -72,27 +74,15 @@ const saveSkinSellOrders = function (json_obj)
     {
         // konsole.log("saveSkinSellOrders Trying tp create item( " + i + " )", LOG_LEVEL.MSG);
 
-        var skin_obj       = Skin.Create          (read_items[i]) ;    
-        //konsole.log("Je suis la", LOG_LEVEL.INFO);
-       /* 
-        var skin_set        = SkinSet.Create       (read_items[i] ) ; 
-        var skin_sell_order = SkinSellOrder.Create (read_items[i] ) ;
-        */
+        var skin_set          = SkinSet.Create       (read_items[i]) ;
+        var skin              = Skin.Create          (read_items[i]) ;    
+        var skin_sell_order   = SkinSellOrder.Create (read_items[i]) ;
+        
         var db = BB_Database.GetSingleton();
-        //konsole.log("db " + db.getType(), LOG_LEVEL.INFO);
-
-        var null_skin = Skin.GetNullObject();
-        //konsole.log("NULL_SKIN: " + null_skin.getName() + " type:" + null_skin.getType(), LOG_LEVEL.INFO);
-
-        skin_obj.storeInDB(db);
-
-
-        /*
-        if (skin_set != SkinSet.NULL_SKINSET)
-          skin_set.storeInDB();
-
-        skin_sell_order.storeInDB ();
-        */
+        
+        skin_set.storeInDB (db);
+        skin.storeInDB(db);
+        skin_sell_order.storeInDB (db);
     }
     // console.log ("Number of skins saved : " + B_L.SkinSellOrder.GetInstances().length);
 }; // saveSkinSellOrders()
