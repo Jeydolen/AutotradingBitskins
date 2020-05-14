@@ -7,7 +7,7 @@ const Konst     = require ('./constants');
 const konsole   = require ('./bb_log').konsole;
 const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
 
-const CMD_TYPE = new Enum (['NOTHING', 'DELETE', 'SHOW', 'INSERT', 'SELECT', 'ALTER']);
+const CMD_TYPE = new Enum (['NOTHING', 'DELETE', 'SHOW', 'INSERT', 'SELECT', 'ALTER', 'UPDATE']);
 
 
 
@@ -76,6 +76,7 @@ class BB_SqlQuery
                   first_word == 'SELECT' ? CMD_TYPE.SELECT :
                   first_word == 'SHOW'   ? CMD_TYPE.SHOW   :
                   first_word == 'ALTER'  ? CMD_TYPE.ALTER  :
+                  first_word == 'UPDATE' ? CMD_TYPE.UPDATE :
                   CMD_TYPE.NOTHING
                 );
         }
@@ -113,7 +114,7 @@ class BB_SqlQuery
             ( 
                 ( resolve, reject ) => 
                 {
-                    //konsole.log("BB_SqlQuery Jusqu'ici TVB: " , LOG_LEVEL.INFO);
+                    konsole.log("BB_SqlQuery Jusqu'ici TVB: " , LOG_LEVEL.INFO);
                     
                     //========== QUERY ==========
                     db_obj.getConnection().query

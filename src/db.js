@@ -15,7 +15,7 @@ const bb_db  = require ('./bb_database.js');
 const DATA_PATH = './data/';
 
 
-var page_index = 120;
+var page_index = 100;
 
 // https://stackoverflow.com/questions/23266854/node-mysql-multiple-statements-in-one-query
 const executeClearQuery = (db, table) =>
@@ -26,8 +26,7 @@ const executeClearQuery = (db, table) =>
     var query_obj = BB_SqlQuery.Create() ;
 
     var query_promise = query_obj.execute( db,  query_text )
-    .then( rows => 
-    {
+    .then( rows => {
         konsole.log(query_obj.getCommand() + " successful DELETE and ALTER '" + table + "'", LOG_LEVEL.INFO);
         query_obj = BB_SqlQuery.Create() ;
     } );

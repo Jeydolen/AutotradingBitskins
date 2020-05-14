@@ -33,13 +33,13 @@ class SkinSet
 
         if (this.name == undefined)
         {
-            MxI.$Log.write('Skinset storeinDB() Sql error name : ' + this.name, LOG_LEVEL.ERROR);
+            konsole.log('Skinset storeinDB() Sql error name : ' + this.name, LOG_LEVEL.ERROR);
             return Konst.RC.KO;
         } 
 
         if (this.stored) return Konst.RC.KO;
 
-        // MxI.$Log.write("SkinSet.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK);
+        // konsole.log("SkinSet.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK);
 
 
         // INSERT INTO `skin` (name) SELECT 'Forest' FROM DUAL WHERE NOT EXISTS (SELECT name FROM skin WHERE name='Forest');

@@ -1,5 +1,3 @@
-"use strict";
-
 const assert      = require ('assert');
 
 const Konst       = require ('./constants.js') ;
@@ -37,8 +35,7 @@ class Skin
     else
     {  
         assert(input_item != undefined);
-        //konsole.log("Skin constructor input_item != undefined");
-        //konsole.log("input_item " + input_item);
+
         this.image_url = input_item.image ;
 
         var tags = input_item['tags'];
@@ -99,14 +96,14 @@ class Skin
       return this.stored ;
   }
 
-  //          requis
-  storeInDB ( db_obj )
+  //                requis
+  createInDBTable ( db_obj )
   { 
     assert(db_obj != undefined);
 
     if (this.name == undefined)
     {
-      MxI.$Log.write ('Mysql error name : ' + this.name, LOG_LEVEL.ERROR);
+      konsole.log('Mysql error name : ' + this.name, LOG_LEVEL.ERROR);
       return Konst.RC.KO;
     } 
 
@@ -119,19 +116,33 @@ class Skin
     // INSERT INTO `skin` (name) SELECT 'Forest' FROM DUAL WHERE NOT EXISTS (SELECT name FROM skin WHERE name='Forest');
     var conditional_insert_query = "INSERT INTO `skin` (`name`) SELECT '"+ name_value + "' FROM DUAL "
                                 +  "WHERE NOT EXISTS (SELECT `name` FROM `skin` WHERE `name`= '"+ name_value + "');";
-
-    var null_query = BB_SqlQuery.GetNullObject();
                
     var query_obj = BB_SqlQuery.Create();
-    query_obj.execute(db_obj, conditional_insert_query )
+    var query_promise = query_obj.execute(db_obj, conditional_insert_query )
     .then( rows => 
     {
-        //konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO);
+        konsole.log(query_obj.getCommand() + " successful name: "+ name_value, LOG_LEVEL.MSG);
     } );
 
     this.stored = true;
-  } // storeInDB()
+    return query_promise ;
+  } // createInDBTable()
 
+  updateInDB (db_obj)
+  {
+    assert(db_obj != undefined);
+
+   
+    var name_value = this.name.replace ("'", "''");
+
+    var update_query = "UPDATE `skin` SET image_url ='"+ this.image_url +"' WHERE name ='"+ name_value +"' ;" ;
+                
+    var query_obj = BB_SqlQuery.Create();
+    query_obj.execute(db_obj, update_query )
+    .then( rows => 
+    { konsole.log(query_obj.getCommand() + " successful", LOG_LEVEL.INFO); });
+
+  } // updateInDB ()
 
   static GetSkin (name)
   {
@@ -177,30 +188,42 @@ class Skin
 
     var new_skin = Skin.GetNullObject() ;
 
-    if ( Skin.Instances === undefined ) 
+    konsole.log ('Skin.Instances : ' + Skin.Instances, LOG_LEVEL.OK );
+
+    /*
+    if ( Skin.Instances == undefined ) 
     {
         //console.log ('Skin Dictionnaire init') ;
         Skin.Instances = {} ;
-    }
+    }*/
 
     var name = Skin.ExtractName(input_item.market_hash_name);
 
-    if (Skin.Instances[name] == undefined )
+    // https://stackoverflow.com/questions/2591606/find-by-values-in-javascript-array
+    // ** KO ** if (Skin.Instances[name] === undefined )
+
+    konsole.log ("Recherche de: '" + name + "'", LOG_LEVEL.OK );
+    konsole.log ("keys  " + Skin.Instances.keys );
+
+    if (Skin.Instances.hasOwnProperty(name))
     {
-        //console.log ('Détection nouveau skin') ;
+        konsole.log ('Détection nouveau skin', LOG_LEVEL.OK) ;
         new_skin = new Skin ( input_item );
         Skin.Instances[name] = new_skin ;
+        konsole.log(Skin.Instances);
     }
     else 
     {
-        // console.log ('Skin déja créé : ' + name );
+        konsole.log ('Skin déja créé : ' + name, LOG_LEVEL.OK );
         new_skin = Skin.Instances[name] ;
+        konsole.log("Skin.Create new_skin: " + new_skin);
+        konsole.log("Skin.Instances: count:" +  Skin.Instances.length + " keys:" + Skin.Instances.keys);
     }
 
     return new_skin ;
   } // Create()
 } // Skin class
-Skin.Instances ;
+Skin.Instances  = {};
 Skin.NULL_SKIN ;
 exports.Skin = Skin ;
 //------------------------ Skin class -------------------------
