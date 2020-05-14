@@ -223,7 +223,7 @@ class Skin
     return new_skin ;
   } // Create()
 } // Skin class
-Skin.Instances  = {};
+Skin.Instances  = new Array();
 Skin.NULL_SKIN ;
 exports.Skin = Skin ;
 //------------------------ Skin class -------------------------
