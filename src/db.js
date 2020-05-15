@@ -14,8 +14,9 @@ const bb_db  = require ('./bb_database.js');
 
 const DATA_PATH = './data/';
 
-
-var page_index = 100;
+// ----------------------------------------- Commencement de page
+var page_index = 120;
+// ----------------------------------------------------------------
 
 // https://stackoverflow.com/questions/23266854/node-mysql-multiple-statements-in-one-query
 const executeClearQuery = (db, table) =>

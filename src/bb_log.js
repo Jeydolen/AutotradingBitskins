@@ -69,9 +69,11 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
         {
             var critical_msg = "  F* word  [ " + arg_msg + " ] F* word  ";
 
-            console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(critical_msg.length)) );
+            var repeat_symbol_count = 100;
+
+            console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(repeat_symbol_count)) );
             console.log( chalk.white.bold.bgHex('#FF00FF')(critical_msg));
-            console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(critical_msg.length)));
+            console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(repeat_symbol_count)));
             //assert(false);
             process.exit(Konst.RC.KO);
         }

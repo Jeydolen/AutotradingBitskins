@@ -88,11 +88,14 @@ const saveSkinSellOrders = function (json_obj)
         var db = BB_Database.GetSingleton();
 
         var query_promise = skin.createInDBTable(db);
-        konsole.log("saveSkinSellOrders Trying to update Skin query_promise: " + query_promise.constructor.name );
+
+        if ( query_promise.constructor.name !== "Promise")
+            konsole.log("\nBL.saveSkinSellOrders query_promise: IS NOT a Promise trouduk !!" + query_promise.constructor.name,  LOG_LEVEL.CRITICAL);
+
+        konsole.log("\nBL.saveSkinSellOrders Trying to update Skin query_promise: " + query_promise.constructor.name,  LOG_LEVEL.WARNING);
 
         query_promise.then (rows => 
-        {
-            konsole.log("Ici aussi ca va encore\n");
+        {   //konsole.log("Ici aussi ca va encore\n");
             skin.updateInDB (db); 
         });
         //------------------ skin ------------------

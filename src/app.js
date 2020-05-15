@@ -1,5 +1,3 @@
-"use strict";
-
 const commander     = require ('commander');
 
 const B_L           = require ('./business-logic.js') ;
@@ -11,8 +9,6 @@ const db            = require ('./db.js');
 //=================================================  main de app.js  =================================================
 //====================================================================================================================
 console.log (appRoot);
-
-
 
 commander
   .version('0.1.0')

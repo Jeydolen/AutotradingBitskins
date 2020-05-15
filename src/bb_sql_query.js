@@ -83,6 +83,7 @@ class BB_SqlQuery
         return cmd_type;
     } // _ExtractCmdType()
 
+    
     //       requis    requis (sauf si déjà fourni via Create())         optionnel
     execute( db_obj,  query_text,                                         args )
     {   
@@ -114,19 +115,15 @@ class BB_SqlQuery
             ( 
                 ( resolve, reject ) => 
                 {
-                    konsole.log("BB_SqlQuery Jusqu'ici TVB: " , LOG_LEVEL.INFO);
-                    
+                    //konsole.log("BB_SqlQuery Jusqu'ici TVB: " , LOG_LEVEL.INFO);
                     //========== QUERY ==========
                     db_obj.getConnection().query
-                    (   
-                            this.query_text, 
+                    (       this.query_text, 
                             args, 
 
                             ( err, rows ) => 
-                            {
-                                if ( err )
-                                {
-                                    konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
+                            {   if ( err )
+                                {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
                                     return reject( err );
                                 }
                                     
@@ -140,15 +137,13 @@ class BB_SqlQuery
         catch( error )
         {
             return new Promise
-            ( 
-                ( resolve, reject ) => 
-                {
-                    konsole.log("BB_SqlQuery execute(): \n" + error , LOG_LEVEL.CRITICAL);
+            (   ( resolve, reject ) => 
+                { konsole.log("BB_SqlQuery execute(): \n" + error , LOG_LEVEL.CRITICAL);
                 }     
             );
-        }
-
+        } // try.. catch
     } // execute()  
+
 
     //               optionnel            optionnel
     //           ex: "SELECT * FROM ..."     []
