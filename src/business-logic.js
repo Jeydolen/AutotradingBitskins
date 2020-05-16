@@ -82,22 +82,25 @@ const saveSkinSellOrders = function (json_obj)
 
 
         //------------------ skin ------------------
-        var skin              = Skin.Create          (read_items[i]) ;  
-        konsole.log("skin: " + skin);  
+        var skin_obj = Skin.Create( read_items[i] ) ;  
+        //konsole.log("skin: " + skin);  
         
         var db = BB_Database.GetSingleton();
 
-        var query_promise = skin.createInDBTable(db);
+        var query_promise = skin_obj.createInDBTable(db);
 
         if ( query_promise.constructor.name !== "Promise")
             konsole.log("\nBL.saveSkinSellOrders query_promise: IS NOT a Promise trouduk !!" + query_promise.constructor.name,  LOG_LEVEL.CRITICAL);
 
-        konsole.log("\nBL.saveSkinSellOrders Trying to update Skin query_promise: " + query_promise.constructor.name,  LOG_LEVEL.WARNING);
+        //konsole.log("\nBL.saveSkinSellOrders Trying to update Skin query_promise: " + query_promise.constructor.name,  LOG_LEVEL.WARNING);
 
-        query_promise.then (rows => 
-        {   //konsole.log("Ici aussi ca va encore\n");
-            skin.updateInDB (db); 
-        });
+        if (! skin_obj.isUpdatedInDB())
+        {
+            query_promise.then (rows => 
+                {   //konsole.log("Ici aussi ca va encore\n");
+                skin_obj.updateInDB (db); 
+                });
+        }
         //------------------ skin ------------------
         
         //var skin_sell_order   = SkinSellOrder.Create (read_items[i]) ;

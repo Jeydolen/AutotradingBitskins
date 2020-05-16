@@ -11,6 +11,8 @@ global.appRoot = path.resolve(__dirname);
 
 const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO','ERROR', 'CRITICAL' ])
 
+const COLORS = new Enum ( {'PURPLE': '#DA6DE6'} );
+
 var is_initialized = false;
 
 const init_log_sinks = () =>
@@ -54,7 +56,7 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
         if      (log_level == LOG_LEVEL.OK ) console.log(chalk.green(arg_msg));
 
         else if (log_level == LOG_LEVEL.MSG )
-            console.log(chalk.hex('#FE2EF7')(arg_msg));
+            console.log(chalk.hex(COLORS.PURPLE.value)(arg_msg));
 
         else if (log_level == LOG_LEVEL.INFO )
             console.log(chalk.hex('#3097B3')(arg_msg));

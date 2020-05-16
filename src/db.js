@@ -10,12 +10,13 @@ const BB_Database  = require('./bb_database.js').BB_Database;
 const BB_SqlQuery  = require('./bb_sql_query.js').BB_SqlQuery;
 const rdp          = require ('./rechercheduprofit.js');
 const B_L          = require ('./business-logic.js');
-const bb_db  = require ('./bb_database.js');
+const bb_db        = require ('./bb_database.js');
+const Konst        = require('./constants.js');
 
 const DATA_PATH = './data/';
 
 // ----------------------------------------- Commencement de page
-var page_index = 120;
+var page_index = Konst.PAGE_INDEX_START;
 // ----------------------------------------------------------------
 
 // https://stackoverflow.com/questions/23266854/node-mysql-multiple-statements-in-one-query
@@ -28,11 +29,12 @@ const executeClearQuery = (db, table) =>
 
     var query_promise = query_obj.execute( db,  query_text )
     .then( rows => {
-        konsole.log(query_obj.getCommand() + " successful DELETE and ALTER '" + table + "'", LOG_LEVEL.INFO);
+        konsole.log(query_obj.getCommand() + " successful CLEAR (DELETE and ALTER) in '" + table + "'", LOG_LEVEL.INFO);
         query_obj = BB_SqlQuery.Create() ;
     } );
     return query_promise ;
 }; // executeClearQuery ()
+
 
 // !! Must be called like this: promise.then( rows => { insertNullObjectQuery((db, table) } )
 const insertNullObjectQuery = (db, table, field) =>
@@ -44,9 +46,10 @@ const insertNullObjectQuery = (db, table, field) =>
     query_obj.execute (db, query_text)
     .then ( rows => 
     { 
-            konsole.log(query_obj.getCommand() + " successful NULL_OBJECT '" + table + "'", LOG_LEVEL.INFO);
+            konsole.log(query_obj.getCommand() + " successful NULL_OBJECT in '" + table + "'", LOG_LEVEL.INFO);
     } );
 }; // insertNullObjectQuery ()
+
 
 const backupDB = () =>
 {
@@ -103,7 +106,7 @@ const updateDb = () =>
       function (err) 
       {
         // All things are done!
-        konsole.log("Main.updateDB() : Fin de traitement des pages.", LOG_LEVEL.MSG);
+        konsole.log("Main.updateDB() : Fin de traitement des pages (depuis: " + Konst.PAGE_INDEX_START + ")", LOG_LEVEL.MSG);
        }
     ); // async.whilst()
 

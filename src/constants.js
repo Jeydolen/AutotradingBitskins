@@ -8,6 +8,8 @@ const NOTHING = 'NOTHING';
 
 const DEFAULT_NAMES = new Enum (['NOTHING']);
 
+const PAGE_INDEX_START = 100;
+
 const getFunctionName = (f) =>
 {
     var ret = f.toString();
@@ -19,6 +21,7 @@ const getFunctionName = (f) =>
 
 exports.RC = RC ;
 exports.NOTHING = NOTHING ;
+exports.PAGE_INDEX_START = PAGE_INDEX_START ;
 exports.DEFAULT_NAMES = DEFAULT_NAMES ;
 exports.getFunctionName = getFunctionName ;
 
