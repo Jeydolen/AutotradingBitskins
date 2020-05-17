@@ -169,11 +169,13 @@ class Skin
                
     var query_obj     = BB_SqlQuery.Create();
     var query_promise = query_obj.execute( db_obj, conditional_insert_query )
-    .then( rows => 
+    .then( packet => 
     {
       // https://stackoverflow.com/questions/16795097/okpacket-in-mysql-module-of-node-js
-      konsole.log(query_obj.getCommand() + "  typeof(rows) : " + rows.constructor.name, LOG_LEVEL.MSG);
-      konsole.log(query_obj.getCommand() + "  ROWS : " + JSON.stringify(rows), LOG_LEVEL.MSG);
+      // On recoit soit un 'OKPacket' soit un 'RowDataPacket'
+      var packet_type = (typeof packet).name;
+      konsole.log(query_obj.getCommand() + "  packet type : " + packet_type, LOG_LEVEL.MSG);
+      // konsole.log(query_obj.getCommand() + "  PACKET : " + JSON.stringify(packet), LOG_LEVEL.MSG);
       konsole.log(query_obj.getCommand() + " successful name: '"+ this.name + "'  " + timestamp('DD_HH_mm_ss'), LOG_LEVEL.MSG);
     } );
 
@@ -189,7 +191,7 @@ class Skin
     if ( this.updated_in_db == false )
         return new Promise
         ( ( resolve, reject ) => 
-          {   konsole.log("Skin '" + this.name +  "' déjà mis à jour dans la DB !!!  ", LOG_LEVEL.WARNING);
+          {   konsole.log("Skin '" + this.name +  "' déjà UPDATE dans la DB !!!  ", LOG_LEVEL.WARNING);
           } );
 
     var update_query = "UPDATE `skin` SET image_url ='"+ this.image_url +"' WHERE name ='"+ this.name +"' ;" ;
@@ -198,7 +200,8 @@ class Skin
   
     query_obj.execute(db_obj, update_query )
     .then( rows => 
-    { konsole.log(query_obj.getCommand() + " successful name: "+ this.name + "  " + timestamp('DD_HH_mm_ss'), LOG_LEVEL.MSG);
+    { 
+      konsole.log( "[b]" + query_obj.getCommand() + " successful name: "+ this.name + " " + timestamp('DD_HH_mm_ss') + " [/b]", LOG_LEVEL.CRITICAL);
       this.updated_in_db = true;
     });
 

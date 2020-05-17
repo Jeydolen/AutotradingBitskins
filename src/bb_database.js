@@ -18,9 +18,6 @@ const CONNECTION_ARGS =
     user: ADMIN_NAME,
     password: ADMIN_PWD,
     database: DB_NAME,
-    // https://stackoverflow.com/questions/23266854/node-mysql-multiple-statements-in-one-query
-    // !!! Security issues !!! (sql_injection)
-    multipleStatements: true
 }; // CONNECTION_ARGS
 
 

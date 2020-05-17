@@ -87,7 +87,7 @@ const saveSkinSellOrders = function (json_obj)
         
         var db = BB_Database.GetSingleton();
 
-        var query_promise = skin_obj.createInDBTable(db);
+        var query_promise = skin_obj.createInDBTable(db); // tester .then(skin_obj.updateInDB (db))
 
         if ( query_promise.constructor.name !== "Promise")
             konsole.log("\nBL.saveSkinSellOrders query_promise: IS NOT a Promise trouduk !!" + query_promise.constructor.name,  LOG_LEVEL.CRITICAL);

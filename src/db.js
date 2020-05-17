@@ -40,7 +40,8 @@ const executeClearQuery = (db, table) =>
 const insertNullObjectQuery = (db, table, field) =>
 {
     assert (table != undefined && table != "" && db != undefined && field != undefined);
-    var query_text =   "INSERT INTO `" + table + "` (`id`,`"+ field + "`) VALUES (0,'NULL_" + table.toUpperCase() + "')";
+
+    //var query_text =   "INSERT INTO `" + table + "` (`id`,`"+ field + "`) VALUES (0,'NULL_" + table.toUpperCase() + "')";
 
     var query_obj = BB_SqlQuery.Create() ;
     query_obj.execute (db, query_text)

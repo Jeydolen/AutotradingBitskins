@@ -1,6 +1,5 @@
-"use strict";
-const Enum  = require('enum');
-const chalk = require ('chalk')
+const Enum   = require('enum');
+const chalk  = require ('chalk');
 
 const RC = new Enum (['OK', 'KO']);
 

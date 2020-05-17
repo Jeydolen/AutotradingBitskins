@@ -46,8 +46,7 @@ class SkinSellOrder
         } 
 
         var insert_query =   'INSERT INTO `skin_sell_order` (`id_str`, `market_name`, `item_state`) '
-          + ' VALUES ( '
-          +  '"'+ this.id_str + '", "' +  this.market_name + '", ' +  this.state + '  );';
+          + ' VALUES ( '+ this.id_str + '", "' +  this.market_name + '", ' +  this.state + '  );';
 
         var query_obj = BB_SqlQuery.Create();
         query_obj.execute(db_obj, insert_query )

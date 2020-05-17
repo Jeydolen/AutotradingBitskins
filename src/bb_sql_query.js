@@ -1,13 +1,21 @@
-"use strict";
-
 const assert    = require ('assert');
 const Enum      = require ('enum');
+const expand = require('expand-template')();
 
 const Konst     = require ('./constants');
 const konsole   = require ('./bb_log').konsole;
 const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
 
-const CMD_TYPE = new Enum (['NOTHING', 'DELETE', 'SHOW', 'INSERT', 'SELECT', 'ALTER', 'UPDATE']);
+// Placeholder https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
+//                                   statement      |           template sql
+const SQL_TEMPLATE = new Enum ({'NOTHING'           : "",
+                                'INSERT'            : "INSERT INTO `{table}` ({fields}) VALUES ({field_values}) ;",
+                                'UPDATE'            : "UPDATE {table} SET {assignment} WHERE {field} = {field_value} ;",
+                                'SELECT'            : "SELECT {fields} FROM `{table}` WHERE {condition} ;",
+                                'DELETE'            : "DELETE FROM {table} ;",
+                                'ALTER_RST_AI'      : "ALTER TABLE {table} AUTO_INCREMENT = 0 ;",
+                                'ALTER'             : "ALTER TABLE {table} {alter_value} ;",
+                                'SHOW'              : "SHOW TABLES ;" });
 
 
 
@@ -27,11 +35,11 @@ const CMD_TYPE = new Enum (['NOTHING', 'DELETE', 'SHOW', 'INSERT', 'SELECT', 'AL
 class BB_SqlQuery 
 {
     //            requis     requis
-    constructor( cmd_type, query_text ) 
+    constructor( sql_tmpl, query_text ) 
     {
         //konsole.log("BB_SqlQuery constructor ");
 
-        this.cmd_type   = cmd_type;
+        this.sql_tmpl   = sql_tmpl;
         this.query_text = query_text;
     } // constructor  
 
@@ -42,12 +50,12 @@ class BB_SqlQuery
 
     getName()
     {
-        return this.cmd_type.key;
+        return this.sql_tmpl.key;
     } // getName()  
 
     getCommand()
     {
-        return this.cmd_type.toString();
+        return this.sql_tmpl.toString();
     } // getCommand()  
 
     _setQueryText( query_text )
@@ -56,11 +64,11 @@ class BB_SqlQuery
     } // GetNullObject()
 
     //                       requis
-    static _ExtractCmdType( query_text )
+    static _ExtractSQLTmpl( query_text )
     {
-        var cmd_type = CMD_TYPE.NOTHING;
+        var sql_tmpl = SQL_TEMPLATE.NOTHING;
         if (query_text == undefined || query_text == '')
-            return cmd_type;
+            return SQL_TEMPLATE;
 
         var query_as_words = query_text.split(' ');
         if (query_as_words.length > 0)
@@ -70,18 +78,21 @@ class BB_SqlQuery
             //    return "OK"         "OK" :
             // else
             //    return "KO";        "KO"
-            cmd_type = 
-                ( first_word == 'DELETE' ? CMD_TYPE.DELETE :
-                  first_word == 'INSERT' ? CMD_TYPE.INSERT :
-                  first_word == 'SELECT' ? CMD_TYPE.SELECT :
-                  first_word == 'SHOW'   ? CMD_TYPE.SHOW   :
-                  first_word == 'ALTER'  ? CMD_TYPE.ALTER  :
-                  first_word == 'UPDATE' ? CMD_TYPE.UPDATE :
-                  CMD_TYPE.NOTHING
+            sql_tmpl = 
+                ( first_word == 'DELETE' ? SQL_TEMPLATE.DELETE :
+                  first_word == 'INSERT' ? SQL_TEMPLATE.INSERT :
+                  first_word == 'SELECT' ? SQL_TEMPLATE.SELECT :
+                  first_word == 'SHOW'   ? SQL_TEMPLATE.SHOW   :
+                  first_word == 'ALTER'  ? SQL_TEMPLATE.ALTER  :
+                  first_word == 'UPDATE' ? SQL_TEMPLATE.UPDATE :
+                  SQL_TEMPLATE.NOTHING
                 );
+
+            if (query_text.search("AUTO_INCREMENT") != -1)
+                sql_tmpl = SQL_TEMPLATE.ALTER_RST_AI;
         }
-        return cmd_type;
-    } // _ExtractCmdType()
+        return sql_tmpl;
+    } // _ExtractSQLTmpl()
 
     
     //       requis    requis (sauf si déjà fourni via Create())         optionnel
@@ -98,12 +109,12 @@ class BB_SqlQuery
             konsole.log("this.query_text is undefined !!", LOG_LEVEL.CRITICAL);
         else
         {
-            var cmd_type = BB_SqlQuery._ExtractCmdType(query_text);
-            if (cmd_type != CMD_TYPE.NOTHING)   this.cmd_type = cmd_type;
+            var sql_tmpl = BB_SqlQuery._ExtractSQLTmpl(query_text);
+            if (sql_tmpl != SQL_TEMPLATE.NOTHING)   this.sql_tmpl = sql_tmpl;
         }
 
-        if (this.CMD_TYPE == CMD_TYPE.NOTHING)
-            konsole.log("CMD_TYPE is NOTHING (or not extracted coreectly from 'query_text')", LOG_LEVEL.CRITICAL);
+        if (this.sql_tmpl == SQL_TEMPLATE.NOTHING)
+            konsole.log("SQL_TEMPLATE is NOTHING (or not extracted coreectly from 'query_text')", LOG_LEVEL.CRITICAL);
         
         //konsole.log("BB_SqlQuery execute(): send to MySql server", LOG_LEVEL.MSG);
         //konsole.log("db_obj: " + db_obj.getType());
@@ -151,13 +162,13 @@ class BB_SqlQuery
     {
         //konsole.log("BB_SqlQuery.Create()", LOG_LEVEL.MSG);
 
-        var cmd_type = CMD_TYPE.NOTHING;
+        var sql_tmpl = SQL_TEMPLATE.NOTHING;
 
-        if (query_text != undefined)  cmd_type = BB_SqlQuery._ExtractCmdType( query_text );
+        if (query_text != undefined)  
+            sql_tmpl = BB_SqlQuery._ExtractSQLTmpl( query_text );
 
         var new_query = BB_SqlQuery.GetNullObject();
-        //konsole.log("cmd_type : " + cmd_type);
-        new_query = new BB_SqlQuery( cmd_type, query_text );            
+        new_query = new BB_SqlQuery( sql_tmpl, query_text );            
               
         return new_query;   
     } // Create()  
@@ -176,5 +187,7 @@ class BB_SqlQuery
 } // BB_SqlQuery class
 BB_SqlQuery.NULL_QUERY;
 BB_SqlQuery.CLEAR_TABLES;
+
 exports.BB_SqlQuery = BB_SqlQuery;
+exports.SQL_TEMPLATE = SQL_TEMPLATE;
 //------------------------------  BB_SqlQuery

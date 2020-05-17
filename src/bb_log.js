@@ -53,10 +53,19 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
     // Fallback implementation of 'ColorConsole' service
     log(arg_msg, log_level)
     {
+        var is_bold = false;
+        if (arg_msg.search('[b]') != -1  && arg_msg.search('[/b]'))
+            is_bold = true;
+
         if      (log_level == LOG_LEVEL.OK ) console.log(chalk.green(arg_msg));
 
         else if (log_level == LOG_LEVEL.MSG )
-            console.log(chalk.hex(COLORS.PURPLE.value)(arg_msg));
+        {
+            if (is_bold)
+                console.log(chalk.hex(COLORS.PURPLE.value).bold(arg_msg));
+            else
+                console.log(chalk.hex(COLORS.PURPLE.value)(arg_msg));
+        }
 
         else if (log_level == LOG_LEVEL.INFO )
             console.log(chalk.hex('#3097B3')(arg_msg));
