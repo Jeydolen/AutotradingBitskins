@@ -18,6 +18,7 @@ const CONNECTION_ARGS =
     user: ADMIN_NAME,
     password: ADMIN_PWD,
     database: DB_NAME,
+    multipleStatements : true
 }; // CONNECTION_ARGS
 
 

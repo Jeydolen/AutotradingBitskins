@@ -9,12 +9,12 @@ const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
 // Placeholder https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
 //                                   statement      |           template sql
 const SQL_TEMPLATE = new Enum ({'NOTHING'           : "",
-                                'INSERT'            : "INSERT INTO `{table}` ({fields}) VALUES ({field_values}) ;",
-                                'UPDATE'            : "UPDATE {table} SET {assignment} WHERE {field} = {field_value} ;",
-                                'SELECT'            : "SELECT {fields} FROM `{table}` WHERE {condition} ;",
-                                'DELETE'            : "DELETE FROM {table} ;",
-                                'ALTER_RST_AI'      : "ALTER TABLE {table} AUTO_INCREMENT = 0 ;",
-                                'ALTER'             : "ALTER TABLE {table} {alter_value} ;",
+                                'INSERT'            : "INSERT INTO `{db-table}` ({db-fields}) VALUES ({db-field-values}) ;",
+                                'UPDATE'            : "UPDATE {db-table} SET {assignment} WHERE {db-field} = {db-field-value} ;",
+                                'SELECT'            : "SELECT {db-fields} FROM `{db-table}` WHERE {db-condition} ;",
+                                'DELETE'            : "DELETE FROM {db-table} ;",
+                                'ALTER_RST_AI'      : "ALTER TABLE {db-table} AUTO_INCREMENT = 0 ;",
+                                'ALTER'             : "ALTER TABLE {db-table} {db-alter-value} ;",
                                 'SHOW'              : "SHOW TABLES ;" });
 
 
@@ -103,14 +103,16 @@ class BB_SqlQuery
         // konsole.log("BB_SqlQuery execute()", LOG_LEVEL.MSG);
         // konsole.log("query: " + query_text, LOG_LEVEL.MSG);
 
-        if (query_text != undefined)    this.query_text = query_text;
+        if (query_text != undefined)    
+            this.query_text = query_text;
 
         if (this.query_text == undefined)
             konsole.log("this.query_text is undefined !!", LOG_LEVEL.CRITICAL);
         else
         {
             var sql_tmpl = BB_SqlQuery._ExtractSQLTmpl(query_text);
-            if (sql_tmpl != SQL_TEMPLATE.NOTHING)   this.sql_tmpl = sql_tmpl;
+            if (sql_tmpl != SQL_TEMPLATE.NOTHING)   
+                this.sql_tmpl = sql_tmpl;
         }
 
         if (this.sql_tmpl == SQL_TEMPLATE.NOTHING)
@@ -122,6 +124,7 @@ class BB_SqlQuery
          
         try
         {
+            // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Promise/all
             return new Promise
             ( 
                 ( resolve, reject ) => 
@@ -137,7 +140,10 @@ class BB_SqlQuery
                                 {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
                                     return reject( err );
                                 }
-                                    
+                                else
+                                    konsole.log("BB_SqlQuery: this.execute(): " + this.getCommand() + " successful \n", LOG_LEVEL.INFO);
+                                
+                                // https://riptutorial.com/javascript/example/7609/foreach-with-promises
                                 resolve( rows );
                             } 
                     )
@@ -147,7 +153,7 @@ class BB_SqlQuery
         }
         catch( error )
         {
-            return new Promise
+            return new Promisen
             (   ( resolve, reject ) => 
                 { konsole.log("BB_SqlQuery execute(): \n" + error , LOG_LEVEL.CRITICAL);
                 }     

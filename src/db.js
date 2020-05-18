@@ -2,12 +2,14 @@ const timestamp    = require ('time-stamp');
 const exec         = require('child_process').exec;
 const async_npm    = require ('async');
 const assert       = require ('assert');
+const expand       = require ('expand-template')();
 
 const sql_u        = require ('./sql_utilities.js');
 const konsole      = require('./bb_log.js').konsole;
 const LOG_LEVEL    = require('./bb_log.js').LOG_LEVEL;
 const BB_Database  = require('./bb_database.js').BB_Database;
 const BB_SqlQuery  = require('./bb_sql_query.js').BB_SqlQuery;
+const SQL_TEMPLATE = require('./bb_sql_query.js').SQL_TEMPLATE;
 const rdp          = require ('./rechercheduprofit.js');
 const B_L          = require ('./business-logic.js');
 const bb_db        = require ('./bb_database.js');
@@ -23,14 +25,33 @@ var page_index = Konst.PAGE_INDEX_START;
 const executeClearQuery = (db, table) =>
 {
     assert (table != undefined && table != "" && db != undefined);
-    var query_text =   "DELETE FROM `" + table + "` ; ALTER TABLE `" + table + "` AUTO_INCREMENT = 0 ; ";
+    //var query_text =   "DELETE FROM `" + table + "` ; ALTER TABLE `" + table + "` AUTO_INCREMENT = 0 ; ";
 
-    var query_obj = BB_SqlQuery.Create() ;
+    var query_text = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
+    // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
 
-    var query_promise = query_obj.execute( db,  query_text )
+    var query_delete_obj = BB_SqlQuery.Create() ;
+
+    var query_promise = query_delete_obj.execute( db,  query_text )
     .then( rows => {
-        konsole.log(query_obj.getCommand() + " successful CLEAR (DELETE and ALTER) in '" + table + "'", LOG_LEVEL.INFO);
-        query_obj = BB_SqlQuery.Create() ;
+        konsole.log(query_delete_obj.getCommand() + " successful CLEAR (DELETE) in '" + table + "'", LOG_LEVEL.INFO);
+    } )
+    .then( rows => {
+        query_text = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
+
+        var query_alter_obj = BB_SqlQuery.Create(query_text) ;
+        konsole.log(query_alter_obj.getCommand() + " Trying ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
+
+        // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
+        //konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
+
+        //var query_alter_obj = BB_SqlQuery.Create() ;
+        //query_alter_obj.execute( db,  query_text )
+        query_alter_obj.execute( db,  query_text );
+        /*
+        .then( rows => {
+            konsole.log(query_delete_obj.getCommand() + " successful ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
+        } )*/
     } );
     return query_promise ;
 }; // executeClearQuery ()
@@ -41,12 +62,12 @@ const insertNullObjectQuery = (db, table, field) =>
 {
     assert (table != undefined && table != "" && db != undefined && field != undefined);
 
-    //var query_text =   "INSERT INTO `" + table + "` (`id`,`"+ field + "`) VALUES (0,'NULL_" + table.toUpperCase() + "')";
+    var query_text =   "INSERT INTO `" + table + "` (`id`,`"+ field + "`) VALUES (0,'NULL_" + table.toUpperCase() + "')";
 
     var query_obj = BB_SqlQuery.Create() ;
     query_obj.execute (db, query_text)
     .then ( rows => 
-    { 
+    {
             konsole.log(query_obj.getCommand() + " successful NULL_OBJECT in '" + table + "'", LOG_LEVEL.INFO);
     } );
 }; // insertNullObjectQuery ()
@@ -77,9 +98,9 @@ const clearTables = () =>
     var db = BB_Database.GetSingleton();
     konsole.log("db.clearTables() db: " + db.toString());
 
-    executeClearQuery   (db, "skin_set").then (rows =>          { insertNullObjectQuery(db, "skin_set", "name" )});;
+    executeClearQuery   (db, "skin_set").then (rows =>          { insertNullObjectQuery(db, "skin_set", "name" )});
     executeClearQuery   (db, "skin").then (rows =>              { insertNullObjectQuery(db, "skin", "name" )});
-    executeClearQuery   (db, "skin_sell_order").then (rows =>   { insertNullObjectQuery(db, "skin_sell_order", "market_name" )});;
+    executeClearQuery   (db, "skin_sell_order").then (rows =>   { insertNullObjectQuery(db, "skin_sell_order", "market_name" )});
 
 }; // clearTables()
 
