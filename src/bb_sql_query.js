@@ -6,18 +6,33 @@ const Konst     = require ('./constants');
 const konsole   = require ('./bb_log').konsole;
 const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
 
+// https://dev.mysql.com/doc/refman/5.7/en/comments.html
+
 // Placeholder https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-//                                   statement      |           template sql
-const SQL_TEMPLATE = new Enum ({'NOTHING'           : "",
-                                'INSERT'            : "INSERT INTO `{db-table}` ({db-fields}) VALUES ({db-field-values}) ;",
-                                'UPDATE'            : "UPDATE {db-table} SET {assignment} WHERE {db-field} = {db-field-value} ;",
-                                'SELECT'            : "SELECT {db-fields} FROM `{db-table}` WHERE {db-condition} ;",
-                                'DELETE'            : "DELETE FROM {db-table} ;",
-                                'ALTER_RST_AI'      : "ALTER TABLE {db-table} AUTO_INCREMENT = 0 ;",
-                                'ALTER'             : "ALTER TABLE {db-table} {db-alter-value} ;",
-                                'SHOW'              : "SHOW TABLES ;" });
+//                                   statement          |           template sql
+const SQL_TEMPLATE = new Enum ({    'NOTHING'           : "",
+                                    'INSERT_NULL'       : "INSERT INTO `{db-table}`   (`name`)      VALUES ('{db-name-value}')    ; # INSERT_NULL" ,
+                                    'INSERT'            : "INSERT INTO `{db-table}` ({db-fields})   VALUES ({db-field-values})  ;"               ,
+                                    'UPDATE'            : "UPDATE {db-table} SET {assignment}       WHERE {db-field} = {db-field-value} ;"       ,
+                                    'SELECT'            : "SELECT {db-fields} FROM `{db-table}`     WHERE {db-condition}        ;"               ,
+                                    'DELETE'            : "DELETE FROM {db-table} ;"                                                             ,
+                                    'ALTER_RST_AI'      : "ALTER TABLE {db-table}                   AUTO_INCREMENT = 0          ; # ALTER_RST_AI",
+                                    'ALTER'             : "ALTER TABLE {db-table}                   {db-alter-value}            ;"               ,
+                                    'SHOW'              : "SHOW TABLES ;" });
 
-
+const statement2sqlTmpl = ( statement ) =>
+{
+    var sql_tmpl =  (
+                    statement ==    'DELETE'            ? SQL_TEMPLATE.DELETE :
+                    statement ==    'INSERT'            ? SQL_TEMPLATE.INSERT :
+                    statement ==    'SELECT'            ? SQL_TEMPLATE.SELECT :
+                    statement ==    'SHOW'              ? SQL_TEMPLATE.SHOW   :
+                    statement ==    'ALTER'             ? SQL_TEMPLATE.ALTER  :
+                    statement ==    'UPDATE'            ? SQL_TEMPLATE.UPDATE :
+                    SQL_TEMPLATE.NOTHING
+                    );
+    return sql_tmpl;
+}; // statement2sqlTmpl()
 
 /*
 /$$$$$$$  /$$$$$$$        /$$$$$$   /$$$$$$  /$$        /$$$$$$                                         
@@ -31,6 +46,7 @@ const SQL_TEMPLATE = new Enum ({'NOTHING'           : "",
                   |______/               \__/                \__/                               /$$  | $$
                                                                                                |  $$$$$$/
                                                                                                 \______/  */
+
 // https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
 class BB_SqlQuery 
 {
@@ -73,23 +89,13 @@ class BB_SqlQuery
         var query_as_words = query_text.split(' ');
         if (query_as_words.length > 0)
         {
-            var first_word = query_as_words[0];
-            // if (a==1)           (a==1) ?
-            //    return "OK"         "OK" :
-            // else
-            //    return "KO";        "KO"
-            sql_tmpl = 
-                ( first_word == 'DELETE' ? SQL_TEMPLATE.DELETE :
-                  first_word == 'INSERT' ? SQL_TEMPLATE.INSERT :
-                  first_word == 'SELECT' ? SQL_TEMPLATE.SELECT :
-                  first_word == 'SHOW'   ? SQL_TEMPLATE.SHOW   :
-                  first_word == 'ALTER'  ? SQL_TEMPLATE.ALTER  :
-                  first_word == 'UPDATE' ? SQL_TEMPLATE.UPDATE :
-                  SQL_TEMPLATE.NOTHING
-                );
+            var statement   = query_as_words[0];
+            sql_tmpl        = statement2sqlTmpl( statement );
 
-            if (query_text.search("AUTO_INCREMENT") != -1)
+            if (query_text.search("ALTER_RST_AI") != -1)
                 sql_tmpl = SQL_TEMPLATE.ALTER_RST_AI;
+            else if (query_text.search("INSERT_NULL") != -1)
+                sql_tmpl = SQL_TEMPLATE.INSERT_NULL;
         }
         return sql_tmpl;
     } // _ExtractSQLTmpl()
@@ -140,8 +146,6 @@ class BB_SqlQuery
                                 {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
                                     return reject( err );
                                 }
-                                else
-                                    konsole.log("BB_SqlQuery: this.execute(): " + this.getCommand() + " successful \n", LOG_LEVEL.INFO);
                                 
                                 // https://riptutorial.com/javascript/example/7609/foreach-with-promises
                                 resolve( rows );

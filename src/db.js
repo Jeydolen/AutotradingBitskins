@@ -30,29 +30,34 @@ const executeClearQuery = (db, table) =>
     var query_text = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
     // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
 
-    var query_delete_obj = BB_SqlQuery.Create() ;
+    // cf. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining
+    var query_delete_obj        = BB_SqlQuery.Create() ;
+    var query_alter_obj         = BB_SqlQuery.Create() ;
+    var query_insert_null_obj   = BB_SqlQuery.Create() ;
+
+    var alter_rst_ai_promise = new Promise(( resolve, reject ) => {} );
+    //var insert_null_promise = new Promise(( resolve, reject ) => {} );
 
     var query_promise = query_delete_obj.execute( db,  query_text )
     .then( rows => {
-        konsole.log(query_delete_obj.getCommand() + " successful CLEAR (DELETE) in '" + table + "'", LOG_LEVEL.INFO);
+        konsole.log(query_delete_obj.getCommand() + "\t\t successful CLEAR (DELETE) in '" + table + "'", LOG_LEVEL.INFO);
+
+        var query_alter_text = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
+        alter_rst_ai_promise = query_alter_obj.execute( db,  query_alter_text );
     } )
     .then( rows => {
-        query_text = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
+        konsole.log(query_alter_obj.getCommand() + "\t successful ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
 
-        var query_alter_obj = BB_SqlQuery.Create(query_text) ;
-        konsole.log(query_alter_obj.getCommand() + " Trying ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
+        var query_insert_null_text = expand(SQL_TEMPLATE.INSERT_NULL.value, { 'db-table': table, 'db-name-value': 'NULL_'+ table.toUpperCase()});
+        konsole.log(query_insert_null_text);
+        insert_null_promise = query_insert_null_obj.execute( db,  query_insert_null_text ); 
+    } )
+    .then( rows => {
+        konsole.log(query_insert_null_obj.getCommand() + "\t\t successful INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
 
-        // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
-        //konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
-
-        //var query_alter_obj = BB_SqlQuery.Create() ;
-        //query_alter_obj.execute( db,  query_text )
-        query_alter_obj.execute( db,  query_text );
-        /*
-        .then( rows => {
-            konsole.log(query_delete_obj.getCommand() + " successful ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
-        } )*/
+        //return insert_null_promise; 
     } );
+
     return query_promise ;
 }; // executeClearQuery ()
 
@@ -73,7 +78,7 @@ const insertNullObjectQuery = (db, table, field) =>
 }; // insertNullObjectQuery ()
 
 
-const backupDB = () =>
+const backupDB = () =>  
 {
     var now_time_stamp = timestamp('YYYY_MM_DD_HH_mm');
     var fullpath_to_sql_output_file = DATA_PATH + DB_NAME + '_' + now_time_stamp + '.sql';
@@ -98,9 +103,9 @@ const clearTables = () =>
     var db = BB_Database.GetSingleton();
     konsole.log("db.clearTables() db: " + db.toString());
 
-    executeClearQuery   (db, "skin_set").then (rows =>          { insertNullObjectQuery(db, "skin_set", "name" )});
-    executeClearQuery   (db, "skin").then (rows =>              { insertNullObjectQuery(db, "skin", "name" )});
-    executeClearQuery   (db, "skin_sell_order").then (rows =>   { insertNullObjectQuery(db, "skin_sell_order", "market_name" )});
+    executeClearQuery   (db, "skin_set");//.then (rows =>          { insertNullObjectQuery(db, "skin_set", "name" )});
+    executeClearQuery   (db, "skin");//.then (rows =>              { insertNullObjectQuery(db, "skin", "name" )});
+    executeClearQuery   (db, "skin_sell_order");//.then (rows =>   { insertNullObjectQuery(db, "skin_sell_order", "market_name" )});
 
 }; // clearTables()
 
