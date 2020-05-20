@@ -11,13 +11,15 @@ const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
 // Placeholder https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
 //                                   statement          |           template sql
 const SQL_TEMPLATE = new Enum ({    'NOTHING'           : "",
-                                    'INSERT_NULL'       : "INSERT INTO `{db-table}`   (`name`)      VALUES ('{db-name-value}')    ; # INSERT_NULL" ,
-                                    'INSERT'            : "INSERT INTO `{db-table}` ({db-fields})   VALUES ({db-field-values})  ;"               ,
-                                    'UPDATE'            : "UPDATE {db-table} SET {assignment}       WHERE {db-field} = {db-field-value} ;"       ,
-                                    'SELECT'            : "SELECT {db-fields} FROM `{db-table}`     WHERE {db-condition}        ;"               ,
-                                    'DELETE'            : "DELETE FROM {db-table} ;"                                                             ,
-                                    'ALTER_RST_AI'      : "ALTER TABLE {db-table}                   AUTO_INCREMENT = 0          ; # ALTER_RST_AI",
-                                    'ALTER'             : "ALTER TABLE {db-table}                   {db-alter-value}            ;"               ,
+                                    'INSERT_NULL'       : "INSERT INTO `{db-table}`   (`name`)      VALUES ('{db-name-value}')  ;     #INSERT_NULL" ,
+                                    'INSERT_NAME'       : "INSERT INTO `{db-table}`   (`name`)      VALUES ('{db-name-value}')  ;     #INSERT_NAME" , 
+                                    'INSERT'            : "INSERT INTO `{db-table}` ({db-fields})   VALUES ({db-field-values})  ;"                  ,
+                                    'UPDATE'            : "UPDATE {db-table} SET {assignment}       WHERE  {db-field} = {db-field-value} ;"         ,
+                                    'SELECT_NAME'       : "SELECT `id`, `name`  FROM `{db-table}`   WHERE   `name`='{db-name-value}'; #SELECT_NAME" ,
+                                    'SELECT'            : "SELECT {db-fields}   FROM `{db-table}`   WHERE   {db-condition}        ;"                ,
+                                    'DELETE'            : "DELETE FROM {db-table}                                               ;"                  ,
+                                    'ALTER_RST_AI'      : "ALTER TABLE {db-table}                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
+                                    'ALTER'             : "ALTER TABLE {db-table}                   {db-alter-value}            ;"                  ,
                                     'SHOW'              : "SHOW TABLES ;" });
 
 const statement2sqlTmpl = ( statement ) =>
@@ -53,26 +55,30 @@ class BB_SqlQuery
     //            requis     requis
     constructor( sql_tmpl, query_text ) 
     {
-        //konsole.log("BB_SqlQuery constructor ");
-
-        this.sql_tmpl   = sql_tmpl;
-        this.query_text = query_text;
+        this.sql_tmpl       = sql_tmpl;
+        this.query_text     = query_text;
+        this.result         = {};
     } // constructor  
 
     getType() 
-    {
-        return this.constructor.name;
-    }
+    {   return this.constructor.name;
+    } // getType()
 
     getName()
-    {
-        return this.sql_tmpl.key;
+    {   return this.sql_tmpl.key;
     } // getName()  
 
     getCommand()
-    {
-        return this.sql_tmpl.toString();
+    {   return this.sql_tmpl.toString();
     } // getCommand()  
+
+    getResult()
+    {   return this.result;
+    } // getResult()  
+
+    setResult( result )
+    {   this.result = result;
+    } // setResult()  
 
     _setQueryText( query_text )
     {
@@ -92,10 +98,17 @@ class BB_SqlQuery
             var statement   = query_as_words[0];
             sql_tmpl        = statement2sqlTmpl( statement );
 
-            if (query_text.search("ALTER_RST_AI") != -1)
+            if (query_text.search("#ALTER_RST_AI") != -1)
                 sql_tmpl = SQL_TEMPLATE.ALTER_RST_AI;
-            else if (query_text.search("INSERT_NULL") != -1)
+
+            else if (query_text.search("#INSERT_NULL") != -1)
                 sql_tmpl = SQL_TEMPLATE.INSERT_NULL;
+
+            else if (query_text.search("#INSERT_NAME") != -1)
+                sql_tmpl = SQL_TEMPLATE.INSERT_NAME;
+
+            else if (query_text.search("#SELECT_NAME") != -1)
+                sql_tmpl = SQL_TEMPLATE.SELECT_NAME;
         }
         return sql_tmpl;
     } // _ExtractSQLTmpl()

@@ -1,11 +1,14 @@
 const assert      = require ('assert');
+const timestamp   = require ('time-stamp');
+const expand      = require ('expand-template')();
 
 const Konst       = require ('./constants.js') ;
 const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
 const konsole     = require ('./bb_log.js').konsole ;
 const BB_SqlQuery = require ('./bb_sql_query.js').BB_SqlQuery ;
+const SQL_TEMPLATE = require('./bb_sql_query.js').SQL_TEMPLATE;
 const utility     = require ('./utility.js') ;
-const timestamp   = require ('time-stamp');
+
 
 const NULL_SKIN   = "NULL_SKIN" ;
 const NULL_URL    = "http://NULL_URL";
@@ -21,7 +24,6 @@ const NULL_RARITY = "Unknown"; // M^mem valeur que dans la Table de constantes '
                             //   /$$  \ $$| $$_  $$ | $$| $$  | $$
                             //  |  $$$$$$/| $$ \  $$| $$| $$  | $$
                             //   \______/ |__/  \__/|__/|__/  |__/
-
 
 class Skin 
 {
@@ -149,18 +151,75 @@ class Skin
 
   // !!! Must always return a Promise
   //                requis
-  createInDBTable ( db_obj )
+  createInDBTable ( db )
   { 
-    assert(db_obj != undefined);
+    assert(db != undefined);
 
     // konsole.log("Skin obj.createInDBTable()", LOG_LEVEL.WARNING);
 
+    /*
     if ( this.created_in_db )
         return new Promise
         ( ( resolve, reject ) => 
           {   konsole.log("Skin '" + this.name +  "' déjà créé dans la DB !!!  ", LOG_LEVEL.WARNING);
           } );
+          */
 
+    var query_select_obj  = BB_SqlQuery.Create();
+    var query_insert_obj  = BB_SqlQuery.Create();
+
+    // 1. SELECT Query
+    var query_select_text = expand(SQL_TEMPLATE.SELECT_NAME.value, {'db-table' : 'skin', 'db-name-value': this.name });
+
+    var query_promise = query_select_obj.execute( db,  query_select_text )
+    .then( result => { 
+        konsole.log(query_select_obj.getCommand() + "\t successful SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
+
+        // 2. INSERT Query
+        // Si l'enregistrement N'EXISTE PAS (condition: skin.name = this.name)
+        // ²  -> [ [], {...} ]
+        //var first_record = Skin.NULL_SKIN;
+        konsole.log("result[0].length: " + result[0].length, LOG_LEVEL.MSG);
+        konsole.log(JSON.stringify(result[0]), LOG_LEVEL.MSG);
+        konsole.log("typeof result: " + result.constructor.name, LOG_LEVEL.MSG);
+
+        var must_create = false;
+
+        if ( result[0].length > 0 )
+        {
+          konsole.log(JSON.stringify(result[0]));
+          if ( result[0][0].length > 0 )
+          {
+            konsole.log(" Cas 1: ", LOG_LEVEL.CRITICAL);
+            konsole.log(JSON.stringify(result[0][0]), LOG_LEVEL.MSG);
+          }
+          else
+            konsole.log(" Cas 2: " + JSON.stringify(result[0][0]), LOG_LEVEL.CRITICAL);
+        }
+        else
+        {
+          konsole.log("CAS 3 result[0].length:  " + result[0].length, LOG_LEVEL.MSG);
+          if (result[0].length > 1)
+            konsole.log("CAS 4 result[0].length > 1 !!!  " + result[0].length, LOG_LEVEL.CRITICAL);
+          must_create = true;
+        }
+
+        //query_select_obj.setResult(result);
+        //konsole.log("***************** result: " + JSON.stringify(result), LOG_LEVEL.MSG);
+  
+        if (must_create)
+        {
+          var query_insert_text = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name });
+          query_insert_obj.execute( db,  query_insert_text );          
+        }
+    } )
+    .then( rows => {
+        konsole.log(query_insert_obj.getCommand() + "\t successful INSERT in 'skin'\n", LOG_LEVEL.CRITICAL);
+        this.created_in_db = true;
+    } );
+
+    return query_promise ;
+/*
     // konsole.log("Skin.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK );
 
     // INSERT INTO `skin` (name) SELECT 'Forest' FROM DUAL WHERE NOT EXISTS (SELECT name FROM skin WHERE name='Forest');
@@ -178,9 +237,8 @@ class Skin
       // konsole.log(query_obj.getCommand() + "  PACKET : " + JSON.stringify(packet), LOG_LEVEL.MSG);
       konsole.log(query_obj.getCommand() + " successful name: '"+ this.name + "'  " + timestamp('DD_HH_mm_ss'), LOG_LEVEL.MSG);
     } );
-
-    this.created_in_db = true;
-    return query_promise ;
+*/
+    //return query_promise ;
   } // createInDBTable()
 
 

@@ -27,35 +27,35 @@ const executeClearQuery = (db, table) =>
     assert (table != undefined && table != "" && db != undefined);
     //var query_text =   "DELETE FROM `" + table + "` ; ALTER TABLE `" + table + "` AUTO_INCREMENT = 0 ; ";
 
-    var query_text = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
+    
     // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
 
     // cf. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining
-    var query_delete_obj        = BB_SqlQuery.Create() ;
+    var query_delete_obj        = BB_SqlQuery.Create();
     var query_alter_obj         = BB_SqlQuery.Create() ;
     var query_insert_null_obj   = BB_SqlQuery.Create() ;
 
-    var alter_rst_ai_promise = new Promise(( resolve, reject ) => {} );
-    //var insert_null_promise = new Promise(( resolve, reject ) => {} );
-
-    var query_promise = query_delete_obj.execute( db,  query_text )
+    // 1. DELETE Query
+    var query_delete_text   = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
+    var query_promise       = query_delete_obj.execute( db,  query_delete_text )
     .then( rows => {
         konsole.log(query_delete_obj.getCommand() + "\t\t successful CLEAR (DELETE) in '" + table + "'", LOG_LEVEL.INFO);
-
+        
+        // 2. ALTER Query
         var query_alter_text = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
-        alter_rst_ai_promise = query_alter_obj.execute( db,  query_alter_text );
+        query_alter_obj.execute( db,  query_alter_text );
     } )
     .then( rows => {
         konsole.log(query_alter_obj.getCommand() + "\t successful ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
 
+        // 3. INSERT_NULL Query
         var query_insert_null_text = expand(SQL_TEMPLATE.INSERT_NULL.value, { 'db-table': table, 'db-name-value': 'NULL_'+ table.toUpperCase()});
-        konsole.log(query_insert_null_text);
-        insert_null_promise = query_insert_null_obj.execute( db,  query_insert_null_text ); 
+        // konsole.log(query_insert_null_text);
+        query_insert_null_obj.execute( db,  query_insert_null_text ); 
     } )
     .then( rows => {
-        konsole.log(query_insert_null_obj.getCommand() + "\t\t successful INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
+        konsole.log(query_insert_null_obj.getCommand() + "\t successful INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
 
-        //return insert_null_promise; 
     } );
 
     return query_promise ;
