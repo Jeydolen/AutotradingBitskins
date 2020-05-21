@@ -4,7 +4,7 @@
   "description": "Bite",
   "main": "rechercheduprofit.js",
   "scripts": {
-    "test": "node main.js --update --server"
+    "test": "cls && node src/app.js --update --server"
   },
   "keywords": [
     "bitskins",
@@ -19,12 +19,15 @@
   "author": "Jeydolen & Echopraxium",
   "license": "SEE LICENSE IN License.txt",
   "dependencies": {
+    "assert": "^2.0.0",
     "async": "^3.2.0",
+    "chalk": "^4.0.0",
     "child_process": "^1.0.2",
     "commander": "^5.0.0",
     "design-patterns-api": "^0.4.20",
     "ejs": "^3.0.2",
     "enum": "^3.0.3",
+    "expand-template": "^2.0.3",
     "express": "^4.17.1",
     "mixin-interface": "^4.9.3",
     "mixin-interface-api": "^0.1.32",

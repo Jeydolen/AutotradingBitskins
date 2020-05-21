@@ -1,0 +1,12 @@
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: promise_query.then is not a function
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: promise_query.then is not a function
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: promise_query.then is not a function
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: promise_query.then is not a function

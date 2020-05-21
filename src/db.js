@@ -1,6 +1,6 @@
 const timestamp    = require ('time-stamp');
 const exec         = require('child_process').exec;
-const async_npm    = require ('async');
+const asynk        = require ('async');
 const assert       = require ('assert');
 const expand       = require ('expand-template')();
 
@@ -21,44 +21,109 @@ const DATA_PATH = './data/';
 var page_index = Konst.PAGE_INDEX_START;
 // ----------------------------------------------------------------
 
+const executeDeleteQuery = ( db , table , cb ) =>
+{   
+    var query_text  = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
+    var query_obj   = BB_SqlQuery.Create( query_text );
+    konsole.log(query_obj.getCommand() + "\t\t Trying DELETE in '" + table + "'", LOG_LEVEL.INFO);
+    query_obj.execute( db,query_text );
+    cb( null, db , table);
+}; // executeDeleteQuery()
+
+
+const executeAlterRstAiQuery = ( db , table, cb ) =>
+{   
+    var query_text  = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
+    var query_obj   = BB_SqlQuery.Create( query_text );
+    konsole.log(query_obj.getCommand() + "\t Trying ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
+    query_obj.execute( db, query_text );
+    cb( null, db , table);
+}; // executeAlterRstAiQuery()
+
+
+const executeInsertNullQuery = ( db , table, cb ) =>
+{   
+    var query_text  = expand(SQL_TEMPLATE.INSERT_NULL.value, { 'db-table': table, 'db-name-value': 'NULL_'+ table.toUpperCase()});
+    var query_obj   = BB_SqlQuery.Create( query_text );
+    konsole.log(query_obj.getCommand() + "\t Trying INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
+    query_obj.execute( db, query_text );
+}; // executeInsertNullQuery()
+
+
+
 // https://stackoverflow.com/questions/23266854/node-mysql-multiple-statements-in-one-query
 const executeClearQuery = (db, table) =>
 {
     assert (table != undefined && table != "" && db != undefined);
     //var query_text =   "DELETE FROM `" + table + "` ; ALTER TABLE `" + table + "` AUTO_INCREMENT = 0 ; ";
 
-    
+    // https://caolan.github.io/async/v3/seq.js.html
+    var D_ARAI_IN = asynk.seq( executeDeleteQuery, executeAlterRstAiQuery, executeInsertNullQuery );
+    D_ARAI_IN
+    (   db, table, 
+        () => 
+        { konsole.log("D_ARAI_IN successful !!", LOG_LEVEL.OK)
+        }
+    );
+
+    return Konst.RC.OK;
+
+    //=================================================================================
     // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
 
-    // cf. https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining
     var query_delete_obj        = BB_SqlQuery.Create();
-    var query_alter_obj         = BB_SqlQuery.Create() ;
-    var query_insert_null_obj   = BB_SqlQuery.Create() ;
+    var query_alter_obj         = BB_SqlQuery.Create();
+    var query_insert_null_obj   = BB_SqlQuery.Create();
+
+    var query_insert_null_promise;
 
     // 1. DELETE Query
-    var query_delete_text   = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
-    var query_promise       = query_delete_obj.execute( db,  query_delete_text )
-    .then( rows => {
+    var query_delete_text       = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
+    var query_delete_promise    = query_delete_obj.execute( db,  query_delete_text )
+    .then( () =>  
+    {   // Definition de resolve() pour DELETE
         konsole.log(query_delete_obj.getCommand() + "\t\t successful CLEAR (DELETE) in '" + table + "'", LOG_LEVEL.INFO);
         
         // 2. ALTER Query
         var query_alter_text = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
-        query_alter_obj.execute( db,  query_alter_text );
+
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining
+        // Note that () => x is short for () => { return x; }
+        var query_alter_promise = query_alter_obj.execute( db,  query_alter_text );
+        //return query_alter_promise;
     } )
-    .then( rows => {
+    .then( () =>  
+    {   // Definition de resolve() pour ALTER
         konsole.log(query_alter_obj.getCommand() + "\t successful ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
 
         // 3. INSERT_NULL Query
         var query_insert_null_text = expand(SQL_TEMPLATE.INSERT_NULL.value, { 'db-table': table, 'db-name-value': 'NULL_'+ table.toUpperCase()});
         // konsole.log(query_insert_null_text);
-        query_insert_null_obj.execute( db,  query_insert_null_text ); 
+        query_insert_null_promise = query_insert_null_obj.execute( db,  query_insert_null_text ); 
+        //return query_insert_null_promise;
     } )
-    .then( rows => {
+    .then( () => 
+    {   // Definition de resolve() pour Résultat de INSERT_NULL
         konsole.log(query_insert_null_obj.getCommand() + "\t successful INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
+        //return query_delete_promise;
+    } )
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining@"Chaining after a catch"
+    .catch( () =>
+    {   // Definition de reject()
+            konsole.log("db.executeClearQuery() ERROR \n", LOG_LEVEL.CRITICAL);
+        }
+    );
 
-    } );
+    /*
+    .catch(    
+    {   // Definition de reject()
+        konsole.log(query_insert_null_obj.getCommand() + "\t successful INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
+    }
+    ));
+*/
 
-    return query_promise ;
+    //return query_insert_null_promise ;
+    //return query_delete_promise ;
 }; // executeClearQuery ()
 
 
@@ -73,7 +138,7 @@ const insertNullObjectQuery = (db, table, field) =>
     query_obj.execute (db, query_text)
     .then ( rows => 
     {
-            konsole.log(query_obj.getCommand() + " successful NULL_OBJECT in '" + table + "'", LOG_LEVEL.INFO);
+            //konsole.log(query_obj.getCommand() + " successful NULL_OBJECT in '" + table + "'", LOG_LEVEL.INFO);
     } );
 }; // insertNullObjectQuery ()
 
@@ -114,7 +179,7 @@ const updateDb = () =>
 {
     clearTables();
   
-    async_npm.until( 
+    asynk.until( 
       function test(cb) 
       {
         cb(null, B_L.getExitFetchItems()); 

@@ -1,0 +1,9 @@
+### BB_SqlQuery execute(): 
+Error: ER_BAD_DB_ERROR: Base 'undefined' inconnue
+### BB_SqlQuery execute(): 
+Error: ER_BAD_DB_ERROR: Base 'undefined' inconnue
+### BB_SqlQuery execute(): 
+Error: ER_BAD_DB_ERROR: Base 'undefined' inconnue
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: Cannot read property 'GetNullObject' of undefined

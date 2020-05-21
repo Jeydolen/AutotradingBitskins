@@ -1,0 +1,8 @@
+### BB_SqlQuery execute() Affronte les arabes !!
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: query_obj.execute(...).then is not a function
+### BB_SqlQuery execute() Affronte les arabes !!
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: query_obj.execute(...).then is not a function

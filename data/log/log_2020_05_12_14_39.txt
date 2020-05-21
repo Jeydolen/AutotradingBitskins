@@ -1,0 +1,9 @@
+### BB_SqlQuery execute(): 
+Error: connect ECONNREFUSED 127.0.0.1:3308
+### BB_SqlQuery execute(): 
+Error: connect ECONNREFUSED 127.0.0.1:3308
+### BB_SqlQuery execute(): 
+Error: connect ECONNREFUSED 127.0.0.1:3308
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: Cannot read property 'GetSingleton' of undefined

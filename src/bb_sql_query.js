@@ -1,4 +1,5 @@
 const assert    = require ('assert');
+const asynk     = require ('async');
 const Enum      = require ('enum');
 const expand = require('expand-template')();
 
@@ -113,9 +114,57 @@ class BB_SqlQuery
         return sql_tmpl;
     } // _ExtractSQLTmpl()
 
-    
+
     //       requis    requis (sauf si déjà fourni via Create())         optionnel
     execute( db_obj,  query_text,                                         args )
+    {   
+        assert(db_obj != undefined); 
+
+        // konsole.log("BB_SqlQuery execute()", LOG_LEVEL.MSG);
+        // konsole.log("query: " + query_text, LOG_LEVEL.MSG);
+
+        if (query_text != undefined)    
+            this.query_text = query_text;
+
+        if (this.query_text == undefined)
+            konsole.log("this.query_text is undefined !!", LOG_LEVEL.CRITICAL);
+        else
+        {
+            var sql_tmpl = BB_SqlQuery._ExtractSQLTmpl(query_text);
+            if (sql_tmpl != SQL_TEMPLATE.NOTHING)   
+                this.sql_tmpl = sql_tmpl;
+        }
+
+        if (this.sql_tmpl == SQL_TEMPLATE.NOTHING)
+            konsole.log("SQL_TEMPLATE is NOTHING (or not extracted coreectly from 'query_text')", LOG_LEVEL.CRITICAL);
+                
+        try
+        {
+            // https://caolan.github.io/async/v3/docs.html#compose
+            //========== QUERY ==========
+            //konsole.log ("BB_SqlQuery this.execute() "+ this.query_text);
+
+            db_obj.getConnection().query
+            (   this.query_text, 
+                args, 
+
+                ( err, query_result ) => 
+                {   if ( err )
+                    {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
+                    }
+                } 
+            );
+            //========== QUERY ==========
+        }
+        catch( error )
+        {
+            konsole.log("BB_SqlQuery execute(): \n" + error , LOG_LEVEL.CRITICAL);
+        } // try.. catch
+    } // executeWProm()  
+
+    
+    //       requis    requis (sauf si déjà fourni via Create())         optionnel
+    executeWProm( db_obj,  query_text,                                         args )
     {   
         assert(db_obj != undefined); 
 
@@ -154,14 +203,16 @@ class BB_SqlQuery
                     (       this.query_text, 
                             args, 
 
-                            ( err, rows ) => 
+                            ( err, query_result ) => 
                             {   if ( err )
                                 {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
                                     return reject( err );
                                 }
+
                                 
                                 // https://riptutorial.com/javascript/example/7609/foreach-with-promises
-                                resolve( rows );
+                                resolve( query_result );
+                                konsole.log ("BB_SqlQuery this.execute() "+ this.query_text);
                             } 
                     )
                     //========== QUERY ==========
@@ -176,7 +227,7 @@ class BB_SqlQuery
                 }     
             );
         } // try.. catch
-    } // execute()  
+    } // executeWProm()  
 
 
     //               optionnel            optionnel

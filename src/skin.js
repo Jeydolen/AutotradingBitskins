@@ -168,10 +168,12 @@ class Skin
     var query_select_obj  = BB_SqlQuery.Create();
     var query_insert_obj  = BB_SqlQuery.Create();
 
+    var must_insert = false;
+
     // 1. SELECT Query
     var query_select_text = expand(SQL_TEMPLATE.SELECT_NAME.value, {'db-table' : 'skin', 'db-name-value': this.name });
 
-    var query_promise = query_select_obj.execute( db,  query_select_text )
+    var query_select_promise = query_select_obj.executeWProm( db,  query_select_text )
     .then( result => { 
         konsole.log(query_select_obj.getCommand() + "\t successful SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
 
@@ -182,8 +184,6 @@ class Skin
         konsole.log("result[0].length: " + result[0].length, LOG_LEVEL.MSG);
         konsole.log(JSON.stringify(result[0]), LOG_LEVEL.MSG);
         konsole.log("typeof result: " + result.constructor.name, LOG_LEVEL.MSG);
-
-        var must_create = false;
 
         if ( result[0].length > 0 )
         {
@@ -207,18 +207,30 @@ class Skin
         //query_select_obj.setResult(result);
         //konsole.log("***************** result: " + JSON.stringify(result), LOG_LEVEL.MSG);
   
-        if (must_create)
+        var query_insert_promise;
+
+        if (must_insert)
         {
           var query_insert_text = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name });
-          query_insert_obj.execute( db,  query_insert_text );          
+          query_insert_promise = query_insert_obj.execute( db,  query_insert_text );   
+          return query_insert_promise;               
         }
+
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining
+        // Note that () => x is short for () => { return x; }
+        return query_select_promise;
     } )
     .then( rows => {
-        konsole.log(query_insert_obj.getCommand() + "\t successful INSERT in 'skin'\n", LOG_LEVEL.CRITICAL);
+        konsole.log(query_insert_obj.getCommand() + "\t successful INSERT of '" + this.name + "' in 'skin'\n", LOG_LEVEL.CRITICAL);
         this.created_in_db = true;
+        return query_insert_promise;
     } );
 
-    return query_promise ;
+    if (must_insert)
+      return query_insert_promise;               
+
+    return query_select_promise;
+
 /*
     // konsole.log("Skin.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK );
 

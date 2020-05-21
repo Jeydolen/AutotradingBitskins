@@ -1,0 +1,6 @@
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+
+  assert( query_text != undefined )
+

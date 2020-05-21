@@ -1,0 +1,3 @@
+### B_L.parseOnResponseReady () : Error when Parsing
+### error code: 
+TypeError: query_promise.then is not a function

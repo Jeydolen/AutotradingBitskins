@@ -1,0 +1,2 @@
+### BB_SqlQuery execute(): 
+Error: ER_PARSE_ERROR: Erreur de syntaxe près de 's'  )' à la ligne 1
