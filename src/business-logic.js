@@ -89,7 +89,7 @@ const saveSkinSellOrders = function (json_obj)
 
         var query_promise = skin_obj.createInDBTable(db); // tester .then(skin_obj.updateInDB (db))
 
-        if ( query_promise.constructor.name !== "Promise")
+       /*  if ( query_promise.constructor.name !== "Promise")
             konsole.log("\nBL.saveSkinSellOrders query_promise: IS NOT a Promise trouduk !!" + query_promise.constructor.name,  LOG_LEVEL.CRITICAL);
 
         //konsole.log("\nBL.saveSkinSellOrders Trying to update Skin query_promise: " + query_promise.constructor.name,  LOG_LEVEL.WARNING);
@@ -100,7 +100,7 @@ const saveSkinSellOrders = function (json_obj)
                 {   //konsole.log("Ici aussi ca va encore\n");
                 skin_obj.updateInDB (db); 
                 });
-        }
+        }*/
         //------------------ skin ------------------
         
         //var skin_sell_order   = SkinSellOrder.Create (read_items[i]) ;

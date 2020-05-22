@@ -21,6 +21,8 @@ const DATA_PATH = './data/';
 var page_index = Konst.PAGE_INDEX_START;
 // ----------------------------------------------------------------
 
+
+                           
 const executeDeleteQuery = ( db , table , cb ) =>
 {   
     var query_text  = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
@@ -55,7 +57,6 @@ const executeInsertNullQuery = ( db , table, cb ) =>
 const executeClearQuery = (db, table) =>
 {
     assert (table != undefined && table != "" && db != undefined);
-    //var query_text =   "DELETE FROM `" + table + "` ; ALTER TABLE `" + table + "` AUTO_INCREMENT = 0 ; ";
 
     // https://caolan.github.io/async/v3/seq.js.html
     var D_ARAI_IN = asynk.seq( executeDeleteQuery, executeAlterRstAiQuery, executeInsertNullQuery );
@@ -69,7 +70,16 @@ const executeClearQuery = (db, table) =>
     return Konst.RC.OK;
 
     //=================================================================================
-    // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
+
+/*   /$$$$$$  /$$    /$$ /$$$$$$$$  /$$$$$$        /$$$$$$$  /$$$$$$$   /$$$$$$  /$$      /$$ /$$$$$$  /$$$$$$  /$$$$$$$$
+    /$$__  $$| $$   | $$| $$_____/ /$$__  $$      | $$__  $$| $$__  $$ /$$__  $$| $$$    /$$$|_  $$_/ /$$__  $$| $$_____/
+    | $$  \ $$| $$   | $$| $$      | $$  \__/      | $$  \ $$| $$  \ $$| $$  \ $$| $$$$  /$$$$  | $$  | $$  \__/| $$      
+    | $$$$$$$$|  $$ / $$/| $$$$$   | $$            | $$$$$$$/| $$$$$$$/| $$  | $$| $$ $$/$$ $$  | $$  |  $$$$$$ | $$$$$   
+    | $$__  $$ \  $$ $$/ | $$__/   | $$            | $$____/ | $$__  $$| $$  | $$| $$  $$$| $$  | $$   \____  $$| $$__/   
+    | $$  | $$  \  $$$/  | $$      | $$    $$      | $$      | $$  \ $$| $$  | $$| $$\  $ | $$  | $$   /$$  \ $$| $$      
+    | $$  | $$   \  $/   | $$$$$$$$|  $$$$$$/      | $$      | $$  | $$|  $$$$$$/| $$ \/  | $$ /$$$$$$|  $$$$$$/| $$$$$$$$
+    |__/  |__/    \_/    |________/ \______/       |__/      |__/  |__/ \______/ |__/     |__/|______/ \______/ |________/*/
+        // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
 
     var query_delete_obj        = BB_SqlQuery.Create();
     var query_alter_obj         = BB_SqlQuery.Create();

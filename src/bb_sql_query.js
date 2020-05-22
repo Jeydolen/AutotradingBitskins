@@ -1,3 +1,12 @@
+
+
+// https://stackoverflow.com/questions/23339907/returning-a-value-from-callback-function-in-node-js
+
+
+
+
+
+
 const assert    = require ('assert');
 const asynk     = require ('async');
 const Enum      = require ('enum');
@@ -58,6 +67,7 @@ class BB_SqlQuery
     {
         this.sql_tmpl       = sql_tmpl;
         this.query_text     = query_text;
+        this.result         = Konst.NOTHING;
         this.result         = {};
     } // constructor  
 
@@ -137,9 +147,12 @@ class BB_SqlQuery
 
         if (this.sql_tmpl == SQL_TEMPLATE.NOTHING)
             konsole.log("SQL_TEMPLATE is NOTHING (or not extracted coreectly from 'query_text')", LOG_LEVEL.CRITICAL);
-                
+            
+        var query_result =  Konst.NOTHING;
+
         try
         {
+            //var query_result =  Konst.NOTHING;
             // https://caolan.github.io/async/v3/docs.html#compose
             //========== QUERY ==========
             //konsole.log ("BB_SqlQuery this.execute() "+ this.query_text);
@@ -152,6 +165,8 @@ class BB_SqlQuery
                 {   if ( err )
                     {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
                     }
+                    konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(query_result),LOG_LEVEL.WARNING );
+                    this.result = query_result;
                 } 
             );
             //========== QUERY ==========
@@ -160,7 +175,7 @@ class BB_SqlQuery
         {
             konsole.log("BB_SqlQuery execute(): \n" + error , LOG_LEVEL.CRITICAL);
         } // try.. catch
-    } // executeWProm()  
+    } // execute()  
 
     
     //       requis    requis (sauf si déjà fourni via Create())         optionnel
