@@ -10,7 +10,7 @@
 const assert    = require ('assert');
 const asynk     = require ('async');
 const Enum      = require ('enum');
-const expand = require('expand-template')();
+const expand    = require('expand-template')();
 
 const Konst     = require ('./constants');
 const konsole   = require ('./bb_log').konsole;
@@ -26,7 +26,7 @@ const SQL_TEMPLATE = new Enum ({    'NOTHING'           : "",
                                     'INSERT'            : "INSERT INTO `{db-table}` ({db-fields})   VALUES ({db-field-values})  ;"                  ,
                                     'UPDATE'            : "UPDATE {db-table} SET {assignment}       WHERE  {db-field} = {db-field-value} ;"         ,
                                     'SELECT_NAME'       : "SELECT `id`, `name`  FROM `{db-table}`   WHERE   `name`='{db-name-value}'; #SELECT_NAME" ,
-                                    'SELECT'            : "SELECT {db-fields}   FROM `{db-table}`   WHERE   {db-condition}        ;"                ,
+                                    'SELECT'            : "SELECT {db-fields}   FROM `{db-table}`   WHERE   {db-condition}      ;"                  ,
                                     'DELETE'            : "DELETE FROM {db-table}                                               ;"                  ,
                                     'ALTER_RST_AI'      : "ALTER TABLE {db-table}                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
                                     'ALTER'             : "ALTER TABLE {db-table}                   {db-alter-value}            ;"                  ,
@@ -62,14 +62,30 @@ const statement2sqlTmpl = ( statement ) =>
 // https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
 class BB_SqlQuery 
 {
+    static Instances = new Map();
+
     //            requis     requis
     constructor( sql_tmpl, query_text ) 
     {
+        this.id             = BB_SqlQuery.name + "_" + BB_SqlQuery.Instances.size;
+        this.debug          = false;
         this.sql_tmpl       = sql_tmpl;
         this.query_text     = query_text;
         this.result         = Konst.NOTHING;
-        this.result         = {};
+        BB_SqlQuery.Instances.set(this.id, this);
     } // constructor  
+
+    getId() 
+    {   return this.id;
+    } // getId()
+
+    getDebug() 
+    {   return this.debug;
+    } // getDebug()
+
+    setDebug(value) 
+    {   this.debug = value;
+    } // setDebug()
 
     getType() 
     {   return this.constructor.name;
@@ -147,8 +163,13 @@ class BB_SqlQuery
 
         if (this.sql_tmpl == SQL_TEMPLATE.NOTHING)
             konsole.log("SQL_TEMPLATE is NOTHING (or not extracted coreectly from 'query_text')", LOG_LEVEL.CRITICAL);
-            
-        var query_result =  Konst.NOTHING;
+
+
+        //if (this.debug)
+        {
+            konsole.log("BBSqlQuery this.execute() \n", LOG_LEVEL.WARNING);
+            konsole.log(this.query_text, LOG_LEVEL.WARNING);
+        }
 
         try
         {
@@ -157,24 +178,35 @@ class BB_SqlQuery
             //========== QUERY ==========
             //konsole.log ("BB_SqlQuery this.execute() "+ this.query_text);
 
+            konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 1", LOG_LEVEL.WARNING );
+
             db_obj.getConnection().query
             (   this.query_text, 
                 args, 
 
-                ( err, query_result ) => 
+                function( err, result, fields )
                 {   if ( err )
                     {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
                     }
-                    konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(query_result),LOG_LEVEL.WARNING );
-                    this.result = query_result;
+                    
+                    this.result = result;
+                    //if (this.debug)
+                    //{
+                    //konsole.log("BB_SQL_QUERY.execute() INSIDE TRY after QUERY", LOG_LEVEL.WARNING );
+                    //konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(result),LOG_LEVEL.MSG );
+                    //}
+                    return result;
                 } 
             );
             //========== QUERY ==========
         }
         catch( error )
         {
-            konsole.log("BB_SqlQuery execute(): \n" + error , LOG_LEVEL.CRITICAL);
+            konsole.log("BB_SQL_QUERY.execute() INSIDE CATCH", LOG_LEVEL.WARNING );
+            konsole.log("BB_SqlQuery.execute() ERROR \n" + error , LOG_LEVEL.CRITICAL);
         } // try.. catch
+
+        return "Affronte les Promise";
     } // execute()  
 
     

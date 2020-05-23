@@ -81,7 +81,7 @@ class Skin
       //konsole.log("B4 Skin.ExtractName:name: " + this.name);
 
       this.item_rarity = this.computeRarityID(input_item.item_rarity);
-    } // if (arg == NULL_SKIN)
+    } // if (arg == NULL_SKIN)I
 
     this.created_in_db = false;
     this.updated_in_db = false;
@@ -151,37 +151,49 @@ class Skin
   }
 
 
-  static executeSelectNameQuery = ( skin_obj, db, query_obj, cb ) =>
-  {   
-    var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': 'skin', 'db-name-value' : skin_obj.name});
-    var query_obj   = BB_SqlQuery.Create( query_text );
-    konsole.log("Trying SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
-    query_obj.execute( db, query_text );
-    cb( null, skin_obj, db, query_obj);
-  } // executeSelectNameQuery()
-
-
-  static executeInsertQuery = ( skin_obj, db, query_obj, cb ) =>
-  {   
-    konsole.log("query_result\n" + JSON.stringify( query_obj.getResult() , LOG_LEVEL.CRITICAL));
-    var query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': skin_obj.name } );
-    var query_obj   = BB_SqlQuery.Create( query_text );
-    konsole.log("Trying INSERT_NAME in 'skin'\n", LOG_LEVEL.INFO);
-    query_obj.execute( db, query_text, query_obj );
-  } // executeInsertQuery()
-  
-
   // !!! Must always return a Promise
   //                requis
   createInDBTable ( db )
   { 
     assert(db != undefined);
 
-    var SN_IN = asynk.seq( Skin.executeSelectNameQuery, Skin.executeInsertQuery);
+    var query_obj = BB_SqlQuery.Create();
+    query_obj.setDebug(true);
+
+    const executeSelectNameQuery = ( result, cb ) =>
+    {   
+      assert(db != undefined);
+
+      //konsole.log("executeSelectNameQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( query_obj.getResult()) , LOG_LEVEL.MSG);
+      var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': 'skin', 'db-name-value' : this.name});
+      konsole.log("Trying SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
+      result = query_obj.execute( db, query_text );
+      konsole.log("executeSelectNameQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( result) , LOG_LEVEL.MSG);
+      cb( null, result );
+    } // executeSelectNameQuery()
+
+    const executeInsertQuery = ( result, cb ) =>
+    {   
+      assert(db != undefined);
+
+      //konsole.log("executeInsertQuery query_result " + query_obj.getId() + "  this.name: " + this.name + "\n" + JSON.stringify( query_obj.getResult()) , LOG_LEVEL.MSG);
+      var query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name } );
+      konsole.log("Trying INSERT_NAME in 'skin'\n", LOG_LEVEL.MSG);
+      result = query_obj.execute( db, query_text );
+      konsole.log("executeInsertQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( result) , LOG_LEVEL.MSG);
+      cb( null, result);
+    }; // executeInsertQuery()
+
+    konsole.log("createInDBTable query.id: " + query_obj.getId());
+
+    var result = { 'value': Konst.NOTHING };
+
+    var SN_IN = asynk.seq( executeSelectNameQuery, executeInsertQuery);
     SN_IN
-    (   this, db, null, 
-        () => 
-        { konsole.log("SN_IN successful !!", LOG_LEVEL.OK)
+    (   result, 
+        ( err, result ) => 
+        { konsole.log("SN_IN successful !!", LOG_LEVEL.OK);
+          konsole.log("query.id: " + query_obj.getId() + " result: \n" + result, LOG_LEVEL.CRITICAL)
         }
     );
     // konsole.log("Skin obj.createInDBTable()", LOG_LEVEL.WARNING);
@@ -197,14 +209,13 @@ class Skin
 
     //=================================================================================
 
-/*   /$$$$$$  /$$    /$$ /$$$$$$$$  /$$$$$$        /$$$$$$$  /$$$$$$$   /$$$$$$  /$$      /$$ /$$$$$$  /$$$$$$  /$$$$$$$$
-    /$$__  $$| $$   | $$| $$_____/ /$$__  $$      | $$__  $$| $$__  $$ /$$__  $$| $$$    /$$$|_  $$_/ /$$__  $$| $$_____/
-    | $$  \ $$| $$   | $$| $$      | $$  \__/      | $$  \ $$| $$  \ $$| $$  \ $$| $$$$  /$$$$  | $$  | $$  \__/| $$      
-    | $$$$$$$$|  $$ / $$/| $$$$$   | $$            | $$$$$$$/| $$$$$$$/| $$  | $$| $$ $$/$$ $$  | $$  |  $$$$$$ | $$$$$   
-    | $$__  $$ \  $$ $$/ | $$__/   | $$            | $$____/ | $$__  $$| $$  | $$| $$  $$$| $$  | $$   \____  $$| $$__/   
-    | $$  | $$  \  $$$/  | $$      | $$    $$      | $$      | $$  \ $$| $$  | $$| $$\  $ | $$  | $$   /$$  \ $$| $$      
-    | $$  | $$   \  $/   | $$$$$$$$|  $$$$$$/      | $$      | $$  | $$|  $$$$$$/| $$ \/  | $$ /$$$$$$|  $$$$$$/| $$$$$$$$
-    |__/  |__/    \_/    |________/ \______/       |__/      |__/  |__/ \______/ |__/     |__/|______/ \______/ |________/*/
+/*      ___                  ______                    _          
+       / _ \                 | ___ \                  (_)         
+      / /_\ \_   _____  ___  | |_/ / __ ___  _ __ ___  _ ___  ___ 
+      |  _  \ \ / / _ \/ __| |  __/ '__/ _ \| '_ ` _ \| / __|/ _ \
+      | | | |\ V /  __/ (__  | |  | | | (_) | | | | | | \__ \  __/
+      \_| |_/ \_/ \___|\___| \_|  |_|  \___/|_| |_| |_|_|___/\___|*/
+
     var query_select_obj  = BB_SqlQuery.Create();
     var query_insert_obj  = BB_SqlQuery.Create();
 
