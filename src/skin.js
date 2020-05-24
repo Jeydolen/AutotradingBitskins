@@ -160,40 +160,39 @@ class Skin
     var query_obj = BB_SqlQuery.Create();
     query_obj.setDebug(true);
 
-    const executeSelectNameQuery = ( result, cb ) =>
+    const executeSelectNameQuery = ( query_obj, cb ) =>
     {   
       assert(db != undefined);
 
       //konsole.log("executeSelectNameQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( query_obj.getResult()) , LOG_LEVEL.MSG);
       var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': 'skin', 'db-name-value' : this.name});
       konsole.log("Trying SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
-      result = query_obj.execute( db, query_text );
-      konsole.log("executeSelectNameQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( result) , LOG_LEVEL.MSG);
-      cb( null, result );
+      query_obj.execute( db, query_text );
+      konsole.log("executeSelectNameQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( query_obj.getResult() ) , LOG_LEVEL.MSG);
+      cb( null, query_obj );
     } // executeSelectNameQuery()
 
-    const executeInsertQuery = ( result, cb ) =>
+    const executeInsertQuery = ( query_obj, cb ) =>
     {   
       assert(db != undefined);
 
       //konsole.log("executeInsertQuery query_result " + query_obj.getId() + "  this.name: " + this.name + "\n" + JSON.stringify( query_obj.getResult()) , LOG_LEVEL.MSG);
       var query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name } );
       konsole.log("Trying INSERT_NAME in 'skin'\n", LOG_LEVEL.MSG);
-      result = query_obj.execute( db, query_text );
-      konsole.log("executeInsertQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( result) , LOG_LEVEL.MSG);
-      cb( null, result);
+      query_obj.execute( db, query_text );
+      konsole.log("executeInsertQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( query_obj.getResult() ) , LOG_LEVEL.MSG);
+      cb( null, query_obj);
     }; // executeInsertQuery()
 
     konsole.log("createInDBTable query.id: " + query_obj.getId());
-
-    var result = { 'value': Konst.NOTHING };
+    //
 
     var SN_IN = asynk.seq( executeSelectNameQuery, executeInsertQuery);
     SN_IN
-    (   result, 
-        ( err, result ) => 
+    (   query_obj, 
+        ( err, query_obj ) => 
         { konsole.log("SN_IN successful !!", LOG_LEVEL.OK);
-          konsole.log("query.id: " + query_obj.getId() + " result: \n" + result, LOG_LEVEL.CRITICAL)
+        konsole.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!query.id: " + query_obj.getId() + " result: \n" + query_obj.getResult(), LOG_LEVEL.ERROR)
         }
     );
     // konsole.log("Skin obj.createInDBTable()", LOG_LEVEL.WARNING);
