@@ -3,17 +3,17 @@ const Enum = require('enum');
 const chalk = require ('chalk');
 const timestamp = require ('time-stamp');
 const path = require('path');
-const assert = require("assert");
 
 const Konst   = require ('./constants.js'); 
 
 global.appRoot = path.resolve(__dirname);
 
-const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO','ERROR', 'CRITICAL' ])
+const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO', 'PAUSE', 'ERROR', 'CRITICAL' ])
 
-const COLORS = new Enum ( {'PURPLE': '#DA6DE6'} );
+const COLORS = new Enum ( {'PURPLE': '#DA6DE6', 'CYAN': '#0BC6A7', 'OCHRE': '#D6BC24', 'ORANGE': '#F78A07' } );
 
 var is_initialized = false;
+
 
 const init_log_sinks = () =>
 {
@@ -24,12 +24,13 @@ const init_log_sinks = () =>
     
     var data_path = appRoot + "/../data/log/";
     konsole.log("init_log_sinks(): data_path: " + data_path);
-    var file_logger = new FileLogger( data_path + "/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
-    MxI.$Log.addSink(file_logger);
+    //var file_logger = new FileLogger( data_path + "/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
+    //MxI.$Log.addSink(file_logger);
     konsole.log("Sinks succefuly inintialised", LOG_LEVEL.MSG);
 
     is_initialized = true;
 } // init_log_sinks()
+
 
 class konsole
 {
@@ -68,10 +69,13 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
         }
 
         else if (log_level == LOG_LEVEL.INFO )
-            console.log(chalk.hex('#3097B3')(arg_msg));
+            console.log(chalk.hex(COLORS.CYAN.value)(arg_msg));
+
+        else if (log_level == LOG_LEVEL.PAUSE)
+            console.log(chalk.hex(COLORS.OCHRE.value)(arg_msg));
 
         else if (log_level == LOG_LEVEL.WARNING )
-            console.log(chalk.yellow( "!!! " + arg_msg));
+            console.log(chalk.hex(COLORS.ORANGE.value)( "!!! " + arg_msg));
 
         else if (log_level == LOG_LEVEL.ERROR )
             console.log(chalk.hex('#D8D8D8').bgHex('#8A0808')( "*** " + arg_msg + " ***"));

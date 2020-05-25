@@ -1,12 +1,4 @@
-
-
 // https://stackoverflow.com/questions/23339907/returning-a-value-from-callback-function-in-node-js
-
-
-
-
-
-
 const assert    = require ('assert');
 const asynk     = require ('async');
 const Enum      = require ('enum');
@@ -15,6 +7,7 @@ const expand    = require('expand-template')();
 const Konst     = require ('./constants');
 const konsole   = require ('./bb_log').konsole;
 const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
+const pause     = require('./utility.js').pause;
 
 const QUERY_STATE = new Enum ({ 'UNKNOWN': 0, 'PENDING': 1, 'DONE': 2, 'FAILED': 3 });
 
@@ -62,6 +55,7 @@ const statement2sqlTmpl = ( statement ) =>
                                                                                                 \______/  */
 
 // https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
+
 class BB_SqlQuery 
 {
     static Instances = new Map();
@@ -144,8 +138,8 @@ class BB_SqlQuery
     } // _ExtractSQLTmpl()
 
 
-    //       requis    requis (sauf si déjà fourni via Create())         optionnel
-    execute( db_obj,  query_text,                                         args )
+    //             requis    requis (sauf si déjà fourni via Create())    optionnel   optionnel
+    executeWithCB( db_obj,  query_text,                                   query_cb,    args )
     {   
         assert(db_obj != undefined); 
 
@@ -168,15 +162,74 @@ class BB_SqlQuery
             konsole.log("SQL_TEMPLATE is NOTHING (or not extracted coreectly from 'query_text')", LOG_LEVEL.CRITICAL);
 
 
-        //if (this.debug)
+        const default_query_cb = (err, resul) =>
+        {   
+                                    //if (getThis().getDebug())
+                                    konsole.log("BB_SqlQuery execute() ITER dans cb de mysql.query" + err , LOG_LEVEL.MSG);
+                                    
+                                    konsole.log( "BB_SQL_QUERY.execute() err " + err + " BEFORE state: " + this.state.key, LOG_LEVEL.INFO);
+        
+                                    if ( err )
+                                    {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
+                                        this.state = QUERY_STATE.FAILED;
+                                    }
+                                    else
+                                        this.state = QUERY_STATE.DONE;
+        
+                                    //if (getThis().getDebug())
+                                        konsole.log( "BB_SQL_QUERY.execute() err " + err + " AFTER state: " + this.state.key, LOG_LEVEL.MSG);
+                                        
+                                    this.setResult(result);
+                                    //if (getThis().getDebug())
+                                    {
+                                        konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 2 after QUERY", LOG_LEVEL.WARNING );
+                                        konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(this.getResult()),LOG_LEVEL.OK );
+                                    }
+        };
+
+        if (query_cb == undefined)
+            query_cb = default_query_cb;
+                  
+        //============ QUERY ============
+        db_obj.getConnection().query
+        (   this.query_text, 
+            //args, 
+            query_cb
+        ); //========== QUERY ==========
+ 
+    } // executeWithCB()  
+
+
+    //       requis    requis (sauf si déjà fourni via Create())    optionnel
+    execute( db_obj,  query_text,                                     args )
+    {   
+        assert(db_obj != undefined); 
+
+        // konsole.log("BB_SqlQuery execute()", LOG_LEVEL.MSG);
+        // konsole.log("query: " + query_text, LOG_LEVEL.MSG);
+
+        if (query_text != undefined)    
+            this.query_text = query_text;
+
+        if (this.query_text == undefined)
+            konsole.log("this.query_text is undefined !!", LOG_LEVEL.CRITICAL);
+        else
         {
-            //konsole.log("BBSqlQuery this.execute() \n", LOG_LEVEL.WARNING);
-            konsole.log(this.query_text, LOG_LEVEL.WARNING);
+            var sql_tmpl = BB_SqlQuery._ExtractSQLTmpl(query_text);
+            if (sql_tmpl != SQL_TEMPLATE.NOTHING)   
+                this.sql_tmpl = sql_tmpl;
         }
+
+        if (this.sql_tmpl == SQL_TEMPLATE.NOTHING)
+            konsole.log("SQL_TEMPLATE is NOTHING (or not extracted coreectly from 'query_text')", LOG_LEVEL.CRITICAL);
+
+
+
 
         const isQueryPending = () =>
         {
-            var is_query_pending = (this.state == QUERY_STATE.PENDING  ||  this.state == QUERY_STATE.UNKNOWN);
+            //var is_query_pending = (this.state == QUERY_STATE.PENDING  ||  this.state == QUERY_STATE.UNKNOWN) || (this.result == Konst.NOTHING || this.result == undefined);
+            var is_query_pending = (this.state == QUERY_STATE.PENDING  ||  this.state == QUERY_STATE.UNKNOWN) || (this.result == Konst.NOTHING || this.result == undefined);
             konsole.log("-------xXxxXxxxxXx------ BB_SQL_QUERY.execute() isQueryPending(): " + is_query_pending+ " this.state: " + this.state.key + "-------", LOG_LEVEL.MSG);
             return is_query_pending;
         };
@@ -195,66 +248,67 @@ class BB_SqlQuery
 
             konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 1", LOG_LEVEL.WARNING );
 
-            this.state = QUERY_STATE.UNKNOWN;
+            this.state = QUERY_STATE.PENDING;
 
-            asynk.doUntil( 
-                // Check if loop can be exited
-                function test( cb ) 
-                {
-                  cb( null, isQueryPending() ); 
-                },
-            
-                // Iteration
-                function iter( cb ) 
-                {
-                    //if (getThis().debug)
-                        konsole.log("BB_SQL_QUERY.execute() ITER: Query\n" + getThis().query_text, LOG_LEVEL.MSG);
-
-                    getThis().setResult(Konst.NOTHING);
-                    konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(getThis().getResult()),LOG_LEVEL.WARNING );
-
-                    getThis().state = QUERY_STATE.PENDING;
-
-                    //============ QUERY ============
-                    db_obj.getConnection().query
-                    (   getThis().query_text, 
-                        //args, 
-      
-                        // callback
-                        function( err, result )
-                        {   
-                            //if (getThis().getDebug())
-                            konsole.log("BB_SqlQuery execute() ITER dans cb de mysql.query" + err , LOG_LEVEL.MSG);
-                            
-                            konsole.log( "BB_SQL_QUERY.execute() err " + err + " BEFORE state: " + getThis().state.key, LOG_LEVEL.INFO);
-
-                            if ( err )
-                            {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
-                                getThis().state = QUERY_STATE.FAILED;
-                            }
-                            else
-                                getThis().state = QUERY_STATE.DONE;
-
-                            //if (getThis().getDebug())
-                                konsole.log( "BB_SQL_QUERY.execute() err " + err + " AFTER state: " + getThis().state.key, LOG_LEVEL.MSG);
+            //asynk.doUntil( 
+                asynk.doUntil( 
+                    // Check if loop can be exited
+                    function test( cb ) 
+                    {
+                      cb( null, isQueryPending() ); 
+                    },
+                
+                    // Iteration
+                    function iter( cb ) 
+                    {
+                        //if (getThis().debug)
+                            konsole.log("BB_SQL_QUERY.execute() ITER: Query\n" + getThis().query_text, LOG_LEVEL.MSG);
+    
+                        getThis().setResult(Konst.NOTHING);
+                        konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(getThis().getResult()),LOG_LEVEL.WARNING );
+    
+                        getThis().state = QUERY_STATE.PENDING;
+    
+                        //============ QUERY ============
+                        db_obj.getConnection().query
+                        (   getThis().query_text, 
+                            //args, 
+          
+                            // callback
+                            function( err, result )
+                            {   
+                                //if (getThis().getDebug())
+                                konsole.log("BB_SqlQuery execute() ITER dans cb de mysql.query" + err , LOG_LEVEL.MSG);
                                 
-                            getThis().setResult(result);
-                            //if (getThis().getDebug())
-                            {
-                                konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 2 after QUERY", LOG_LEVEL.WARNING );
-                                konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(getThis().getResult()),LOG_LEVEL.OK );
-                            }
-                        } 
-                    ); //========== QUERY ==========
-                },
-            
-                // End
-                function (err) 
-                {
-                  // All things are done!
-                  konsole.log("BB_SQL_QUERY.execute() : Fin de traitement de la Query\n" + getThis().query_text, LOG_LEVEL.MSG);
-                 }
-            ); // async.until()         
+                                konsole.log( "BB_SQL_QUERY.execute() err " + err + " BEFORE state: " + getThis().state.key, LOG_LEVEL.INFO);
+    
+                                if ( err )
+                                {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
+                                    getThis().state = QUERY_STATE.FAILED;
+                                }
+                                else
+                                    getThis().state = QUERY_STATE.DONE;
+    
+                                //if (getThis().getDebug())
+                                    konsole.log( "BB_SQL_QUERY.execute() err " + err + " AFTER state: " + getThis().state.key, LOG_LEVEL.MSG);
+                                    
+                                getThis().setResult(result);
+                                //if (getThis().getDebug())
+                                {
+                                    konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 2 after QUERY", LOG_LEVEL.WARNING );
+                                    konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(getThis().getResult()),LOG_LEVEL.OK );
+                                }
+                            } 
+                        ); //========== QUERY ==========
+                    },
+                
+                    // End
+                    function (err) 
+                    {
+                      // All things are done!
+                      konsole.log("BB_SQL_QUERY.execute() : Fin de traitement de la Query\n" + getThis().query_text, LOG_LEVEL.MSG);
+                     }
+                ); // async.until()              
         }
         /*
         catch( error )
