@@ -11,7 +11,7 @@ const konsole     = require ('./bb_log.js').konsole ;
 const BB_SqlQuery = require ('./bb_sql_query.js').BB_SqlQuery ;
 const SQL_TEMPLATE = require('./bb_sql_query.js').SQL_TEMPLATE;
 const utility     = require ('./utility.js') ;
-
+const QUERY_STATE = require ('./bb_sql_query.js').QUERY_STATE;
 
 const NULL_SKIN   = "NULL_SKIN" ;
 const NULL_URL    = "http://NULL_URL";
@@ -41,6 +41,9 @@ class Skin
     //                      Flag       WP_name |  Skin name  (State(float_value))
     // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
     //console.log("Skin constructor : " + arg);
+
+    this.create_query_state  = QUERY_STATE.UNKNOWN;
+    this.update_query_state  = QUERY_STATE.UNKNOWN;
 
     if ( arg == NULL_SKIN )
     {
@@ -103,54 +106,26 @@ class Skin
       if (parts.length > 1)
       {
         var right_part =  market_hash_name.split('|')[1];
-        //   console.log("right_part: '" + right_part + "'");
         right_part = right_part.trim();
-        // console.log("right_part trim: '" + right_part + "'");
-
         name = right_part.split('(')[0].trim(' ');
 
         // !!! Probléme: ' dans la valeur SQL de chaine ex: 'l'Horizon' -> 'l''Horizon'
         // !!! Solution: escape de ' rempacé par ''
-        name = name.replace ("'", "''");  // Note: il y avait un Bug !! (cf. ligne suivante)
-        // name = this.name.replace ("'", "''"); 
-        //name = name.replace ("'", "''");
+        name = name.replace ("'", "''");
       } 
-      /*
-      else
-      {
-        konsole.log("Skin.ExtractName ELSE (parts.length <=1)", LOG_LEVEL.MSG)
-      }*/
-    }   
-    /*
-    else
-    {
-       konsole.log("Skin.ExtractName ELSE ('|' non trouvée)", LOG_LEVEL.MSG)
-    }*/
-    konsole.log("Skin.ExtractName name: '" + name + "'", LOG_LEVEL.MSG)
+
+    }
+    //konsole.log("Skin.ExtractName name: '" + name + "'", LOG_LEVEL.MSG)
     return name;
   } // ExtractName()
 
-  getType () 
-  {
-      return this.constructor.name ;
-  } // getType()
+  getType ()       { return this.constructor.name ; } // getType()
   
+  getName ()       { return this.name ; } // getName()
 
-  getName () 
-  {
-      return this.name ;
-  } // getName()
-
-  isCreatedInDB () 
-  {
-      return this.created_in_db ;
-  }
-
-
-  isUpdatedInDB () 
-  {
-      return this.updated_in_db ;
-  }
+  isCreatedInDB () { return this.created_in_db ; }
+  
+  isUpdatedInDB () { return this.updated_in_db ; }
 
 
   // !!! Must always return a Promise
@@ -160,215 +135,110 @@ class Skin
       
       assert(db != undefined);
 
-      var query_obj = BB_SqlQuery.Create();
-      query_obj.setDebug(true);
-
-      const executeSelectNameQuery = ( query_obj, cb ) =>
-      {   
-        assert(db != undefined);
-
-        //konsole.log("executeSelectNameQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( query_obj.getResult()) , LOG_LEVEL.MSG);
+      const selectQuery = () =>
+      {
+        var query_select_obj = BB_SqlQuery.Create();
+        konsole.log("Skin.createInDBTable() SELECT");
         var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': 'skin', 'db-name-value' : this.name});
         konsole.log("Trying SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
-        query_obj.execute( db, query_text );
-        konsole.log("executeSelectNameQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( query_obj.getResult() ) , LOG_LEVEL.MSG);
-        cb( null, query_obj );
-      } // executeSelectNameQuery()
+        this.create_query_state = QUERY_STATE.PENDING;
+        query_select_obj.executeWithCB( db, query_text, insertQueryCB );
 
-      const executeInsertQuery = ( query_obj, cb ) =>
-      {   
-        assert(db != undefined);
+      }; // selectQuery()
 
-        //konsole.log("executeInsertQuery query_result " + query_obj.getId() + "  this.name: " + this.name + "\n" + JSON.stringify( query_obj.getResult()) , LOG_LEVEL.MSG);
-        var query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name } );
-        konsole.log("Trying INSERT_NAME in 'skin'\n", LOG_LEVEL.MSG);
-          query_obj.execute( db, query_text );
-          konsole.log("executeInsertQuery query.id: " + query_obj.getId() + "  query_result\n" + JSON.stringify( query_obj.getResult() ) , LOG_LEVEL.MSG);
-          cb( null, query_obj);
-        }; // executeInsertQuery()
 
-        konsole.log("createInDBTable query.id: " + query_obj.getId());
-        //
+      const  insertQueryCB = (err,  query_select_result) =>
+      {
+        this.query_result = query_select_result ;
 
-        const afterInsertQueryCB = (err, result) =>
+        var query_insert_obj = BB_SqlQuery.Create();
+        //konsole.log("Skin.insertQueryCB result: " + JSON.stringify(query_select_result) + "\n Longueur de l'array " + query_select_result[0].length, LOG_LEVEL.OK);
+
+        assert (query_select_result[0].length <= 1 ); // SI plus de 1 on a merdé
+
+        if ( query_select_result[0].length == 0)
         {
-            konsole.log("Skin.afterInsertQueryCB", LOG_LEVEL.OK);
-        }; // afterInsertQueryCB()
-
-        const  insertQueryCB = async (err,  result) =>
-        {
-            konsole.log("Skin.insertQueryCB result: " + JSON.stringify(result) + "\n Longueur de l'array " + result[0].length, LOG_LEVEL.OK);
-            
-            if ( result[0].length == 0)
-            {
-            var query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name } );
-            konsole.log("Trying INSERT_NAME in 'skin'\n", LOG_LEVEL.MSG);
-            await query_obj.executeWithCB( db, query_text, afterInsertQueryCB );
-            }
-            else konsole.log ("Déja créé BLYAT", LOG_LEVEL.WARNING);
-        }; // insertQueryCB()
+          var query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name } );
+          konsole.log("Trying INSERT_NAME in 'skin'\n", LOG_LEVEL.MSG);
+          query_insert_obj.executeWithCB( db, query_text, afterInsertQueryCB );
+        }
+        else 
+          konsole.log ("Déja créé BLYAT", LOG_LEVEL.WARNING); 
+      }; // insertQueryCB()
 
 
-        const selectQuery = () =>
-        {
-          // 1. SELECT
-          konsole.log("Skin.createInDBTable() SELECT");
-          var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': 'skin', 'db-name-value' : this.name});
-          konsole.log("Trying SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
-          query_obj.executeWithCB( db, query_text, insertQueryCB );
-
+      const afterInsertQueryCB = (err, query_insert_result) =>
+      {
           
-          pause (1000);
-        }; // afterInsertQueryCB()
+        //konsole.log("Skin.afterInsertQueryCB", LOG_LEVEL.OK);
+            
+        assert (this.create_query_state == QUERY_STATE.PENDING);
 
-
-        selectQuery();
-        return Konst.RC.OK;
-
-
-        /*
-        var SN_IN = asynk.seq( executeSelectNameQuery, executeInsertQuery);
-        SN_IN
-        (   query_obj, 
-            ( err, query_obj ) => 
-            { konsole.log("SN_IN successful !!", LOG_LEVEL.OK);
-            konsole.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!query.id: " + query_obj.getId() + " result: \n" + query_obj.getResult(), LOG_LEVEL.ERROR)
-            }
-        );*/
-
-
-    // konsole.log("Skin obj.createInDBTable()", LOG_LEVEL.WARNING);
-
-    /*
-    if ( this.created_in_db )
-        return new Promise
-        ( ( resolve, reject ) => 
-          {   konsole.log("Skin '" + this.name +  "' déjà créé dans la DB !!!  ", LOG_LEVEL.WARNING);
-          } );
-          */
-          return Konst.RC.OK;
-
-    //=================================================================================
-
-/*      ___                  ______                    _          
-       / _ \                 | ___ \                  (_)         
-      / /_\ \_   _____  ___  | |_/ / __ ___  _ __ ___  _ ___  ___ 
-      |  _  \ \ / / _ \/ __| |  __/ '__/ _ \| '_ ` _ \| / __|/ _ \
-      | | | |\ V /  __/ (__  | |  | | | (_) | | | | | | \__ \  __/
-      \_| |_/ \_/ \___|\___| \_|  |_|  \___/|_| |_| |_|_|___/\___|*/
-
-    var query_select_obj  = BB_SqlQuery.Create();
-    var query_insert_obj  = BB_SqlQuery.Create();
-
-    var must_insert = false;
-
-    // 1. SELECT Query
-    var query_select_text = expand(SQL_TEMPLATE.SELECT_NAME.value, {'db-table' : 'skin', 'db-name-value': this.name });
-
-    var query_select_promise = query_select_obj.executeWProm( db,  query_select_text )
-    .then( result => { 
-        konsole.log(query_select_obj.getCommand() + "\t successful SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
-
-        // 2. INSERT Query
-        // Si l'enregistrement N'EXISTE PAS (condition: skin.name = this.name)
-        // ²  -> [ [], {...} ]
-        //var first_record = Skin.NULL_SKIN;
-        konsole.log("result[0].length: " + result[0].length, LOG_LEVEL.MSG);
-        konsole.log(JSON.stringify(result[0]), LOG_LEVEL.MSG);
-        konsole.log("typeof result: " + result.constructor.name, LOG_LEVEL.MSG);
-
-        if ( result[0].length > 0 )
+        if (err)
         {
-          konsole.log(JSON.stringify(result[0]));
-          if ( result[0][0].length > 0 )
-          {
-            konsole.log(" Cas 1: ", LOG_LEVEL.CRITICAL);
-            konsole.log(JSON.stringify(result[0][0]), LOG_LEVEL.MSG);
-          }
-          else
-            konsole.log(" Cas 2: " + JSON.stringify(result[0][0]), LOG_LEVEL.CRITICAL);
+          this.create_query_state   = QUERY_STATE.FAILED
+          konsole.log ('Houston on a un prbl : ' +err, LOG_LEVEL.ERROR); 
         }
-        else
+        else 
         {
-          konsole.log("CAS 3 result[0].length:  " + result[0].length, LOG_LEVEL.MSG);
-          if (result[0].length > 1)
-            konsole.log("CAS 4 result[0].length > 1 !!!  " + result[0].length, LOG_LEVEL.CRITICAL);
-          must_create = true;
+          this.create_query_state    = QUERY_STATE.DONE;
+          this.created_in_db  = true;
         }
+          
+      }; // afterInsertQueryCB()
 
-        //query_select_obj.setResult(result);
-        //konsole.log("***************** result: " + JSON.stringify(result), LOG_LEVEL.MSG);
-  
-        var query_insert_promise;
 
-        if (must_insert)
-        {
-          var query_insert_text = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name });
-          query_insert_promise = query_insert_obj.execute( db,  query_insert_text );   
-          return query_insert_promise;               
-        }
+      // 1. UNKNOWN --> 2. PENDING --> 3. DONE / FAILED 
+      if (this.create_query_state == QUERY_STATE.UNKNOWN)
+          selectQuery();
 
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining
-        // Note that () => x is short for () => { return x; }
-        return query_select_promise;
-    } )
-    .then( rows => {
-        konsole.log(query_insert_obj.getCommand() + "\t successful INSERT of '" + this.name + "' in 'skin'\n", LOG_LEVEL.CRITICAL);
-        this.created_in_db = true;
-        return query_insert_promise;
-    } );
+      return Konst.RC.OK;
 
-    if (must_insert)
-      return query_insert_promise;               
-
-    return query_select_promise;
-
-/*
-    // konsole.log("Skin.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK );
-
-    // INSERT INTO `skin` (name) SELECT 'Forest' FROM DUAL WHERE NOT EXISTS (SELECT name FROM skin WHERE name='Forest');
-    var conditional_insert_query = "INSERT INTO `skin` (`name`) SELECT '"+ this.name + "' FROM DUAL "
-                                +  "WHERE NOT EXISTS (SELECT `name` FROM `skin` WHERE `name`= '"+ this.name + "');";
-               
-    var query_obj     = BB_SqlQuery.Create();
-    var query_promise = query_obj.execute( db_obj, conditional_insert_query )
-    .then( packet => 
-    {
-      // https://stackoverflow.com/questions/16795097/okpacket-in-mysql-module-of-node-js
-      // On recoit soit un 'OKPacket' soit un 'RowDataPacket'
-      var packet_type = (typeof packet).name;
-      konsole.log(query_obj.getCommand() + "  packet type : " + packet_type, LOG_LEVEL.MSG);
-      // konsole.log(query_obj.getCommand() + "  PACKET : " + JSON.stringify(packet), LOG_LEVEL.MSG);
-      konsole.log(query_obj.getCommand() + " successful name: '"+ this.name + "'  " + timestamp('DD_HH_mm_ss'), LOG_LEVEL.MSG);
-    } );
-*/
-    //return query_promise ;
   } // createInDBTable()
 
 
-  updateInDB (db_obj)
+  //           requis       optionnel
+  updateInDB (db_obj,       override)
   {
     assert(db_obj != undefined);
 
-    if ( this.updated_in_db == false )
-        return new Promise
-        ( ( resolve, reject ) => 
-          {   konsole.log("Skin '" + this.name +  "' déjà UPDATE dans la DB !!!  ", LOG_LEVEL.WARNING);
-          } );
 
-    var update_query = "UPDATE `skin` SET image_url ='"+ this.image_url +"' WHERE name ='"+ this.name +"' ;" ;
-                
-    var query_obj = BB_SqlQuery.Create();
-  
-    query_obj.execute(db_obj, update_query )
-    .then( rows => 
-    { 
-      konsole.log( "[b]" + query_obj.getCommand() + " successful name: "+ this.name + " " + timestamp('DD_HH_mm_ss') + " [/b]", LOG_LEVEL.CRITICAL);
-      this.updated_in_db = true;
-    });
+    const updateQuery = () =>
+    {
+      var query_update_obj = BB_SqlQuery.Create();
+      var update_query_text = expand(SQL_TEMPLATE.UPDATE_STR.value, { 'db-table': 'skin', 'db-field' : "image_url", 'db-field-value' : this.image_url, 'db-name-value' : this.name });     
+      konsole.log("Trying update in 'skin'", LOG_LEVEL.INFO);
+      this.update_query_state = QUERY_STATE.PENDING;
+      query_update_obj.executeWithCB(db_obj, update_query_text, afterUpdateCB );
 
+    }; // updateQuery()
+
+
+    const afterUpdateCB = (err, query_update_result) =>
+    {
+      //konsole.log("Skin.afterUpdateCB", LOG_LEVEL.OK);
+                  
+      assert (this.update_query_state == QUERY_STATE.PENDING);
+
+      if (err)
+      {
+        this.update_query_state = QUERY_STATE.FAILED
+        konsole.log ('Houston on a un prbl : ' +err, LOG_LEVEL.ERROR); 
+      }
+      else 
+      {
+        this.update_query_state     = QUERY_STATE.DONE;
+        this.updated_in_db          = true;
+      }
+    }
+
+    if (this.update_query_state == QUERY_STATE.UNKNOWN)
+      updateQuery();
+    return Konst.RC.OK;
+    
   } // updateInDB ()
 
+  
 
   static GetSkin ( name )
   {
@@ -433,7 +303,8 @@ class Skin
     var name = Skin.ExtractName( input_item.market_hash_name );
 
     //if (Skin.Instances.hasOwnProperty(name))
-    if (Skin.Instances.get( name ) == undefined)
+    if (  Skin.Instances.get( name )  == undefined  || Skin.Instances.get (name) === undefined 
+      ||  Skin.Instances.get (name)   === null      || Skin.Instances.get (name) == null)
     {
         konsole.log ('Détection nouveau skin', LOG_LEVEL.OK) ;
 

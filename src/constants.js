@@ -9,7 +9,7 @@ const NOTHING = 'NOTHING';
 
 const DEFAULT_NAMES = new Enum (['NOTHING']);
 
-const PAGE_INDEX_START = 100;
+const PAGE_INDEX_START = 80;
 
 const getFunctionName = (f) =>
 {

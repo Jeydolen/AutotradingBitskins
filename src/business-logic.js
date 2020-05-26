@@ -73,12 +73,10 @@ const saveSkinSellOrders = function (json_obj)
     {
         // konsole.log("saveSkinSellOrders Trying tp create item( " + i + " )", LOG_LEVEL.MSG);
 
-        /*
-        //------------------ skin_set ------------------
+        /* //------------------ skin_set ------------------
         var skin_set          = SkinSet.Create       (read_items[i]) ;
         skin_set.storeInDB (db);
-        //------------------ skin_set ------------------
-        */
+        //------------------ skin_set ------------------*/
 
 
         //------------------ skin ------------------
@@ -87,24 +85,15 @@ const saveSkinSellOrders = function (json_obj)
         
         var db = BB_Database.GetSingleton();
 
-        var query_promise = skin_obj.createInDBTable(db); // tester .then(skin_obj.updateInDB (db))
-
-       /*  if ( query_promise.constructor.name !== "Promise")
-            konsole.log("\nBL.saveSkinSellOrders query_promise: IS NOT a Promise trouduk !!" + query_promise.constructor.name,  LOG_LEVEL.CRITICAL);
-
-        //konsole.log("\nBL.saveSkinSellOrders Trying to update Skin query_promise: " + query_promise.constructor.name,  LOG_LEVEL.WARNING);
-
-        if (! skin_obj.isUpdatedInDB())
-        {
-            query_promise.then (rows => 
-                {   //konsole.log("Ici aussi ca va encore\n");
-                skin_obj.updateInDB (db); 
-                });
-        }*/
+        skin_obj.createInDBTable(db);
+        skin_obj.updateInDB     (db);
         //------------------ skin ------------------
         
+        //------------------ skin_sell_order ------------------
         //var skin_sell_order   = SkinSellOrder.Create (read_items[i]) ;
         //skin_sell_order.storeInDB (db);
+        //------------------ skin_sell_order ------------------
+
     }
     // console.log ("Number of skins saved : " + B_L.SkinSellOrder.GetInstances().length);
 }; // saveSkinSellOrders()

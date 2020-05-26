@@ -14,29 +14,32 @@ const QUERY_STATE = new Enum ({ 'UNKNOWN': 0, 'PENDING': 1, 'DONE': 2, 'FAILED':
 // https://dev.mysql.com/doc/refman/5.7/en/comments.html
 
 // Placeholder https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
-//                                   statement          |           template sql
-const SQL_TEMPLATE = new Enum ({    'NOTHING'           : "",
-                                    'INSERT_NULL'       : "INSERT INTO `{db-table}`   (`name`)      VALUES ('{db-name-value}')  ;     #INSERT_NULL" ,
-                                    'INSERT_NAME'       : "INSERT INTO `{db-table}`   (`name`)      VALUES ('{db-name-value}')  ;     #INSERT_NAME" , 
-                                    'INSERT'            : "INSERT INTO `{db-table}` ({db-fields})   VALUES ({db-field-values})  ;"                  ,
-                                    'UPDATE'            : "UPDATE {db-table} SET {assignment}       WHERE  {db-field} = {db-field-value} ;"         ,
-                                    'SELECT_NAME'       : "SELECT `id`, `name`  FROM `{db-table}`   WHERE   `name`='{db-name-value}'; #SELECT_NAME" ,
-                                    'SELECT'            : "SELECT {db-fields}   FROM `{db-table}`   WHERE   {db-condition}      ;"                  ,
-                                    'DELETE'            : "DELETE FROM {db-table}                                               ;"                  ,
-                                    'ALTER_RST_AI'      : "ALTER TABLE {db-table}                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
-                                    'ALTER'             : "ALTER TABLE {db-table}                   {db-alter-value}            ;"                  ,
-                                    'SHOW'              : "SHOW TABLES ;" });
+
+const SQL_TEMPLATE = new Enum ({    
+//   statement          :           template sql
+    'NOTHING'           : "",
+    'INSERT_NULL'       : "INSERT INTO `{db-table}`   (`name`)                      VALUES ('{db-name-value}')  ;     #INSERT_NULL" ,
+    'INSERT_NAME'       : "INSERT INTO `{db-table}`   (`name`)                      VALUES ('{db-name-value}')  ;     #INSERT_NAME" , 
+    'INSERT'            : "INSERT INTO `{db-table}` ({db-fields})                   VALUES ({db-field-values})  ;"                  ,
+    'UPDATE_STR'        : "UPDATE {db-table} SET `{db-field}` = '{db-field-value}'  WHERE  name = '{db-name-value}' ;   #UPDATE_STR",
+    'UPDATE'            : "UPDATE {db-table} SET {assignment}                       WHERE  {db-field} = {db-field-value} ;"         ,
+    'SELECT_NAME'       : "SELECT `id`, `name`  FROM `{db-table}`                   WHERE   `name`='{db-name-value}'; #SELECT_NAME" ,
+    'SELECT'            : "SELECT {db-fields}   FROM `{db-table}`                   WHERE   {db-condition}      ;"                  ,
+    'DELETE'            : "DELETE FROM {db-table}                                                               ;"                  ,
+    'ALTER_RST_AI'      : "ALTER TABLE {db-table}                                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
+    'ALTER'             : "ALTER TABLE {db-table}                                   {db-alter-value}            ;"                  ,
+    'SHOW'              : "SHOW TABLES ;" });
 
 const statement2sqlTmpl = ( statement ) =>
 {
     var sql_tmpl =  (
-                    statement ==    'DELETE'            ? SQL_TEMPLATE.DELETE :
-                    statement ==    'INSERT'            ? SQL_TEMPLATE.INSERT :
-                    statement ==    'SELECT'            ? SQL_TEMPLATE.SELECT :
-                    statement ==    'SHOW'              ? SQL_TEMPLATE.SHOW   :
-                    statement ==    'ALTER'             ? SQL_TEMPLATE.ALTER  :
-                    statement ==    'UPDATE'            ? SQL_TEMPLATE.UPDATE :
-                    SQL_TEMPLATE.NOTHING
+        statement ==    'DELETE'            ? SQL_TEMPLATE.DELETE :
+        statement ==    'INSERT'            ? SQL_TEMPLATE.INSERT :
+        statement ==    'SELECT'            ? SQL_TEMPLATE.SELECT :
+        statement ==    'SHOW'              ? SQL_TEMPLATE.SHOW   :
+        statement ==    'ALTER'             ? SQL_TEMPLATE.ALTER  :
+        statement ==    'UPDATE'            ? SQL_TEMPLATE.UPDATE :
+        SQL_TEMPLATE.NOTHING
                     );
     return sql_tmpl;
 }; // statement2sqlTmpl()
@@ -72,42 +75,19 @@ class BB_SqlQuery
         BB_SqlQuery.Instances.set(this.id, this);
     } // constructor  
 
-    getId() 
-    {   return this.id;
-    } // getId()
+    getId()         { return this.id; }                     // getId()
 
-    getDebug() 
-    {   return this.debug;
-    } // getDebug()
+    getDebug()      { return this.debug; }          // getDebug()
+    setDebug(value) {        this.debug = value; }  // setDebug()
 
-    setDebug(value) 
-    {   this.debug = value;
-    } // setDebug()
+    getType()       { return this.constructor.name; }       // getType()
 
-    getType() 
-    {   return this.constructor.name;
-    } // getType()
+    getName()       { return this.sql_tmpl.key; }           // getName()  
 
-    getName()
-    {   return this.sql_tmpl.key;
-    } // getName()  
+    getCommand()    { return this.sql_tmpl.toString(); }    // getCommand()  
 
-    getCommand()
-    {   return this.sql_tmpl.toString();
-    } // getCommand()  
-
-    getResult()
-    {   return this.result;
-    } // getResult()  
-
-    setResult( result )
-    {   this.result = result;
-    } // setResult()  
-
-    _setQueryText( query_text )
-    {
-        this.query_text = query_text;
-    } // GetNullObject()
+    getResult()     { return this.result; }         // getResult()  
+    setResult(value){        this.result = value; } // setResult()  
 
     //                       requis
     static _ExtractSQLTmpl( query_text )
@@ -128,6 +108,9 @@ class BB_SqlQuery
             else if (query_text.search("#INSERT_NULL") != -1)
                 sql_tmpl = SQL_TEMPLATE.INSERT_NULL;
 
+            else if (query_text.search("#UPDATE_STR") != -1)
+                sql_tmpl = SQL_TEMPLATE.UPDATE_STR;
+
             else if (query_text.search("#INSERT_NAME") != -1)
                 sql_tmpl = SQL_TEMPLATE.INSERT_NAME;
 
@@ -138,10 +121,10 @@ class BB_SqlQuery
     } // _ExtractSQLTmpl()
 
 
-    //             requis    requis (sauf si déjà fourni via Create())    optionnel   optionnel
-    executeWithCB( db_obj,  query_text,                                   query_cb,    args )
+    //             requis    requis (sauf si déjà fourni via Create())    optionnel    optionnel
+    executeWithCB( db_obj,  query_text,                                   query_cb,     args )
     {   
-        assert(db_obj != undefined); 
+        assert  (db_obj     != undefined);
 
         // konsole.log("BB_SqlQuery execute()", LOG_LEVEL.MSG);
         // konsole.log("query: " + query_text, LOG_LEVEL.MSG);
@@ -162,29 +145,21 @@ class BB_SqlQuery
             konsole.log("SQL_TEMPLATE is NOTHING (or not extracted coreectly from 'query_text')", LOG_LEVEL.CRITICAL);
 
 
-        const default_query_cb = (err, resul) =>
+        const default_query_cb = (err, result) =>
         {   
-                                    //if (getThis().getDebug())
-                                    konsole.log("BB_SqlQuery execute() ITER dans cb de mysql.query" + err , LOG_LEVEL.MSG);
+            //konsole.log("BB_SqlQuery execute() ITER dans cb de mysql.query" + err , LOG_LEVEL.MSG);
                                     
-                                    konsole.log( "BB_SQL_QUERY.execute() err " + err + " BEFORE state: " + this.state.key, LOG_LEVEL.INFO);
+            konsole.log( "BB_SQL_QUERY.execute() err " + err + " BEFORE state: " + this.state.key, LOG_LEVEL.INFO);
         
-                                    if ( err )
-                                    {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL);
-                                        this.state = QUERY_STATE.FAILED;
-                                    }
-                                    else
-                                        this.state = QUERY_STATE.DONE;
+            if ( err )
+            {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL) }
         
-                                    //if (getThis().getDebug())
-                                        konsole.log( "BB_SQL_QUERY.execute() err " + err + " AFTER state: " + this.state.key, LOG_LEVEL.MSG);
+            konsole.log( "BB_SQL_QUERY.execute() err " + err + " AFTER state: " + this.state.key, LOG_LEVEL.MSG);
                                         
-                                    this.setResult(result);
-                                    //if (getThis().getDebug())
-                                    {
-                                        konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 2 after QUERY", LOG_LEVEL.WARNING );
-                                        konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(this.getResult()),LOG_LEVEL.OK );
-                                    }
+            this.setResult(result);
+
+            konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 2 after QUERY", LOG_LEVEL.WARNING );
+            //konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(this.getResult()),LOG_LEVEL.OK );
         };
 
         if (query_cb == undefined)
@@ -378,7 +353,7 @@ class BB_SqlQuery
         }
         catch( error )
         {
-            return new Promisen
+            return new Promise
             (   ( resolve, reject ) => 
                 { konsole.log("BB_SqlQuery execute(): \n" + error , LOG_LEVEL.CRITICAL);
                 }     
@@ -421,4 +396,5 @@ BB_SqlQuery.CLEAR_TABLES;
 
 exports.BB_SqlQuery = BB_SqlQuery;
 exports.SQL_TEMPLATE = SQL_TEMPLATE;
+exports.QUERY_STATE = QUERY_STATE ;
 //------------------------------  BB_SqlQuery
