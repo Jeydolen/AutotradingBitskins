@@ -5,7 +5,7 @@ const konsole   = require('./bb_log.js').konsole;
 const LOG_LEVEL = require('./bb_log.js').LOG_LEVEL;
 
 
-const start = (skin_sell_orders) => 
+const start = (skins) => 
 {
     var app = express();
     var tagline = "Affronte le profit"
@@ -20,7 +20,7 @@ const start = (skin_sell_orders) =>
         res.render('index', 
         {
             "tagline" : tagline,
-            "items": skin_sell_orders
+            "items": skins
 
         })
     });

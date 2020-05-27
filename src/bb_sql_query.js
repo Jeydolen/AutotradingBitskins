@@ -149,16 +149,16 @@ class BB_SqlQuery
         {   
             //konsole.log("BB_SqlQuery execute() ITER dans cb de mysql.query" + err , LOG_LEVEL.MSG);
                                     
-            konsole.log( "BB_SQL_QUERY.execute() err " + err + " BEFORE state: " + this.state.key, LOG_LEVEL.INFO);
+            //konsole.log( "BB_SQL_QUERY.execute() err " + err + " BEFORE state: " + this.state.key, LOG_LEVEL.INFO);
         
             if ( err )
             {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL) }
         
-            konsole.log( "BB_SQL_QUERY.execute() err " + err + " AFTER state: " + this.state.key, LOG_LEVEL.MSG);
+            //konsole.log( "BB_SQL_QUERY.execute() err " + err + " AFTER state: " + this.state.key, LOG_LEVEL.MSG);
                                         
             this.setResult(result);
 
-            konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 2 after QUERY", LOG_LEVEL.WARNING );
+            //konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 2 after QUERY", LOG_LEVEL.WARNING );
             //konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(this.getResult()),LOG_LEVEL.OK );
         };
 
@@ -205,7 +205,7 @@ class BB_SqlQuery
         {
             //var is_query_pending = (this.state == QUERY_STATE.PENDING  ||  this.state == QUERY_STATE.UNKNOWN) || (this.result == Konst.NOTHING || this.result == undefined);
             var is_query_pending = (this.state == QUERY_STATE.PENDING  ||  this.state == QUERY_STATE.UNKNOWN) || (this.result == Konst.NOTHING || this.result == undefined);
-            konsole.log("-------xXxxXxxxxXx------ BB_SQL_QUERY.execute() isQueryPending(): " + is_query_pending+ " this.state: " + this.state.key + "-------", LOG_LEVEL.MSG);
+            //konsole.log("-------xXxxXxxxxXx------ BB_SQL_QUERY.execute() isQueryPending(): " + is_query_pending+ " this.state: " + this.state.key + "-------", LOG_LEVEL.MSG);
             return is_query_pending;
         };
 

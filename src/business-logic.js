@@ -7,6 +7,7 @@ const LOG_LEVEL                  = require ('./bb_log.js').LOG_LEVEL ;
 const Skin                       = require ('./skin.js').Skin ;
 const SkinSet                    = require ('./skin_set.js').SkinSet ;
 const SkinSellOrder              = require ('./skin_sell_order.js').SkinSellOrder ;
+const pause                       = require ('./utility.js').pause;
 
 var exitFetchItems = false;
 
@@ -66,36 +67,79 @@ const parseOnResponseReady = ( json_data ) =>
 
 const saveSkinSellOrders = function (json_obj)
 {
-    var read_items = json_obj['data']['items'];
-    konsole.log("read_items: " + read_items.length, LOG_LEVEL.MSG);
-    
-    for (var i = 0, len = read_items.length; i < len; i++) 
+    var json_sell_orders = json_obj['data']['items'];
+    var json_sell_order_count = json_sell_orders.length;
+
+    konsole.log(" JSON Sell Order count : " + json_sell_order_count, LOG_LEVEL.MSG);
+
+    var db = BB_Database.GetSingleton();
+
+    var skins_create_query_count = 0;
+    var created_skins_count      = 0;
+
+    for (var i = 0, len = json_sell_order_count; i < len; i++) 
     {
         // konsole.log("saveSkinSellOrders Trying tp create item( " + i + " )", LOG_LEVEL.MSG);
+        konsole.log(" JSON Sell Order skins_create_query_count : " + skins_create_query_count, LOG_LEVEL.MSG);
 
         /* //------------------ skin_set ------------------
-        var skin_set          = SkinSet.Create       (read_items[i]) ;
+        var skin_set          = SkinSet.Create       (json_sell_orders[i]) ;
         skin_set.storeInDB (db);
         //------------------ skin_set ------------------*/
 
 
         //------------------ skin ------------------
-        var skin_obj = Skin.Create( read_items[i] ) ;  
-        //konsole.log("skin: " + skin);  
-        
-        var db = BB_Database.GetSingleton();
-
+        var skin_obj = Skin.Create( json_sell_orders[i] ) ;  
         skin_obj.createInDBTable(db);
-        skin_obj.updateInDB     (db);
         //------------------ skin ------------------
         
+
         //------------------ skin_sell_order ------------------
-        //var skin_sell_order   = SkinSellOrder.Create (read_items[i]) ;
+        //var skin_sell_order   = SkinSellOrder.Create (json_sell_orders[i]) ;
         //skin_sell_order.storeInDB (db);
         //------------------ skin_sell_order ------------------
+    } // for (CREATE)
+    
+    
+    var updated_instances = 0;
 
-    }
-    // console.log ("Number of skins saved : " + B_L.SkinSellOrder.GetInstances().length);
+    return;
+
+   while (updated_instances < Skin.GetInstanceCount() )
+    {
+        pause (6000);
+        for (var i = 0, len = json_sell_orders.length; i < len; i++) 
+        {
+            
+            // konsole.log("saveSkinSellOrders Trying tp create item( " + i + " )", LOG_LEVEL.MSG);
+
+            /* //------------------ skin_set ------------------
+            var skin_set          = SkinSet.Create       (json_sell_orders[i]) ;
+            skin_set.storeInDB (db);
+            //------------------ skin_set ------------------*/
+
+
+            //------------------ skin ------------------
+            var skin_obj = Skin.Create( json_sell_orders[i] ) ;  
+            
+            if ( skin_obj.getIsUpdatedInDB () )
+                updated_instances += 1 ;
+
+            else  
+            {   pause (100);
+                skin_obj.updateInDB     (db);
+            }
+            
+            //------------------ skin ------------------
+            
+            //------------------ skin_sell_order ------------------
+            //var skin_sell_order   = SkinSellOrder.Create (json_sell_orders[i]) ;
+            //skin_sell_order.storeInDB (db);
+            //------------------ skin_sell_order ------------------
+
+        } // for ()
+    } // while()
+    
 }; // saveSkinSellOrders()
 
 //--------------------------------------------------------------

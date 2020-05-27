@@ -1,15 +1,17 @@
 const Enum   = require('enum');
 const chalk  = require ('chalk');
 
+//______________________________________________________________________
+const PAGE_INDEX_START = 90; //----------------------------------------
+//______________________________________________________________________
+
+
 const SQ = "\x27";
-
 const RC = new Enum (['OK', 'KO']);
-
 const NOTHING = 'NOTHING';
-
 const DEFAULT_NAMES = new Enum (['NOTHING']);
 
-const PAGE_INDEX_START = 80;
+
 
 const getFunctionName = (f) =>
 {

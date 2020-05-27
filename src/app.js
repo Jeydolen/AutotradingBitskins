@@ -3,6 +3,7 @@ const commander     = require ('commander');
 const B_L           = require ('./business-logic.js') ;
 const http_server   = require ('./httpserver.js');
 const SkinSellOrder = require ('./skin_sell_order.js').SkinSellOrder;
+const Skin          = require ('./skin.js').Skin ;
 const db            = require ('./db.js');
 
 //====================================================================================================================
@@ -24,13 +25,10 @@ commander.parse(process.argv);
 
 if (commander.server) 
 {
-  var dictionary = SkinSellOrder.GetInstances();
-  var values = Object.keys(dictionary).map(function(key)
-  {
-    return dictionary[key];
-  });
-
-  http_server.start(values)
+  var skin_map = Skin.Instances;
+  var skin_values = skin_map.values();
+  
+  http_server.start(skin_map);
 }
 
 if (commander.update)                              db.updateDb();

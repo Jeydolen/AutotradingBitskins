@@ -25,7 +25,7 @@ const mapToString = (map) =>
     return json_str;
 }; // mapToString()
 
-const pause = async (delay_msec) =>
+const pause = (delay_msec) =>
 {
     const cb = () => 
     {
@@ -34,7 +34,7 @@ const pause = async (delay_msec) =>
     }
     
     // stop for sometime if needed
-    await setTimeout(cb, delay_msec);
+    setTimeout(cb, delay_msec);
 } // pause
 
   

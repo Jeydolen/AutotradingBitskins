@@ -42,8 +42,10 @@ class Skin
     // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
     //console.log("Skin constructor : " + arg);
 
-    this.create_query_state  = QUERY_STATE.UNKNOWN;
-    this.update_query_state  = QUERY_STATE.UNKNOWN;
+    this._create_query_state  = QUERY_STATE.UNKNOWN;
+    this._update_query_state  = QUERY_STATE.UNKNOWN;
+    this._created_in_db       = false;
+    this._updated_in_db       = false;
 
     if ( arg == NULL_SKIN )
     {
@@ -76,22 +78,29 @@ class Skin
       //                     ------ left ------   ---------- right ----------
       // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
       this.name = "tututt";
-      var extracted_name = Skin.ExtractName(input_item.market_hash_name); 
-      this.name = Skin.ExtractName(input_item.market_hash_name); 
-      
-      //********** DEBUG de "Skin" (cf. Bug name = this.name + dans ExtractName) **********
-      // assert(this.name != "Skin");
-      //********** DEBUG de "Skin" **********
-
-      //konsole.log("B4 Skin.ExtractName:name: " + this.name);
-
-      this.item_rarity = this.computeRarityID(input_item.item_rarity);
+      var extracted_name  = Skin.ExtractName(input_item.market_hash_name); 
+      this.name           = Skin.ExtractName(input_item.market_hash_name); 
+      this.item_rarity    = this.computeRarityID(input_item.item_rarity);
     } // if (arg == NULL_SKIN)I
 
-    this.created_in_db = false;
-    this.updated_in_db = false;
+
   } // constructor()
 
+ 
+
+  setCreateQueryState (value) { this._create_query_state = value; }
+  getCreateQueryState ()      { return this._create_query_state;  }
+  getIsCreatedInDB    ()      { return this._created_in_db ;      }
+  setIsCreatedInDB    (value) { this._created_in_db = value;      }
+
+
+  setUpdateQueryState (value) 
+  { konsole.log("JVOIS RIEN SUR CE CLAVIER POURRI :" + value.key, LOG_LEVEL.ERROR); 
+    this._update_query_state = value; 
+  }
+  getUpdateQueryState ()      { return this._update_query_state;  }
+  getIsUpdatedInDB    ()      { return this._updated_in_db ;      }
+  setIsUpdatedInDB    (value) { this._updated_in_db = value;      }
 
   static ExtractName( market_hash_name )
   {
@@ -123,9 +132,7 @@ class Skin
   
   getName ()       { return this.name ; } // getName()
 
-  isCreatedInDB () { return this.created_in_db ; }
-  
-  isUpdatedInDB () { return this.updated_in_db ; }
+
 
 
   // !!! Must always return a Promise
@@ -141,7 +148,7 @@ class Skin
         konsole.log("Skin.createInDBTable() SELECT");
         var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': 'skin', 'db-name-value' : this.name});
         konsole.log("Trying SELECT_NAME in 'skin'", LOG_LEVEL.INFO);
-        this.create_query_state = QUERY_STATE.PENDING;
+        this.setCreateQueryState( QUERY_STATE.PENDING );
         query_select_obj.executeWithCB( db, query_text, insertQueryCB );
 
       }; // selectQuery()
@@ -158,38 +165,45 @@ class Skin
 
         if ( query_select_result[0].length == 0)
         {
-          var query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name } );
-          konsole.log("Trying INSERT_NAME in 'skin'\n", LOG_LEVEL.MSG);
-          query_insert_obj.executeWithCB( db, query_text, afterInsertQueryCB );
+          var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': 'skin', 'db-name-value': this.name } );
+          konsole.log("Trying INSERT_NAME in 'skin'", LOG_LEVEL.MSG);
+          query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
         }
         else 
           konsole.log ("Déja créé BLYAT", LOG_LEVEL.WARNING); 
       }; // insertQueryCB()
 
 
-      const afterInsertQueryCB = (err, query_insert_result) =>
+      const updateQueryCB = ( err, query_insert_result ) =>
       {
-          
-        //konsole.log("Skin.afterInsertQueryCB", LOG_LEVEL.OK);
-            
-        assert (this.create_query_state == QUERY_STATE.PENDING);
+        var query_update_obj = BB_SqlQuery.Create();
+        var update_query_text = expand(SQL_TEMPLATE.UPDATE_STR.value, { 'db-table': 'skin', 'db-field' : "image_url", 'db-field-value' : this.image_url, 'db-name-value' : this.name });     
+        konsole.log("Trying update in 'skin'", LOG_LEVEL.INFO);
+        query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
+      }; // updateQuery()
+
+
+      const afterUpdateQueryCB = (err, query_update_result) =>
+      {   
+        //konsole.log("Skin.afterInsertQueryCB", LOG_LEVEL.OK);  
+        assert (this.getCreateQueryState () == QUERY_STATE.PENDING );
 
         if (err)
         {
-          this.create_query_state   = QUERY_STATE.FAILED
+          this.setCreateQueryState( QUERY_STATE.FAILED );
           konsole.log ('Houston on a un prbl : ' +err, LOG_LEVEL.ERROR); 
         }
         else 
         {
-          this.create_query_state    = QUERY_STATE.DONE;
-          this.created_in_db  = true;
+          this.setCreateQueryState( QUERY_STATE.DONE );
+          this.setIsCreatedInDB   ( true );
         }
           
       }; // afterInsertQueryCB()
 
 
       // 1. UNKNOWN --> 2. PENDING --> 3. DONE / FAILED 
-      if (this.create_query_state == QUERY_STATE.UNKNOWN)
+      if (  this.getCreateQueryState () == QUERY_STATE.UNKNOWN )
           selectQuery();
 
       return Konst.RC.OK;
@@ -202,13 +216,15 @@ class Skin
   {
     assert(db_obj != undefined);
 
+    if (this.getIsUpdatedInDB () == true || this.getIsCreatedInDB () == false)
+     return;
 
     const updateQuery = () =>
     {
       var query_update_obj = BB_SqlQuery.Create();
       var update_query_text = expand(SQL_TEMPLATE.UPDATE_STR.value, { 'db-table': 'skin', 'db-field' : "image_url", 'db-field-value' : this.image_url, 'db-name-value' : this.name });     
       konsole.log("Trying update in 'skin'", LOG_LEVEL.INFO);
-      this.update_query_state = QUERY_STATE.PENDING;
+      this.setUpdateQueryState( QUERY_STATE.PENDING );
       query_update_obj.executeWithCB(db_obj, update_query_text, afterUpdateCB );
 
     }; // updateQuery()
@@ -216,23 +232,23 @@ class Skin
 
     const afterUpdateCB = (err, query_update_result) =>
     {
-      //konsole.log("Skin.afterUpdateCB", LOG_LEVEL.OK);
+      //konsole.log("Skin.afterUpdateCB result: " + JSON.stringify(query_update_result), LOG_LEVEL.OK);
                   
-      assert (this.update_query_state == QUERY_STATE.PENDING);
+      assert (this.getUpdateQueryState () == QUERY_STATE.PENDING);
 
       if (err)
       {
-        this.update_query_state = QUERY_STATE.FAILED
-        konsole.log ('Houston on a un prbl : ' +err, LOG_LEVEL.ERROR); 
+        this.setUpdateQueryState( QUERY_STATE.FAILED );
+        konsole.log ('Houston la mise a jour de updateInDB() à échoué : ' +err, LOG_LEVEL.CRITICAL); 
       }
       else 
       {
-        this.update_query_state     = QUERY_STATE.DONE;
-        this.updated_in_db          = true;
+        this.setUpdateQueryState( QUERY_STATE.DONE );
+        this.setIsUpdatedInDB   ( true );
       }
     }
 
-    if (this.update_query_state == QUERY_STATE.UNKNOWN)
+    if (this.getUpdateQueryState () == QUERY_STATE.UNKNOWN)
       updateQuery();
     return Konst.RC.OK;
     
@@ -255,6 +271,7 @@ class Skin
   static GetInstanceCount  ()
   {
       var instance_count = Skin.Instances.size ;  // Map !!
+      konsole.log("Skin.GetInstanceCount:" + instance_count, LOG_LEVEL.CRITICAL);
       return instance_count;
   } // GetInstanceCount()
 
