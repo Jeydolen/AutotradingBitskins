@@ -32,7 +32,8 @@ class BitskinsObject
 
   //   arg =    input_item ou name (pour NULL_SKIN)
   constructor( arg ) 
-  {      
+  {     
+    this.record_id            = Konst.NOTHING; 
     this._create_query_state  = QUERY_STATE.UNKNOWN;
     this._update_query_state  = QUERY_STATE.UNKNOWN;
     this._created_in_db       = false;
@@ -71,7 +72,7 @@ class BitskinsObject
         var query_select_obj = BB_SqlQuery.Create();
         konsole.log( this.getType() +".createInDBTable() SELECT");
         var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
-        konsole.log("Trying SELECT_NAME in '" + this.table + "'", LOG_LEVEL.INFO);
+        //konsole.log("Trying SELECT_NAME in '" + this.table + "'", LOG_LEVEL.INFO);
         this.setCreateQueryState( QUERY_STATE.PENDING );
         query_select_obj.executeWithCB( db, query_text, insertQueryCB );
 
@@ -88,7 +89,7 @@ class BitskinsObject
         if ( query_select_result[0].length == 0)
         {
           var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this.table, 'db-name-value': this.name } );
-          konsole.log("Trying INSERT_NAME in '" + this.table + "'", LOG_LEVEL.MSG);
+          //konsole.log("Trying INSERT_NAME in '" + this.table + "'", LOG_LEVEL.MSG);
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
         }
         else 
@@ -98,11 +99,14 @@ class BitskinsObject
 
       const updateQueryCB = ( err, query_insert_result ) =>
       {
+        if (this.getCoVaSeq() == Konst.NOTHING) 
+            return Konst.RC.OK;
+
         var query_update_obj  = BB_SqlQuery.Create();
         var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : this.getCoVaSeq(), 'db-field' : 'name', 'db-field-value' : this.name });     
         konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);
         query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
-        konsole.log ('Query text update : ' + update_query_text, LOG_LEVEL.INFO)
+        //konsole.log ('Query text update : ' + update_query_text, LOG_LEVEL.INFO)
       }; // updateQuery()
 
 

@@ -1,9 +1,10 @@
-const assert      = require ('assert');
+const assert            = require ('assert');
 
-const Konst       = require ('./constants.js') ;
-const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
-const konsole     = require ('./bb_log.js').konsole ;
-const BB_SqlQuery = require ('./bb_sql_query.js').BB_SqlQuery ;
+const Konst             = require ('./constants.js') ;
+const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL; 
+const konsole           = require ('./bb_log.js').konsole ;
+const BB_SqlQuery       = require ('./bb_sql_query.js').BB_SqlQuery ;
+const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
 
 
 
@@ -21,15 +22,16 @@ const BB_SqlQuery = require ('./bb_sql_query.js').BB_SqlQuery ;
 
 
 
-class SkinSellOrder
+class SkinSellOrder extends BitskinsObject
 {               // Valeur JSON
-    constructor( input_item) 
+    constructor( arg) 
     {
-        this.id_str = input_item.item_id;
-        this.market_name = input_item.market_hash_name;
-        this.state = this.computeStateID (input_item.float_value);
-        this.price = input_item.price;
-        this.recommanded_price = input_item.suggested_price;
+        super(arg)
+        this.id_str = arg.item_id;
+        this.market_name = arg.market_hash_name;
+        this.state = this.computeStateID (arg.float_value);
+        this.price = arg.price;
+        this.recommanded_price = arg.suggested_price;
     } // constructor
 
     //          requis
@@ -49,7 +51,7 @@ class SkinSellOrder
           + ' VALUES ( '+ this.id_str + '", "' +  this.market_name + '", ' +  this.state + '  );';
 
         var query_obj = BB_SqlQuery.Create();
-        query_obj.execute(db_obj, insert_query )
+        query_obj.executeWProm(db_obj, insert_query )
         .then( rows => 
         {
             // konsole.log(query_obj.getCommand() + " successful skin_sell_order", LOG_LEVEL.INFO);

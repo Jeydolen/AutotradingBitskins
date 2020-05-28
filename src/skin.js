@@ -1,17 +1,11 @@
 const assert      = require ('assert');
-const timestamp   = require ('time-stamp');
-const expand      = require ('expand-template')();
 
-
-const Konst       = require ('./constants.js') ;
 const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
 const konsole     = require ('./bb_log.js').konsole ;
 
 
 const BitskinsObject  = require ('./bb_obj.js').BitskinsObject;
-const BB_SqlQuery     = require ('./bb_sql_query.js').BB_SqlQuery ;
-const SQL_TEMPLATE    = require('./bb_sql_query.js').SQL_TEMPLATE;
-const QUERY_STATE     = require ('./bb_sql_query.js').QUERY_STATE;
+
 
 const NULL_SKIN   = "NULL_SKIN" ;
 const NULL_URL    = "http://NULL_URL";
@@ -128,7 +122,7 @@ class Skin extends BitskinsObject
   static GetInstanceCount  ()
   {
       var instance_count = Skin.Instances.size ;  // Map !!
-      konsole.log("Skin.GetInstanceCount:" + instance_count, LOG_LEVEL.CRITICAL);
+      //konsole.log("Skin.GetInstanceCount:" + instance_count, LOG_LEVEL.CRITICAL);
       return instance_count;
   } // GetInstanceCount()
 
@@ -165,7 +159,7 @@ class Skin extends BitskinsObject
 
     var new_skin = Skin.GetNullObject() ;
 
-    konsole.log ('Skin.Instances : ' + Skin.Instances, LOG_LEVEL.OK );
+    //konsole.log ('Skin.Instances : ' + Skin.Instances, LOG_LEVEL.OK );
 
     /*
     if ( Skin.Instances == undefined ) 
@@ -198,7 +192,7 @@ class Skin extends BitskinsObject
         new_skin = Skin.Instances.get( name );
 
         //konsole.log("Skin.Create new_skin retrouvé: " + JSON.stringify(new_skin));
-        konsole.log("Skin.Instances: count: " +  Skin.Instances.size );
+        //konsole.log("Skin.Instances: count: " +  Skin.Instances.size );
         //konsole.log("Skin.Instances: Skin.Instances: \n" +  utility.mapToString(Skin.Instances), LOG_LEVEL.WARNING ); 
     }
 

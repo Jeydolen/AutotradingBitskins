@@ -82,14 +82,14 @@ const saveSkinSellOrders = function (json_obj)
         // konsole.log("saveSkinSellOrders Trying tp create item( " + i + " )", LOG_LEVEL.MSG);
         konsole.log(" JSON Sell Order skins_create_query_count : " + skins_create_query_count, LOG_LEVEL.MSG);
 
-        /* //------------------ skin_set ------------------
-        var skin_set          = SkinSet.Create       (json_sell_orders[i]) ;
-        skin_set.storeInDB (db);
-        //------------------ skin_set ------------------*/
+        //------------------ skin_set ------------------
+        var skin_set_obj    = SkinSet.Create (json_sell_orders[i]) ;
+        skin_set_obj.createInDBTable (db);
+        //------------------ skin_set ------------------
 
 
         //------------------ skin ------------------
-        var skin_obj = Skin.Create( json_sell_orders[i] ) ;  
+        var skin_obj        = Skin.Create   (json_sell_orders[i]) ;  
         skin_obj.createInDBTable(db);
         //------------------ skin ------------------
         
@@ -99,46 +99,6 @@ const saveSkinSellOrders = function (json_obj)
         //skin_sell_order.storeInDB (db);
         //------------------ skin_sell_order ------------------
     } // for (CREATE)
-    
-    
-    var updated_instances = 0;
-
-    return;
-
-   while (updated_instances < Skin.GetInstanceCount() )
-    {
-        pause (6000);
-        for (var i = 0, len = json_sell_orders.length; i < len; i++) 
-        {
-            
-            // konsole.log("saveSkinSellOrders Trying tp create item( " + i + " )", LOG_LEVEL.MSG);
-
-            /* //------------------ skin_set ------------------
-            var skin_set          = SkinSet.Create       (json_sell_orders[i]) ;
-            skin_set.storeInDB (db);
-            //------------------ skin_set ------------------*/
-
-
-            //------------------ skin ------------------
-            var skin_obj = Skin.Create( json_sell_orders[i] ) ;  
-            
-            if ( skin_obj.getIsUpdatedInDB () )
-                updated_instances += 1 ;
-
-            else  
-            {   pause (100);
-                skin_obj.updateInDB     (db);
-            }
-            
-            //------------------ skin ------------------
-            
-            //------------------ skin_sell_order ------------------
-            //var skin_sell_order   = SkinSellOrder.Create (json_sell_orders[i]) ;
-            //skin_sell_order.storeInDB (db);
-            //------------------ skin_sell_order ------------------
-
-        } // for ()
-    } // while()
     
 }; // saveSkinSellOrders()
 
