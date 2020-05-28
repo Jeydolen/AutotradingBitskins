@@ -26,10 +26,10 @@ class SkinSet
         this.stored = false;
     } // constructor
 
-    //         requis
-    storeInDB (db_obj)
+    //           requis
+    createInDBTable ( db )
     {
-        assert( db_obj != undefined );
+        assert( db != undefined );
 
         if (this.name == undefined)
         {
@@ -37,17 +37,19 @@ class SkinSet
             return Konst.RC.KO;
         } 
 
-        if (this.stored) return Konst.RC.KO;
+        if (this.stored) 
+            return Konst.RC.OK;
 
         // konsole.log("SkinSet.storeinDB() name: " + this.name, ColorConsole.LOG_LEVEL.OK);
 
 
         // INSERT INTO `skin` (name) SELECT 'Forest' FROM DUAL WHERE NOT EXISTS (SELECT name FROM skin WHERE name='Forest');
+        var insert_query
         var conditional_insert_query = "INSERT INTO `skin_set` (`name`) SELECT '"+ this.name + "' FROM DUAL "
         +  "WHERE NOT EXISTS (SELECT `name` FROM `skin_set` WHERE `name`= '"+ this.name + "');";
 
         var query_obj = BB_SqlQuery.Create();
-        query_obj.execute(db_obj, conditional_insert_query )
+        query_obj.execute(db, conditional_insert_query )
         .then( rows => 
         {
             //konsole.log(query_obj.getCommand() + " successful in 'skin_set' ", LOG_LEVEL.INFO);

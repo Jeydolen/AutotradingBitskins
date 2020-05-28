@@ -22,7 +22,7 @@ const SQL_TEMPLATE = new Enum ({
     'INSERT_NAME'       : "INSERT INTO `{db-table}`   (`name`)                      VALUES ('{db-name-value}')  ;     #INSERT_NAME" , 
     'INSERT'            : "INSERT INTO `{db-table}` ({db-fields})                   VALUES ({db-field-values})  ;"                  ,
     'UPDATE_STR'        : "UPDATE {db-table} SET `{db-field}` = '{db-field-value}'  WHERE  name = '{db-name-value}' ;   #UPDATE_STR",
-    'UPDATE'            : "UPDATE {db-table} SET {assignment}                       WHERE  {db-field} = {db-field-value} ;"         ,
+    'UPDATE'            : "UPDATE {db-table} SET {co-va-seq}                        WHERE  `{db-field}` = '{db-field-value}' ;"     ,
     'SELECT_NAME'       : "SELECT `id`, `name`  FROM `{db-table}`                   WHERE   `name`='{db-name-value}'; #SELECT_NAME" ,
     'SELECT'            : "SELECT {db-fields}   FROM `{db-table}`                   WHERE   {db-condition}      ;"                  ,
     'DELETE'            : "DELETE FROM {db-table}                                                               ;"                  ,
