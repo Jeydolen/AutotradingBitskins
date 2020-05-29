@@ -3,7 +3,6 @@ const assert            = require ('assert');
 const Konst             = require ('./constants.js') ;
 const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL; 
 const konsole           = require ('./bb_log.js').konsole ;
-const BB_SqlQuery       = require ('./bb_sql_query.js').BB_SqlQuery ;
 const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
 
 
@@ -27,40 +26,18 @@ class SkinSellOrder extends BitskinsObject
     constructor( arg) 
     {
         super(arg)
-        this.id_str = arg.item_id;
-        this.market_name = arg.market_hash_name;
-        this.state = this.computeStateID (arg.float_value);
-        this.price = arg.price;
-        this.recommanded_price = arg.suggested_price;
+        this.name               = arg.item_id.replace ("'", "''");
+        this.market_name        = arg.market_hash_name.replace ("'", "''");
+        this.state              = this.computeStateID (arg.float_value);
+        this.price              = arg.price;
+        this.recommanded_price  = arg.suggested_price;
+        this.table              = 'skin_sell_order';
     } // constructor
 
-    //          requis
-    storeInDB ( db_obj )
-    {
-        //konsole.log("SkinSellOrder.storeInDB()");
-
-        assert( db_obj != undefined );
-
-        if (this.id_str == undefined)
-        {
-          konsole.log('business-logic.SkinSellOrder.storeinDB() : Sql error skin_sell_order.id: ' + this.id_str, LOG_LEVEL.ERROR);
-          return Konst.RC.KO;
-        } 
-
-        var insert_query =   'INSERT INTO `skin_sell_order` (`id_str`, `market_name`, `item_state`) '
-          + ' VALUES ( '+ this.id_str + '", "' +  this.market_name + '", ' +  this.state + '  );';
-
-        var query_obj = BB_SqlQuery.Create();
-        query_obj.executeWProm(db_obj, insert_query )
-        .then( rows => 
-        {
-            // konsole.log(query_obj.getCommand() + " successful skin_sell_order", LOG_LEVEL.INFO);
-        } );
-    } // storeInDB()
-
-    getName () 
-    {
-        return this.id_str ;
+    getCoVaSeq()
+    { 
+        var co_va_seq = "`market_name` = '" + this.market_name + "', `item_state` = " + this.state  + ", `price` = " + this.price + ", `recommanded_price` = " + this.recommanded_price ;
+        return co_va_seq;
     }
 
     computeStateID (value) 
@@ -100,7 +77,7 @@ class SkinSellOrder extends BitskinsObject
 
         if (SkinSellOrder.Instances[item_name] == undefined )
         {
-           // konsole.log ('Détection nouvel élément: ' + item_name, ColorConsole.LOG_LEVEL.OK)
+           konsole.log ('Détection nouvel élément: ' + item_name, LOG_LEVEL.OK)
             //console.log ('Détection nouvel élément: ' + item_name) ;
             sell_order = new SkinSellOrder (input_item);
             SkinSellOrder.Instances[sell_order.getName()] = sell_order ;

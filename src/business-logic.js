@@ -1,5 +1,3 @@
-"use strict";
-
 const BB_Database                = require ('./bb_database.js').BB_Database;
 const Konst                      = require ('./constants.js');
 const konsole                    = require ('./bb_log.js').konsole;
@@ -7,7 +5,7 @@ const LOG_LEVEL                  = require ('./bb_log.js').LOG_LEVEL ;
 const Skin                       = require ('./skin.js').Skin ;
 const SkinSet                    = require ('./skin_set.js').SkinSet ;
 const SkinSellOrder              = require ('./skin_sell_order.js').SkinSellOrder ;
-const pause                       = require ('./utility.js').pause;
+const WeaponCategory             = require ('./weapon_category.js').WeaponCategory; 
 
 var exitFetchItems = false;
 
@@ -56,7 +54,7 @@ const parseOnResponseReady = ( json_data ) =>
         konsole.log('firstItem : ' + json_obj['data']['items'][0].market_hash_name, LOG_LEVEL.MSG);
         konsole.log("page :" +json_obj['data']['page'], LOG_LEVEL.MSG)
 
-        saveSkinSellOrders( json_obj ); 
+        populateDB( json_obj ); 
     };
 
     setExitFetchItems (items_count == 0);
@@ -65,7 +63,7 @@ const parseOnResponseReady = ( json_data ) =>
 } // parseOnResponseReady()
 
 
-const saveSkinSellOrders = function (json_obj)
+const populateDB = (json_obj) =>
 {
     var json_sell_orders = json_obj['data']['items'];
     var json_sell_order_count = json_sell_orders.length;
@@ -74,33 +72,36 @@ const saveSkinSellOrders = function (json_obj)
 
     var db = BB_Database.GetSingleton();
 
-    var skins_create_query_count = 0;
-    var created_skins_count      = 0;
+   
 
     for (var i = 0, len = json_sell_order_count; i < len; i++) 
     {
-        // konsole.log("saveSkinSellOrders Trying tp create item( " + i + " )", LOG_LEVEL.MSG);
-        konsole.log(" JSON Sell Order skins_create_query_count : " + skins_create_query_count, LOG_LEVEL.MSG);
 
         //------------------ skin_set ------------------
-        var skin_set_obj    = SkinSet.Create (json_sell_orders[i]) ;
+        var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
         skin_set_obj.createInDBTable (db);
         //------------------ skin_set ------------------
 
 
+        //------------------ weapon_category ------------------
+        var weapon_category_obj     = WeaponCategory.Create (json_sell_orders[i]) ;
+        weapon_category_obj.createInDBTable (db);
+        //------------------ weapon_category ------------------
+
+
         //------------------ skin ------------------
-        var skin_obj        = Skin.Create   (json_sell_orders[i]) ;  
+        var skin_obj                = Skin.Create   (json_sell_orders[i]) ;  
         skin_obj.createInDBTable(db);
         //------------------ skin ------------------
         
 
         //------------------ skin_sell_order ------------------
-        //var skin_sell_order   = SkinSellOrder.Create (json_sell_orders[i]) ;
-        //skin_sell_order.storeInDB (db);
+        var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
+        skin_sell_order_obj.createInDBTable (db);
         //------------------ skin_sell_order ------------------
     } // for (CREATE)
     
-}; // saveSkinSellOrders()
+}; // populateDB()
 
 //--------------------------------------------------------------
 //--------------------  BusinessRule class  --------------------
@@ -156,7 +157,7 @@ const test = () =>
 
 //test();
 
-exports.saveSkinSellOrders = saveSkinSellOrders;
+exports.populateDB = populateDB;
 exports.parseOnResponseReady = parseOnResponseReady ;
 exports.getExitFetchItems = getExitFetchItems;
 exports.setExitFetchItems = setExitFetchItems;

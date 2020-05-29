@@ -4,7 +4,6 @@ const asynk        = require ('async');
 const assert       = require ('assert');
 const expand       = require ('expand-template')();
 
-const sql_u        = require ('./sql_utilities.js');
 const konsole      = require('./bb_log.js').konsole;
 const LOG_LEVEL    = require('./bb_log.js').LOG_LEVEL;
 const BB_Database  = require('./bb_database.js').BB_Database;
@@ -67,91 +66,7 @@ const executeClearQuery = (db, table) =>
         }
     );
 
-    return Konst.RC.OK;
-
-    //=================================================================================
-
-/*   /$$$$$$  /$$    /$$ /$$$$$$$$  /$$$$$$        /$$$$$$$  /$$$$$$$   /$$$$$$  /$$      /$$ /$$$$$$  /$$$$$$  /$$$$$$$$
-    /$$__  $$| $$   | $$| $$_____/ /$$__  $$      | $$__  $$| $$__  $$ /$$__  $$| $$$    /$$$|_  $$_/ /$$__  $$| $$_____/
-    | $$  \ $$| $$   | $$| $$      | $$  \__/      | $$  \ $$| $$  \ $$| $$  \ $$| $$$$  /$$$$  | $$  | $$  \__/| $$      
-    | $$$$$$$$|  $$ / $$/| $$$$$   | $$            | $$$$$$$/| $$$$$$$/| $$  | $$| $$ $$/$$ $$  | $$  |  $$$$$$ | $$$$$   
-    | $$__  $$ \  $$ $$/ | $$__/   | $$            | $$____/ | $$__  $$| $$  | $$| $$  $$$| $$  | $$   \____  $$| $$__/   
-    | $$  | $$  \  $$$/  | $$      | $$    $$      | $$      | $$  \ $$| $$  | $$| $$\  $ | $$  | $$   /$$  \ $$| $$      
-    | $$  | $$   \  $/   | $$$$$$$$|  $$$$$$/      | $$      | $$  | $$|  $$$$$$/| $$ \/  | $$ /$$$$$$|  $$$$$$/| $$$$$$$$
-    |__/  |__/    \_/    |________/ \______/       |__/      |__/  |__/ \______/ |__/     |__/|______/ \______/ |________/*/
-        // konsole.log("query_text: " + query_text, LOG_LEVEL.OK);
-
-    var query_delete_obj        = BB_SqlQuery.Create();
-    var query_alter_obj         = BB_SqlQuery.Create();
-    var query_insert_null_obj   = BB_SqlQuery.Create();
-
-    var query_insert_null_promise;
-
-    // 1. DELETE Query
-    var query_delete_text       = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
-    var query_delete_promise    = query_delete_obj.execute( db,  query_delete_text )
-    .then( () =>  
-    {   // Definition de resolve() pour DELETE
-        konsole.log(query_delete_obj.getCommand() + "\t\t successful CLEAR (DELETE) in '" + table + "'", LOG_LEVEL.INFO);
-        
-        // 2. ALTER Query
-        var query_alter_text = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
-
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining
-        // Note that () => x is short for () => { return x; }
-        var query_alter_promise = query_alter_obj.execute( db,  query_alter_text );
-        //return query_alter_promise;
-    } )
-    .then( () =>  
-    {   // Definition de resolve() pour ALTER
-        konsole.log(query_alter_obj.getCommand() + "\t successful ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
-
-        // 3. INSERT_NULL Query
-        var query_insert_null_text = expand(SQL_TEMPLATE.INSERT_NULL.value, { 'db-table': table, 'db-name-value': 'NULL_'+ table.toUpperCase()});
-        // konsole.log(query_insert_null_text);
-        query_insert_null_promise = query_insert_null_obj.execute( db,  query_insert_null_text ); 
-        //return query_insert_null_promise;
-    } )
-    .then( () => 
-    {   // Definition de resolve() pour Résultat de INSERT_NULL
-        konsole.log(query_insert_null_obj.getCommand() + "\t successful INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
-        //return query_delete_promise;
-    } )
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises#Chaining@"Chaining after a catch"
-    .catch( () =>
-    {   // Definition de reject()
-            konsole.log("db.executeClearQuery() ERROR \n", LOG_LEVEL.CRITICAL);
-        }
-    );
-
-    /*
-    .catch(    
-    {   // Definition de reject()
-        konsole.log(query_insert_null_obj.getCommand() + "\t successful INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
-    }
-    ));
-*/
-
-    //return query_insert_null_promise ;
-    //return query_delete_promise ;
-}; // executeClearQuery ()
-
-
-// !! Must be called like this: promise.then( rows => { insertNullObjectQuery((db, table) } )
-const insertNullObjectQuery = (db, table, field) =>
-{
-    assert (table != undefined && table != "" && db != undefined && field != undefined);
-
-    var query_text =   "INSERT INTO `" + table + "` (`id`,`"+ field + "`) VALUES (0,'NULL_" + table.toUpperCase() + "')";
-
-    var query_obj = BB_SqlQuery.Create() ;
-    query_obj.execute (db, query_text)
-    .then ( rows => 
-    {
-            //konsole.log(query_obj.getCommand() + " successful NULL_OBJECT in '" + table + "'", LOG_LEVEL.INFO);
-    } );
-}; // insertNullObjectQuery ()
-
+};
 
 const backupDB = () =>  
 {
@@ -178,10 +93,11 @@ const clearTables = () =>
     var db = BB_Database.GetSingleton();
     konsole.log("db.clearTables() db: " + db.toString());
 
-    executeClearQuery   (db, "skin_set");//.then (rows =>          { insertNullObjectQuery(db, "skin_set", "name" )});
-    executeClearQuery   (db, "skin");//.then (rows =>              { insertNullObjectQuery(db, "skin", "name" )});
-    executeClearQuery   (db, "skin_sell_order");//.then (rows =>   { insertNullObjectQuery(db, "skin_sell_order", "market_name" )});
-
+    executeClearQuery   (db, "weapon_category");
+    executeClearQuery   (db, "skin_set");
+    executeClearQuery   (db, "skin");
+    executeClearQuery   (db, "skin_sell_order");
+    
 }; // clearTables()
 
 

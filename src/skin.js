@@ -159,15 +159,6 @@ class Skin extends BitskinsObject
 
     var new_skin = Skin.GetNullObject() ;
 
-    //konsole.log ('Skin.Instances : ' + Skin.Instances, LOG_LEVEL.OK );
-
-    /*
-    if ( Skin.Instances == undefined ) 
-    {
-        //console.log ('Skin Dictionnaire init') ;
-        Skin.Instances = {} ;
-    }*/
-
     var name = Skin.ExtractName( input_item.market_hash_name );
 
     //if (Skin.Instances.hasOwnProperty(name))

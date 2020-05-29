@@ -1,11 +1,7 @@
-const assert      = require ('assert');
-
 const BitskinsObject  = require ('./bb_obj.js').BitskinsObject;
 
-const Konst       = require ('./constants.js') ;
 const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
 const konsole     = require ('./bb_log.js').konsole ;
-const BB_SqlQuery = require ('./bb_sql_query.js').BB_SqlQuery ;
 
 
 /*
