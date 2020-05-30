@@ -3,12 +3,13 @@ const Enum = require('enum');
 const chalk = require ('chalk');
 const timestamp = require ('time-stamp');
 const path = require('path');
+const readline          = require('readline-sync');
 
 const Konst   = require ('./constants.js'); 
 
 global.appRoot = path.resolve(__dirname);
 
-const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO', 'PAUSE', 'ERROR', 'CRITICAL' ])
+const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO', 'PAUSE', 'ERROR', 'CRITICAL', 'STEP' ])
 
 const COLORS = new Enum ( {'PURPLE': '#DA6DE6', 'CYAN': '#0BC6A7', 'OCHRE': '#D6BC24', 'ORANGE': '#F78A07' } );
 
@@ -70,6 +71,15 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
 
         else if (log_level == LOG_LEVEL.INFO )
             console.log(chalk.hex(COLORS.CYAN.value)(arg_msg));
+
+
+        else if (log_level == LOG_LEVEL.STEP )
+        {
+            console.log(chalk.hex(COLORS.CYAN.value)(arg_msg));
+            if (readline.keyInYN("Do you want to stop ?")) 
+                process.exit(0);
+        }
+            
 
         else if (log_level == LOG_LEVEL.PAUSE)
             console.log(chalk.hex(COLORS.OCHRE.value)(arg_msg));

@@ -78,8 +78,8 @@ const populateDB = (json_obj) =>
     {
 
         //------------------ skin_set ------------------
-        var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
-        skin_set_obj.createInDBTable (db);
+        //var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
+        //skin_set_obj.createInDBTable (db);
         //------------------ skin_set ------------------
 
 
@@ -90,14 +90,14 @@ const populateDB = (json_obj) =>
 
 
         //------------------ skin ------------------
-        var skin_obj                = Skin.Create   (json_sell_orders[i]) ;  
-        skin_obj.createInDBTable(db);
+        //var skin_obj                = Skin.Create   (json_sell_orders[i]) ;  
+        //skin_obj.createInDBTable(db);
         //------------------ skin ------------------
         
 
         //------------------ skin_sell_order ------------------
-        var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
-        skin_sell_order_obj.createInDBTable (db);
+        //var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
+        //skin_sell_order_obj.createInDBTable (db);
         //------------------ skin_sell_order ------------------
     } // for (CREATE)
     

@@ -89,8 +89,9 @@ class BitskinsObject
         if ( query_select_result[0].length == 0)
         {
           var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this.table, 'db-name-value': this.name } );
-          //konsole.log("Trying INSERT_NAME in '" + this.table + "'", LOG_LEVEL.MSG);
+          konsole.log ("-----------BBOBJ Avant insert (WC)" + insert_query_text, LOG_LEVEL.STEP);
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
+          konsole.log ("------------BBOBJ Apres insert (WC)" + insert_query_text, LOG_LEVEL.OK);
         }
         else 
           konsole.log ("BB_Obj Déja créé BLYAT", LOG_LEVEL.WARNING); 
@@ -99,9 +100,13 @@ class BitskinsObject
 
       const updateQueryCB = ( err, query_insert_result ) =>
       {
+
+        if (err)
+          konsole.log ("ERREURRE" + err, LOG_LEVEL.CRITICAL);
         if (this.getCoVaSeq() == Konst.NOTHING) 
             return Konst.RC.OK;
-
+        
+        konsole.log ('INSERT RESULT :' + query_insert_result);
         var query_update_obj  = BB_SqlQuery.Create();
         var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : this.getCoVaSeq(), 'db-field' : 'name', 'db-field-value' : this.name });     
         konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);

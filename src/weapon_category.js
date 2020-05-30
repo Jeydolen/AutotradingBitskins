@@ -1,9 +1,11 @@
-const assert      = require ('assert');
+const assert            = require ('assert');
 
-const BitskinsObject  = require ('./bb_obj.js').BitskinsObject;
 
-const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
-const konsole     = require ('./bb_log.js').konsole ;
+const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
+
+const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL; 
+const konsole           = require ('./bb_log.js').konsole ;
+
 
 
 const NULL_WEAPON_CATEGORY  = "NULL_WEAPON_CATEGORY" ;
@@ -39,21 +41,32 @@ class WeaponCategory extends BitskinsObject
         else 
             this.name = WeaponCategory.ExtractName(arg) ; 
 
+        konsole.log("WeaponCategory.constuctor this.name: "+ this.name, LOG_LEVEL.PAUSE);
+
         this.table = 'weapon_category';
     } // constructor
 
     static ExtractName( input_item )
     {
-        //konsole.log("Skin.ExtractName market_hash_name: '" + market_hash_name + "'", LOG_LEVEL.MSG)
+        assert (input_item != undefined);
+        assert (input_item.hasOwnProperty('item_weapon'));
+        //konsole.log ('coucou :' + typeof (input_item.item_weapon), LOG_LEVEL.STEP);
         var name = input_item.item_weapon;
 
-        if (name == undefined)
-            name = NULL_WEAPON_CATEGORY;
+        if (name == undefined || name == 'null' ||name == null)
+            name = NULL_CASE;
         else    
             name = name.replace ("'", "''");
     
         return name;// ExtractName()
     }
+
+    getCoVaSeq () 
+  { 
+    var assignement_value = "`parent_category_id` = 1" ;
+    return assignement_value;
+  }
+
 
   
     static GetNullObject() 
@@ -70,7 +83,7 @@ class WeaponCategory extends BitskinsObject
   
         var weapon_category = WeaponCategory.Instances.get (name);
         if (weapon_category != undefined)   return weapon_category;
-        else                                return null_weapon_category;
+        else                                return WeaponCategory.NULL;
     } // GetWeaponCategory()
     
     
@@ -78,7 +91,7 @@ class WeaponCategory extends BitskinsObject
     static GetInstanceCount  ()
     {
         var instance_count = WeaponCategory.Instances.size ;  // Map !!
-        konsole.log("WeaponCategory.GetInstanceCount:" + instance_count, LOG_LEVEL.CRITICAL);
+        konsole.log("WeaponCategory.GetInstanceCount:" + instance_count, LOG_LEVEL.OK);
         return instance_count;
     } // GetInstanceCount()
 
@@ -89,22 +102,27 @@ class WeaponCategory extends BitskinsObject
 
         var item_weapon = input_item.item_weapon;
 
+        konsole.log ("WeaponCategory.Create avant test(" + item_weapon +")", LOG_LEVEL.OK);
+
         if (item_weapon == undefined || item_weapon == null )
             item_weapon = NULL_WEAPON_CATEGORY;
 
         if (item_weapon == 'null')
-                konsole.log ("PAS COOL !!", LOG_LEVEL.CRITICAL);
-
-        konsole.log ("WeaponCategory.Create()\n", LOG_LEVEL.ERROR);
-        konsole.log (item_weapon, LOG_LEVEL.MSG);
-
-        var name = item_weapon.replace ("'", "''");;
+                konsole.log ("PAS COOL !!", LOG_LEVEL.OK);
+        
+        var name = WeaponCategory.ExtractName( input_item);
+        konsole.log ("WeaponCategory.Create( " + name + " )", LOG_LEVEL.OK);
+        konsole.log ("item_weapon : " + item_weapon, LOG_LEVEL.MSG);
+   
 
         var weapon_category = WeaponCategory.GetNullObject() ; 
 
         //if (WeaponCategory.Instances.hasOwnProperty(name))
+        konsole.log ("WeaponCategory.Instances.get( name ): " + JSON.stringify(name), LOG_LEVEL.OK) ;
+
         if ( WeaponCategory.Instances.get( name )  == undefined  || WeaponCategory.Instances.get (name) === undefined )
         {
+            konsole.log ("name : " + JSON.stringify(name)) ;
             konsole.log ('Détection nouveau WeaponCategory', LOG_LEVEL.OK) ;
 
             weapon_category = new WeaponCategory ( input_item );
@@ -117,7 +135,7 @@ class WeaponCategory extends BitskinsObject
         }
         else 
         {
-            konsole.log ('WeaponCategory déja créé : ' + name, LOG_LEVEL.OK );
+            konsole.log ('WeaponCategory déja créé : ' + name, LOG_LEVEL.WARNING );
             //new_weapon_category = Skin.Instances[name] ;
 
             weapon_category = WeaponCategory.Instances.get( name );
