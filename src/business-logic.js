@@ -1,3 +1,6 @@
+const assert            = require ('assert');
+
+
 const BB_Database                = require ('./bb_database.js').BB_Database;
 const Konst                      = require ('./constants.js');
 const konsole                    = require ('./bb_log.js').konsole;
@@ -5,7 +8,7 @@ const LOG_LEVEL                  = require ('./bb_log.js').LOG_LEVEL ;
 const Skin                       = require ('./skin.js').Skin ;
 const SkinSet                    = require ('./skin_set.js').SkinSet ;
 const SkinSellOrder              = require ('./skin_sell_order.js').SkinSellOrder ;
-const WeaponCategory             = require ('./weapon_category.js').WeaponCategory; 
+const Weapon                     = require ('./weapon.js').Weapon; 
 
 var exitFetchItems = false;
 
@@ -54,8 +57,9 @@ const parseOnResponseReady = ( json_data ) =>
         konsole.log('firstItem : ' + json_obj['data']['items'][0].market_hash_name, LOG_LEVEL.MSG);
         konsole.log("page :" +json_obj['data']['page'], LOG_LEVEL.MSG)
 
-        populateDB( json_obj ); 
-    };
+       populateDB( json_obj ); 
+       //populateDBInCascade( json_obj );
+    }
 
     setExitFetchItems (items_count == 0);
 
@@ -78,30 +82,117 @@ const populateDB = (json_obj) =>
     {
 
         //------------------ skin_set ------------------
-        //var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
-        //skin_set_obj.createInDBTable (db);
+        var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
+        skin_set_obj.createInDBTable (db);
         //------------------ skin_set ------------------
 
 
-        //------------------ weapon_category ------------------
-        var weapon_category_obj     = WeaponCategory.Create (json_sell_orders[i]) ;
-        weapon_category_obj.createInDBTable (db);
-        //------------------ weapon_category ------------------
+        //------------------ weapon ------------------
+        var weapon_obj     = Weapon.Create (json_sell_orders[i]) ;
+        weapon_obj.createInDBTable (db);
+        //------------------ weapon ------------------
 
 
         //------------------ skin ------------------
-        //var skin_obj                = Skin.Create   (json_sell_orders[i]) ;  
-        //skin_obj.createInDBTable(db);
+        var skin_obj                = Skin.Create   (json_sell_orders[i]) ;  
+        skin_obj.createInDBTable(db);
         //------------------ skin ------------------
         
 
         //------------------ skin_sell_order ------------------
-        //var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
-        //skin_sell_order_obj.createInDBTable (db);
+        var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
+        skin_sell_order_obj.createInDBTable (db);
         //------------------ skin_sell_order ------------------
     } // for (CREATE)
     
 }; // populateDB()
+
+
+const populateDBInCascade = (json_obj) =>
+{ 
+    
+    assert(json_obj != undefined);
+
+    var json_sell_orders = json_obj['data']['items'];
+    var json_sell_order_count = json_sell_orders.length;
+
+    konsole.log(" JSON Sell Order count : " + json_sell_order_count, LOG_LEVEL.MSG);
+
+    var db = BB_Database.GetSingleton();
+
+    var create_in_db_table_done_count = 0;
+    var next_cb = Konst.NOTHING;
+    
+    const countCreateInDBTableDone = () =>
+    {
+        create_in_db_table_done_count++;
+        if ( create_in_db_table_done_count == json_sell_order_count - 1 )
+            next_cb();
+    }; // countCreateInDBTableDone()
+
+
+    const populateDBWithWeapon = () =>
+    {
+        create_in_db_table_done_count = 0;
+        next_cb = populateDBWithSkinset_CB;
+        for (var i = 0, len = json_sell_order_count; i < len; i++) 
+        {
+            var weapon_obj = Weapon.Create (json_sell_orders[i]) ;
+            weapon_obj.createInDBTable ( db, countCreateInDBTableDone);
+        }
+    }; // populateDBWithWeapon()
+
+
+    const populateDBWithSkinset_CB = () =>
+    {
+        create_in_db_table_done_count = 0;
+        next_cb = populateDBWithSkin_CB;
+        for (var i = 0, len = json_sell_order_count; i < len; i++) 
+        {
+            var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
+            skin_set_obj.createInDBTable (db, countCreateInDBTableDone );
+        }
+    }; // populateDBWithSkinset_CB()
+
+
+    const populateDBWithSkin_CB = () =>
+    { 
+        create_in_db_table_done_count = 0;
+        next_cb = populateDBWithSkinSellOrder_CB;
+        for (var i = 0, len = json_sell_order_count; i < len; i++) 
+        {
+            var skin_obj            = Skin.Create (json_sell_orders[i]) ;
+            skin_obj.createInDBTable (db, countCreateInDBTableDone );
+        }
+    }; // populateDBWithSkin_CB()
+
+
+    const populateDBWithSkinSellOrder_CB = () =>
+    {   
+    create_in_db_table_done_count = 0;
+    next_cb = populateEnd_CB;
+    for (var i = 0, len = json_sell_order_count; i < len; i++) 
+    {
+        var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
+        skin_sell_order_obj.createInDBTable (db, countCreateInDBTableDone );
+    }
+    }; // populateDBWithSkinSellOrder_CB()
+
+
+    const populateEnd_CB = () =>
+    {   
+        konsole.log ("POPULATE IS FINISHED ", LOG_LEVEL.CRITICAL);
+    }; // populateEnd_CB()
+
+
+
+
+    populateDBWithWeapon();
+
+    return Konst.RC.OK;
+
+} // populateDBInCascade()
+
 
 //--------------------------------------------------------------
 //--------------------  BusinessRule class  --------------------

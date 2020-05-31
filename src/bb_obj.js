@@ -61,11 +61,11 @@ class BitskinsObject
   getCoVaSeq () { return  Konst.NOTHING; } // Column - value - sequence
 
 
-  //                requis
-  createInDBTable ( db )
+  //                requis //requis
+  createInDBTable ( db,    cb )
   { 
-      
       assert(db != undefined);
+      //assert(cb != undefined);
 
       const selectQuery = () =>
       {
@@ -89,9 +89,7 @@ class BitskinsObject
         if ( query_select_result[0].length == 0)
         {
           var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this.table, 'db-name-value': this.name } );
-          konsole.log ("-----------BBOBJ Avant insert (WC)" + insert_query_text, LOG_LEVEL.STEP);
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
-          konsole.log ("------------BBOBJ Apres insert (WC)" + insert_query_text, LOG_LEVEL.OK);
         }
         else 
           konsole.log ("BB_Obj Déja créé BLYAT", LOG_LEVEL.WARNING); 
@@ -130,7 +128,8 @@ class BitskinsObject
           this.setCreateQueryState( QUERY_STATE.DONE );
           this.setIsCreatedInDB   ( true );
         }
-          
+
+        //cb();   
       }; // afterInsertQueryCB()
 
 

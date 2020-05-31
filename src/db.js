@@ -93,7 +93,7 @@ const clearTables = () =>
     var db = BB_Database.GetSingleton();
     konsole.log("db.clearTables() db: " + db.toString());
 
-    executeClearQuery   (db, "weapon_category");
+    executeClearQuery   (db, "weapon");
     executeClearQuery   (db, "skin_set");
     executeClearQuery   (db, "skin");
     executeClearQuery   (db, "skin_sell_order");
@@ -130,6 +130,13 @@ const updateDb = () =>
 
 }; // updateDb ()
 
+
+const updateDBInCascade = () => 
+{
+    clearTables();
+  
+ 
+}; // updateDb ()
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
 exports.restoreDB = restoreDB ;

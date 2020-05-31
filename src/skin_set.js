@@ -1,8 +1,13 @@
+const assert      = require ('assert');
+
 const BitskinsObject  = require ('./bb_obj.js').BitskinsObject;
 
 const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
 const konsole     = require ('./bb_log.js').konsole ;
 
+
+const NULL_SKINSET              = "NULL_SKINSET" ;
+const NULL_STICKER_CAPSULE      = "NULL_STICKER_CAPSULE";
 
 /*
   /$$$$$$  /$$       /$$            /$$$$$$              /$$    
@@ -19,20 +24,45 @@ const konsole     = require ('./bb_log.js').konsole ;
 class SkinSet extends BitskinsObject
 {
     static Instances  = new Map();
+    static NULL       = SkinSet.GetNullObject();
 
     constructor(arg) 
     {
         super (arg);
-        this.name = arg ; 
+        if (arg == NULL_SKINSET)
+            this.name = arg ; 
+        else
+            this.name = SkinSet.ExtractName(arg);
         this.table = 'skin_set';
     } // constructor
 
+    static ExtractName( input_item )
+    {
+        assert (input_item != undefined);
+        assert (input_item.hasOwnProperty('tags'));
+        
+        var name = input_item.tags.itemset;
+        if (name == undefined)
+        {
+            name = NULL_SKINSET;
+            if (input_item.tags.stickercapsule != undefined)
+                name = NULL_STICKER_CAPSULE;
+        }
+            
+        konsole.log (JSON.stringify(input_item.tags));
+        assert (name != undefined);
+
+        //konsole.log ('coucou :' + typeof (input_item.item_weapon), LOG_LEVEL.STEP);
+        name = name.replace ("'", "''");
+    
+        return name;// ExtractName()
+    }
   
     static GetNullObject() 
     {
-        if (SkinSet.NULL_SKIN_SET == undefined)
-            SkinSet.NULL_SKIN_SET = new SkinSet( "NULL_SKIN_SET");
-        return SkinSet.NULL_SKIN_SET;
+        if (SkinSet.NULL   == undefined)
+            SkinSet.NULL   = new SkinSet( NULL_SKINSET );
+        return SkinSet.NULL;
     } // GetNullObject() 
 
 
@@ -40,7 +70,7 @@ class SkinSet extends BitskinsObject
     {
         var null_skin_set = SkinSet.GetNullObject();
   
-        var skin_set = SkinSet.Instances[name];
+        var skin_set = SkinSet.Instances.get (name);
         if (skin_set != undefined)  return skin_set;
         else                        return null_skin_set;
     } // GetSkinSet()
@@ -56,35 +86,27 @@ class SkinSet extends BitskinsObject
 
     static Create (input_item)
     {
-        //konsole.log("SkinSet.Create() ", LOG_LEVEL.WARNING);
+        assert (input_item != undefined);
 
         var skin_set = SkinSet.GetNullObject();
 
-        if ( SkinSet.Instances === undefined ) 
+        var name = SkinSet.ExtractName(input_item);
+
+        if (SkinSet.Instances.get (name) == undefined )
         {
-           // console.log ('Skin set Dictionnaire init') ;
-            SkinSet.Instances = {} ;
+            skin_set = new SkinSet (input_item);
+            // MxI.$Log.write (skin_set.getName(), ColorConsole.LOG_LEVEL.MSG);
+            SkinSet.Instances.set ( name,skin_set );
         }
-      
-        if (input_item != undefined  &&  input_item['tags'] != undefined  &&  input_item['tags']['itemset']!= undefined)
+        else
         {
-            var name = input_item['tags']['itemset'];
-            if (SkinSet.Instances[name] == undefined )
-            {
-                skin_set = new SkinSet (name);
-                // MxI.$Log.write (skin_set.getName(), ColorConsole.LOG_LEVEL.MSG);
-                SkinSet.Instances[name] = skin_set ;
-            }
-            else
-            {
-                //konsole.log ('SkinSet déja créé : ' + name, LOG_LEVEL.WARNING);
-                skin_set = SkinSet.Instances[name] ;
-            }
+            //konsole.log ('SkinSet déja créé : ' + name, LOG_LEVEL.WARNING);
+            skin_set = SkinSet.Instances.get (name) ;
         }
 
         return skin_set ;
     }
 } // SkinSet class
-SkinSet.NULL_SKIN_SET;
+
 exports.SkinSet = SkinSet ;
 //----------------------- SkinSet class -----------------------
