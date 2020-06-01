@@ -39,6 +39,11 @@ class konsole
     {
         MxI.$Log.write(msg, log_level);
     }
+
+    static error( msg )
+    {
+        konsole.log( msg, LOG_LEVEL.ERROR);
+    } // error()
 } // konsole class
 
 //============ 'ColorConsole' implementation class ============

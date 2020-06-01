@@ -101,8 +101,12 @@ class BitskinsObject
 
         if (err)
           konsole.log ("ERREURRE" + err, LOG_LEVEL.CRITICAL);
+
         if (this.getCoVaSeq() == Konst.NOTHING) 
-            return Konst.RC.OK;
+        {
+          afterUpdateQueryCB( Konst.NOTHING, Konst.NOTHING);
+          return Konst.RC.OK;
+        }
         
         konsole.log ('INSERT RESULT :' + query_insert_result);
         var query_update_obj  = BB_SqlQuery.Create();
@@ -129,7 +133,7 @@ class BitskinsObject
           this.setIsCreatedInDB   ( true );
         }
 
-        //cb();   
+        cb( this.getType() );   // increment 
       }; // afterInsertQueryCB()
 
 
