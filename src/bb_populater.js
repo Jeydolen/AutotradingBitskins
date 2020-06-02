@@ -29,6 +29,8 @@ class DBPopulater
         this.name = name;
         this.result = Konst.NOTHING;
         this.page_index = PAGE_INDEX_START;
+        this.create_in_db_table_done_count = 0;
+        this.next_cb = Konst.NOTHING;
     } // constructor
 
 
@@ -43,14 +45,14 @@ class DBPopulater
     } // GetSingleton()
 
     getName () {return this.name ;}
-    getType () {return this.constructor.name ;}
+    getType () {return this.constructor.name; }
 
     getPageIndex () { return this.page_index; } 
 
 
-    populateDBInCascade  (json_obj) 
+    populateDBInCascade ( json_obj ) 
     { 
-        assert(json_obj != undefined);
+        assert( json_obj != undefined );
 
         var json_sell_orders = json_obj['data']['items'];
         var json_sell_order_count = json_sell_orders.length;
@@ -58,67 +60,73 @@ class DBPopulater
         konsole.log(" JSON Sell Order count : " + json_sell_order_count, LOG_LEVEL.MSG);
 
         var db = BB_Database.GetSingleton();
-
-        var create_in_db_table_done_count = 0;
-        var next_cb = Konst.NOTHING;
         
-        const countCreateInDBTableDone = (klass_name) =>
+
+        const countCreateInDBTableDone = ( bb_obj ) =>
         {
-            create_in_db_table_done_count++;
-            if ( create_in_db_table_done_count == json_sell_order_count - 1 )
+            assert( bb_obj != undefined );
+
+            konsole.log ("DBPopulater.countCreateInDBTableDone: " + bb_obj.getType() + " name:" + bb_obj.getName() + " count: " + this.create_in_db_table_done_count + "   next cb: " + this.next_cb.name, LOG_LEVEL.ERROR);
+            this.create_in_db_table_done_count++;
+            if ( this.create_in_db_table_done_count >= json_sell_order_count - 1 )
             {
-                create_in_db_table_done_count = 0;
-                next_cb();
+                this.create_in_db_table_done_count = 0;
+                this.next_cb();
             }    
-            konsole.log ("Je suis passé par ici name: " + klass_name + " count: " +create_in_db_table_done_count + "   next cb: " + next_cb.name, LOG_LEVEL.OK);
-            konsole.error("json_sell_order_count " + json_sell_order_count);
+            //konsole.log ("Je suis passé par ici name: " + this.getType() + " count: " +create_in_db_table_done_count + "   next cb: " + next_cb.name, LOG_LEVEL.OK);
+            //konsole.error("json_sell_order_count " + json_sell_order_count );
         }; // countCreateInDBTableDone()
 
 
         const populateDBWithWeapon = () =>
         {
-            create_in_db_table_done_count = 0;
-            next_cb = populateDBWithSkinset_CB;
+            konsole.error("create_in_db_table_done_count: " + this.create_in_db_table_done_count);
+            assert( this.create_in_db_table_done_count == 0 );
+            this.next_cb = populateDBWithSkinset_CB;
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var weapon_obj = Weapon.Create (json_sell_orders[i]) ;
                 weapon_obj.createInDBTable ( db, countCreateInDBTableDone );
+                //this.create_in_db_table_done_count++;
             }
         }; // populateDBWithWeapon()
 
 
         const populateDBWithSkinset_CB = () =>
         {
-            create_in_db_table_done_count = 0;
-            next_cb = populateDBWithSkin_CB;
+            assert( this.create_in_db_table_done_count == 0 );
+            this.next_cb = populateDBWithSkin_CB;
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
                 skin_set_obj.createInDBTable (db, countCreateInDBTableDone );
+                this.create_in_db_table_done_count++;
             }
         }; // populateDBWithSkinset_CB()
 
 
         const populateDBWithSkin_CB = () =>
         { 
-            create_in_db_table_done_count = 0;
-            next_cb = populateDBWithSkinSellOrder_CB;
+            assert( this.create_in_db_table_done_count == 0 );
+            this.next_cb = populateDBWithSkinSellOrder_CB;
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_obj            = Skin.Create (json_sell_orders[i]) ;
                 skin_obj.createInDBTable (db, countCreateInDBTableDone );
+                this.create_in_db_table_done_count++;
             }
         }; // populateDBWithSkin_CB()
 
 
         const populateDBWithSkinSellOrder_CB = () =>
         {   
-            create_in_db_table_done_count = 0;
-            next_cb = populateEnd_CB;
+            assert( this.create_in_db_table_done_count == 0 );
+            this.next_cb = populateEnd_CB;
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
                 skin_sell_order_obj.createInDBTable (db, countCreateInDBTableDone );
+                this.create_in_db_table_done_count++;
             }
         }; // populateDBWithSkinSellOrder_CB()
 

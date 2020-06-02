@@ -5,6 +5,7 @@ const http_server   = require ('./httpserver.js');
 const SkinSellOrder = require ('./skin_sell_order.js').SkinSellOrder;
 const Skin          = require ('./skin.js').Skin ;
 const db            = require ('./db.js');
+const BitskinsFetcher    = require ('./bb_fetcher.js').BitskinsFetcher;
 
 //====================================================================================================================
 //=================================================  main de app.js  =================================================
@@ -31,7 +32,7 @@ if (commander.server)
   http_server.start(skin_map);
 }
 
-if (commander.update)                              db.updateDb();
+if (commander.update)               BitskinsFetcher.GetSingleton().updateDbWithAsynk() //                             BitskinsFetcher.GetSingleton().updateDb();
 
 if (commander.clear)                               db.clearTables();
 

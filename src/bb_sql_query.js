@@ -147,9 +147,7 @@ class BB_SqlQuery
 
         const default_query_cb = (err, result) =>
         {   
-            //konsole.log("BB_SqlQuery execute() ITER dans cb de mysql.query" + err , LOG_LEVEL.MSG);
-                                    
-            //konsole.log( "BB_SQL_QUERY.execute() err " + err + " BEFORE state: " + this.state.key, LOG_LEVEL.INFO);
+            konsole.log ("BB_SQL_QUERY executeWithCB default_cb", LOG_LEVEL.CRITICAL);
         
             if ( err )
             {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL) }

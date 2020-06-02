@@ -92,7 +92,10 @@ class BitskinsFetcher
 
     async fetchItems ( page_index, on_response_ready ) 
     {
+        assert( on_response_ready != undefined );
+
         var fetch_result = Konst.NOTHING;
+        
         try 
         {
             fetch_result = await this.downloadPage( this.buildQuery( page_index ), on_response_ready );
@@ -111,7 +114,7 @@ class BitskinsFetcher
     
     ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
 
-    getExitFetchItems () {return this.exitFetchItems ;}
+    getExitFetchItems () { return this.exitFetchItems ; }
     
                                                                                                              
     parseOnResponseReady_CB ( json_data )
@@ -123,7 +126,7 @@ class BitskinsFetcher
         {
             items_count = 0;
             // console.log("Try Parsing");
-            json_obj = JSON.parse(json_data.toString());
+            json_obj = JSON.parse( json_data.toString() );
         }
         catch( error ) 
         {
@@ -193,6 +196,43 @@ class BitskinsFetcher
         */
         
     }; // updateDb ()
+    
+
+    updateDbWithAsynk () 
+    {
+        db.clearTables();
+
+        var page_index = DBPopulater.Singleton.getPageIndex();
+
+        konsole.log("BitskinsFetcher.updateDb():  page : " + page_index, LOG_LEVEL.MSG);
+        this.fetchItems( page_index, this.parseOnResponseReady_CB );
+    
+        asynk.until( 
+          function test(cb) 
+          {
+            cb( null, BitskinsFetcher.Singleton.getExitFetchItems() ); 
+          },
+      
+          function iter(cb) 
+          {
+            page_index = DBPopulater.Singleton.getPageIndex();
+            konsole.log("Traitementde la page : " + page_index, LOG_LEVEL.MSG);
+            BitskinsFetcher.Singleton.fetchItems( page_index, BitskinsFetcher.Singleton.parseOnResponseReady_CB );
+            // console.log("avant pause de 6 sec");
+            var page_ready = setTimeout(cb, 6000); 
+            //page_index++; // A deplacer dans BB_Populater
+          },
+      
+          // End
+          function (err) 
+          {
+            // All things are done!
+            konsole.log("Main.updateDB() : Fin de traitement des pages (depuis: " + PAGE_INDEX_START + ")", LOG_LEVEL.MSG);
+           }
+        ); // async.whilst()
+
+        
+    }; // updateDb ()
 } // BitskinsFetcher
 
 
@@ -201,10 +241,10 @@ const test = () =>
     var singleton = BitskinsFetcher.GetSingleton();
     konsole.log("Singleton: " + singleton.getName()  );
     //var singletwo = new BitskinsFetcher("tututt");
-    BitskinsFetcher.GetSingleton().updateDb()
+    BitskinsFetcher.GetSingleton().updateDbWithAsynk()
 }
 
-test();
+//test();
 
 exports.BitskinsFetcher = BitskinsFetcher;
 
