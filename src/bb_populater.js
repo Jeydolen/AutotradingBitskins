@@ -29,7 +29,7 @@ class DBPopulater
         this.name = name;
         this.result = Konst.NOTHING;
         this.page_index = PAGE_INDEX_START;
-        this.create_in_db_table_done_count = 0;
+        this.create_in_db_done_count = new Map();
         this.next_cb = Konst.NOTHING;
     } // constructor
 
@@ -66,77 +66,91 @@ class DBPopulater
         {
             assert( bb_obj != undefined );
 
-            konsole.log ("DBPopulater.countCreateInDBTableDone: " + bb_obj.getType() + " name:" + bb_obj.getName() + " count: " + this.create_in_db_table_done_count + "   next cb: " + this.next_cb.name, LOG_LEVEL.ERROR);
-            this.create_in_db_table_done_count++;
-            if ( this.create_in_db_table_done_count >= json_sell_order_count - 1 )
-            {
-                this.create_in_db_table_done_count = 0;
+            var klass = (bb_obj.constructor);
+            //konsole.log (klass.name, LOG_LEVEL.CRITICAL);
+
+            var create_in_db_done_count = this.create_in_db_done_count.get( klass );
+
+            konsole.error ("DBPopulater.countCreateInDBTableDone: " + bb_obj.getType() + " name:" + bb_obj.getName() + " count: " + create_in_db_done_count + "   next cb: " + this.next_cb.name);
+            
+            this.create_in_db_done_count.set ( klass, create_in_db_done_count + 1 );
+
+            if ( create_in_db_done_count >= json_sell_order_count -1 )
                 this.next_cb();
-            }    
-            //konsole.log ("Je suis passé par ici name: " + this.getType() + " count: " +create_in_db_table_done_count + "   next cb: " + next_cb.name, LOG_LEVEL.OK);
-            //konsole.error("json_sell_order_count " + json_sell_order_count );
+            else
+                konsole.log("Je suis dans le else de countCreateInDBTableDone, ce qui n'est pas normal " + create_in_db_done_count, LOG_LEVEL.MSG);
         }; // countCreateInDBTableDone()
 
 
         const populateDBWithWeapon = () =>
         {
-            konsole.error("create_in_db_table_done_count: " + this.create_in_db_table_done_count);
-            assert( this.create_in_db_table_done_count == 0 );
-            this.next_cb = populateDBWithSkinset_CB;
+            konsole.log("----------------------------------------------------------------------------------------", LOG_LEVEL.MSG)
+
+            var klass = Weapon;
+            konsole.error("create_in_db_done_count: " + this.create_in_db_done_count.get(klass));
+
+            this.next_cb = populateDBWithSkinSet_CB;
+            //this.create_in_db_done_count.clear(); // Efface  toutes les clés
+            this.create_in_db_done_count.set( klass, 0 );
+
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var weapon_obj = Weapon.Create (json_sell_orders[i]) ;
+                var weapon_obj = klass.Create (json_sell_orders[i]) ;
                 weapon_obj.createInDBTable ( db, countCreateInDBTableDone );
-                //this.create_in_db_table_done_count++;
             }
         }; // populateDBWithWeapon()
 
 
-        const populateDBWithSkinset_CB = () =>
+        const populateDBWithSkinSet_CB = () =>
         {
-            assert( this.create_in_db_table_done_count == 0 );
+            var klass = SkinSet;
             this.next_cb = populateDBWithSkin_CB;
+            this.create_in_db_done_count.set( klass, 0 );
+
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
+                var skin_set_obj            = klass.Create (json_sell_orders[i]) ;
                 skin_set_obj.createInDBTable (db, countCreateInDBTableDone );
-                this.create_in_db_table_done_count++;
             }
         }; // populateDBWithSkinset_CB()
 
 
         const populateDBWithSkin_CB = () =>
         { 
-            assert( this.create_in_db_table_done_count == 0 );
+            var klass = Skin;
             this.next_cb = populateDBWithSkinSellOrder_CB;
+            this.create_in_db_done_count.set( klass, 0 );
+            
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var skin_obj            = Skin.Create (json_sell_orders[i]) ;
+                var skin_obj            = klass.Create (json_sell_orders[i]) ;
                 skin_obj.createInDBTable (db, countCreateInDBTableDone );
-                this.create_in_db_table_done_count++;
             }
         }; // populateDBWithSkin_CB()
 
 
         const populateDBWithSkinSellOrder_CB = () =>
         {   
-            assert( this.create_in_db_table_done_count == 0 );
+            var klass = SkinSellOrder;
             this.next_cb = populateEnd_CB;
+            this.create_in_db_done_count.set( klass, 0 );
+            
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
+                var skin_sell_order_obj     = klass.Create (json_sell_orders[i]) ;
                 skin_sell_order_obj.createInDBTable (db, countCreateInDBTableDone );
-                this.create_in_db_table_done_count++;
             }
         }; // populateDBWithSkinSellOrder_CB()
 
 
         const populateEnd_CB = () =>
         {   
-            konsole.log ("POPULATE IS FINISHED ", LOG_LEVEL.CRITICAL);
+            konsole.log ("POPULATE IS FINISHED ", LOG_LEVEL.OK);
             this.page_index++;
         }; // populateEnd_CB()
 
+
+        
         populateDBWithWeapon();
     } // populateDBInCascade()
 
@@ -189,7 +203,7 @@ const test = () =>
     //var singletwo = new DBPopulater("tututt");
 }
 
-test();
+//test();
 
 exports.DBPopulater = DBPopulater;
 exports.PAGE_INDEX_START = PAGE_INDEX_START;

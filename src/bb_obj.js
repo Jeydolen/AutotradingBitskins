@@ -2,7 +2,7 @@ const assert      = require ('assert');
 const expand      = require ('expand-template')();
 
 
-
+const pause       = require ('./utility.js').pause;
 const Konst       = require ('./constants.js') ;
 const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
 const konsole     = require ('./bb_log.js').konsole ;
@@ -57,7 +57,7 @@ class BitskinsObject
   getCoVaSeq          ()      { return  Konst.NOTHING;            } // Column - value - sequence
 
 
-  //                requis        requis
+  //                requis        requis          
   createInDBTable (  db,    end_of_waterfall_cb )
   { 
       assert( db != undefined );
@@ -65,21 +65,18 @@ class BitskinsObject
 
       const selectQuery = () =>
       {
-        //if ( this.getIsCreatedInDB() )
-        if ( this.getCreateQueryState() )
-        {
-          konsole.log ("C'est déja créé", LOG_LEVEL.CRITICAL);
-          //afterUpdateQueryCB( null, Konst.NOTHING );
-          end_of_waterfall_cb( this );
-          return Konst.RC.OK;
-        }
+        if ( this.getIsCreatedInDB() )
+          afterUpdateQueryCB(null, Konst.NOTHING);
 
-        var query_select_obj = BB_SqlQuery.Create();
-        konsole.log( this.getType() +".createInDBTable() SELECT");
-        var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
-        //konsole.log("Trying SELECT_NAME in '" + this.table + "'", LOG_LEVEL.INFO);
-        this.setCreateQueryState( QUERY_STATE.PENDING );
-        query_select_obj.executeWithCB( db, query_text, insertQueryCB );
+        else 
+        {
+          var query_select_obj = BB_SqlQuery.Create();
+          konsole.log( this.getType() +".createInDBTable() SELECT");
+          var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
+          this.setCreateQueryState( QUERY_STATE.PENDING );
+          query_select_obj.executeWithCB( db, query_text, insertQueryCB );
+        }
+        
       }; // selectQuery()
 
 
@@ -92,24 +89,18 @@ class BitskinsObject
 
         if ( err )
         {
-          konsole.error ("BB_Obj error: " + err); 
-          //afterUpdateQueryCB( err, Konst.NOTHING );
-          end_of_waterfall_cb( this );
-          return Konst.RC.KO;
+          konsole.error ("BB_Obj error: " + err);
+          this.setCreateQueryState (QUERY_STATE.FAILED) 
+          afterUpdateQueryCB( err, Konst.NOTHING );
         }
 
-        if ( query_select_result[0].length == 0)
+        else if ( query_select_result[0].length == 0)
         {
           var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this.table, 'db-name-value': this.name } );
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
         }
         else 
-        {
-          konsole.log ("BB_Obj Déja créé BLYAT", LOG_LEVEL.WARNING); 
-          //afterUpdateQueryCB( null, Konst.NOTHING );
-          end_of_waterfall_cb( this );
-        }
-        //end_of_waterfall_cb ( this.getType() );
+          konsole.log ("Je ne suis pas censé être ici InsertQueryCB (bb_obj)" , LOG_LEVEL.CRITICAL);
       }; // insertQueryCB()
 
 
@@ -119,34 +110,36 @@ class BitskinsObject
         if ( err )
         {
           konsole.error ("BB_Obj ERREURE: " + err); 
-          //afterUpdateQueryCB( err, Konst.NOTHING );
-          end_of_waterfall_cb( this );
           this.setCreateQueryState( QUERY_STATE.FAILED );
-          return Konst.RC.KO;
+          afterUpdateQueryCB( err, Konst.NOTHING );
         }
 
-        this.setIsCreatedInDB ( true );
-
-        if (this.getCoVaSeq() == Konst.NOTHING) 
+        else
         {
-          //afterUpdateQueryCB( null, Konst.NOTHING );
-          end_of_waterfall_cb( this );
-          return Konst.RC.OK;
+          this.setIsCreatedInDB ( true );
+          this.setCreateQueryState ( QUERY_STATE.DONE );
+
+          if (this.getCoVaSeq() == Konst.NOTHING) 
+          {
+            afterUpdateQueryCB( null, Konst.NOTHING );
+          }
+          else 
+          {
+            //konsole.log ( 'INSERT RESULT :' + JSON.stringify(query_insert_result) );
+            var query_update_obj  = BB_SqlQuery.Create();
+            var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : this.getCoVaSeq(), 'db-field' : 'name', 'db-field-value' : this.name });     
+            konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);
+            this.setUpdateQueryState (QUERY_STATE.PENDING);
+            query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
+          }
         }
         
-        konsole.log ( 'INSERT RESULT :' + JSON.stringify(query_insert_result) );
-        var query_update_obj  = BB_SqlQuery.Create();
-        var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : this.getCoVaSeq(), 'db-field' : 'name', 'db-field-value' : this.name });     
-        konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);
-        query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
-        //konsole.log ('Query text update : ' + update_query_text, LOG_LEVEL.INFO)
       }; // updateQuery()
 
 
       const afterUpdateQueryCB = ( err, query_update_result ) =>
       {   
-        //konsole.error( "Skin.afterInsertQueryCB  query_update_result: " + JSON.stringify(query_update_result) );  
-        assert (this.getCreateQueryState () == QUERY_STATE.PENDING );
+        assert (this.getCreateQueryState () != QUERY_STATE.PENDING && this.getCreateQueryState() != QUERY_STATE.UNKNOWN, "State :" + this.getCreateQueryState().key);
 
         if ( err )
         {
@@ -166,8 +159,10 @@ class BitskinsObject
       // 1. UNKNOWN --> 2. PENDING --> 3. DONE / FAILED 
       if (  this.getCreateQueryState () == QUERY_STATE.UNKNOWN )
         selectQuery();
+
       else 
       { konsole.log ("BB_OBJ.createInDBTable dans le else te salue ", LOG_LEVEL.OK)
+        //end_of_waterfall_cb( this );
       } 
 
       return Konst.RC.OK;
