@@ -109,8 +109,6 @@ class Weapon extends BitskinsObject
 
         var item_weapon = input_item.item_weapon;
 
-        konsole.log ("Weapon.Create avant test(" + item_weapon +")", LOG_LEVEL.OK);
-
         if (item_weapon == undefined || item_weapon == null )
             item_weapon = NULL_WEAPON;
 
@@ -118,8 +116,8 @@ class Weapon extends BitskinsObject
                 konsole.log ("PAS COOL !!", LOG_LEVEL.OK);
         
         var name = Weapon.ExtractName( input_item);
-        konsole.log ("Weapon.Create( " + name + " )", LOG_LEVEL.OK);
-        konsole.log ("item_weapon : " + item_weapon, LOG_LEVEL.MSG);
+        //konsole.log ("Weapon.Create( " + name + " )", LOG_LEVEL.OK);
+        //konsole.log ("item_weapon : " + item_weapon, LOG_LEVEL.MSG);
    
 
         var weapon = Weapon.GetNullObject() ; 
@@ -143,9 +141,8 @@ class Weapon extends BitskinsObject
         else 
         {
             konsole.log ('Weapon déja créé : ' + name, LOG_LEVEL.WARNING );
-            //new_weapon = Skin.Instances[name] ;
-
             weapon = Weapon.Instances.get( name );
+            weapon._is_just_created = false; 
         }
 
         return weapon ;

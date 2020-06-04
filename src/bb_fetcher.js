@@ -20,6 +20,8 @@ const API_KEY                       = "3c75df64-c4c1-4066-8e65-34de828dd08e";
 const BITSKINS_FETCHER_SINGLETON    = "BITSKINS_FETCHER_SINGLETON";
 
 
+
+
 /*
  /$$$$$$$  /$$   /$$              /$$       /$$                     /$$$$$$$$          /$$               /$$                          
 | $$__  $$|__/  | $$             | $$      |__/                    | $$_____/         | $$              | $$                          
@@ -36,13 +38,13 @@ class BitskinsFetcher
     static Instances = new Map();
     static result   = null;
     static Singleton = BitskinsFetcher.GetSingleton();
-
     
     constructor (name)
     {
         assert ( BitskinsFetcher.Instances.size <1) ; // Singleton Design Pattern
-        this.name = name;
+        this.name           = name;
         this.exitFetchItems = false;
+        this._is_last_page  = false;
     } // constructor
 
 
@@ -65,7 +67,7 @@ class BitskinsFetcher
                         + two_FA_code + "&is_souvenir=-1&per_page=480&show_trade_delayed_items=1&page=" + page_index ;
         return query;
     } // buildQuery
-                
+
 
     ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
     downloadPage ( url, on_response_ready ) 
@@ -151,12 +153,16 @@ class BitskinsFetcher
         }
     
         if (items_count == 0)
+        {
             this.exitFetchItems = true;
+            this._is_last_page  = true;
+        }
+            
     
         return json_obj;
     } // parseOnResponseReady_CB()
 
-
+    getIsLastPage   () { return this._is_last_page; }
 
     getType() 
     {
@@ -167,72 +173,57 @@ class BitskinsFetcher
     {
         db.clearTables();
 
-        konsole.log("BitskinsFetcher.updateDb():  page : " + DBPopulater.GetSingleton().getPageIndex(), LOG_LEVEL.MSG);
-        this.fetchItems( DBPopulater.GetSingleton().getPageIndex(), this.parseOnResponseReady_CB );
-      
-        /*
-        asynk.until( 
-          function test(cb) 
-          {
-            cb(null, getThis().getExitFetchItems); 
-          },
-      
-          function iter(cb) 
-          {
-            konsole.log("Traitementde la page : " + page_index, LOG_LEVEL.MSG);
-            this.fetchItems( page_index, this.parseOnResponseReady );
-            // console.log("avant pause de 6 sec");
-            var page_ready = setTimeout(cb, 6000); 
-            this.page_index++; // A deplacer dans BB_Populater
-          },
-      
-          // End
-          function (err) 
-          {
-            // All things are done!
-            konsole.log("Main.updateDB() : Fin de traitement des pages (depuis: " + PAGE_INDEX_START + ")", LOG_LEVEL.MSG);
-           }
-        ); // async.whilst()
-        */
+        var current_page = DBPopulater.GetSingleton().getPageIndex();
+        var exit_condition = (  BitskinsFetcher.Singleton.getExitFetchItems() &&   ! BitskinsFetcher.Singleton.getIsLastPage() );
+        while ( ! this._is_last_page )
+        {
+            konsole.log("BitskinsFetcher.updateDb():  page : " + DBPopulater.GetSingleton().getPageIndex(), LOG_LEVEL.MSG);
+            this.fetchItems( current_page, this.parseOnResponseReady_CB );
+            exit_condition = (  BitskinsFetcher.Singleton.getExitFetchItems() &&  !   BitskinsFetcher.Singleton.getIsLastPage() );
+        }
+            //this.updateDb()
         
     }; // updateDb ()
-    
+
 
     updateDbWithAsynk () 
     {
         db.clearTables();
 
-        var page_index = DBPopulater.Singleton.getPageIndex();
+        var page_index = DBPopulater.GetSingleton().getPageIndex();
 
         konsole.log("BitskinsFetcher.updateDb():  page : " + page_index, LOG_LEVEL.MSG);
         this.fetchItems( page_index, this.parseOnResponseReady_CB );
+
+
+        
     
-        asynk.until( 
-          function test(cb) 
-          {
-            cb( null, BitskinsFetcher.Singleton.getExitFetchItems() ); 
-          },
-      
-          function iter(cb) 
-          {
-            page_index = DBPopulater.Singleton.getPageIndex();
-            konsole.log("Traitementde la page : " + page_index, LOG_LEVEL.MSG);
-            BitskinsFetcher.Singleton.fetchItems( page_index, BitskinsFetcher.Singleton.parseOnResponseReady_CB );
-            // console.log("avant pause de 6 sec");
-            var page_ready = setTimeout(cb, 6000); 
-            //page_index++; // A deplacer dans BB_Populater
-          },
-      
-          // End
-          function (err) 
-          {
-            // All things are done!
-            konsole.log("Main.updateDB() : Fin de traitement des pages (depuis: " + PAGE_INDEX_START + ")", LOG_LEVEL.MSG);
-           }
+        asynk.doUntil( 
+            function test(cb) 
+            {   const assert            = require ('assert');
+                var page_index = DBPopulater.GetSingleton().getPageIndex();
+                
+                if (exit_condition)
+                    assert(cur_page != page_index);
+                cb( null, exit_condition); 
+            },
+
+            function iter(cb) 
+            {
+                
+                konsole.log("Traitementde la page : " + page_index, LOG_LEVEL.MSG);
+                BitskinsFetcher.GetSingleton().fetchItems( page_index, BitskinsFetcher.GetSingleton().parseOnResponseReady_CB );
+            },
+
+            // End
+            function (err) 
+            { konsole.log("Main.updateDB() : Fin de traitement des pages (depuis: " + BB_Pop.PAGE_INDEX_START + ")", LOG_LEVEL.MSG);
+            }
         ); // async.whilst()
 
         
-    }; // updateDb ()
+    }; // updateDbWithAsynk ()
+    
 } // BitskinsFetcher
 
 
@@ -241,7 +232,7 @@ const test = () =>
     var singleton = BitskinsFetcher.GetSingleton();
     konsole.log("Singleton: " + singleton.getName()  );
     //var singletwo = new BitskinsFetcher("tututt");
-    BitskinsFetcher.GetSingleton().updateDbWithAsynk()
+    BitskinsFetcher.GetSingleton().updateDb()
 }
 
 //test();

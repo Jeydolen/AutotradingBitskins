@@ -49,7 +49,7 @@ class SkinSet extends BitskinsObject
                 name = NULL_STICKER_CAPSULE;
         }
             
-        konsole.log (JSON.stringify(input_item.tags));
+        //konsole.log (JSON.stringify(input_item.tags));
         assert (name != undefined);
 
         //konsole.log ('coucou :' + typeof (input_item.item_weapon), LOG_LEVEL.STEP);
@@ -102,6 +102,7 @@ class SkinSet extends BitskinsObject
         {
             //konsole.log ('SkinSet déja créé : ' + name, LOG_LEVEL.WARNING);
             skin_set = SkinSet.Instances.get (name) ;
+            skin_set._is_just_created = false; 
         }
 
         return skin_set ;

@@ -38,21 +38,6 @@ const pause = (delay_msec) =>
 } // pause
 
   
-/*
-var myMap = new Map();
-myMap.set("key1", "value1");
-myMap.set("key2", "value2");
-myMap.set("key3", "value3");
-  
-var myString = "string value"
-  
-var myJson = {};
-myJson.myMap = mapToObj(myMap);
-myJson.myString = myString;
-var json = JSON.stringify(myJson);
-  
-console.log(json):
-*/
 
 exports.mapToObj    = mapToObj;
 exports.mapToJSON   = mapToJSON;

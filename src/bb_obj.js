@@ -39,18 +39,12 @@ class BitskinsObject
     this._created_in_db       = false;
     this._updated_in_db       = false;
     this.table                = Konst.NOTHING;
+    this._is_just_created     = true;
   } // constructor()
 
 
-  setCreateQueryState (value) { this._create_query_state = value; }
-  getCreateQueryState ()      { return this._create_query_state;  }
-  getIsCreatedInDB    ()      { return this._created_in_db ;      }
-  setIsCreatedInDB    (value) { this._created_in_db = value;      }
+  getIsJustCreated    ()      { return this._is_just_created;     }
 
-  setUpdateQueryState (value) { this._update_query_state = value; }
-  getUpdateQueryState ()      { return this._update_query_state;  }
-  getIsUpdatedInDB    ()      { return this._updated_in_db ;      }
-  setIsUpdatedInDB    (value) { this._updated_in_db = value;      }
 
   getType             ()      { return this.constructor.name ;    } // getType()
   getName             ()      { return this.name ;                } // getName()
@@ -63,19 +57,14 @@ class BitskinsObject
       assert( db != undefined );
       assert( end_of_waterfall_cb != undefined);
 
+
       const selectQuery = () =>
       {
-        if ( this.getIsCreatedInDB() )
-          afterUpdateQueryCB(null, Konst.NOTHING);
 
-        else 
-        {
           var query_select_obj = BB_SqlQuery.Create();
           konsole.log( this.getType() +".createInDBTable() SELECT");
           var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
-          this.setCreateQueryState( QUERY_STATE.PENDING );
           query_select_obj.executeWithCB( db, query_text, insertQueryCB );
-        }
         
       }; // selectQuery()
 
@@ -89,9 +78,8 @@ class BitskinsObject
 
         if ( err )
         {
-          konsole.error ("BB_Obj error: " + err);
-          this.setCreateQueryState (QUERY_STATE.FAILED) 
-          afterUpdateQueryCB( err, Konst.NOTHING );
+          konsole.error ("BB_Obj error: " + err, LOG_LEVEL.CRITICAL); 
+          return Konst.RC.KO;
         }
 
         else if ( query_select_result[0].length == 0)
@@ -109,15 +97,12 @@ class BitskinsObject
 
         if ( err )
         {
-          konsole.error ("BB_Obj ERREURE: " + err); 
-          this.setCreateQueryState( QUERY_STATE.FAILED );
-          afterUpdateQueryCB( err, Konst.NOTHING );
+          konsole.log ("BB_Obj ERREURE: " + err, LOG_LEVEL.CRITICAL); 
+          return Konst.RC.KO;
         }
 
         else
         {
-          this.setIsCreatedInDB ( true );
-          this.setCreateQueryState ( QUERY_STATE.DONE );
 
           if (this.getCoVaSeq() == Konst.NOTHING) 
           {
@@ -129,7 +114,6 @@ class BitskinsObject
             var query_update_obj  = BB_SqlQuery.Create();
             var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : this.getCoVaSeq(), 'db-field' : 'name', 'db-field-value' : this.name });     
             konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);
-            this.setUpdateQueryState (QUERY_STATE.PENDING);
             query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
           }
         }
@@ -139,30 +123,22 @@ class BitskinsObject
 
       const afterUpdateQueryCB = ( err, query_update_result ) =>
       {   
-        assert (this.getCreateQueryState () != QUERY_STATE.PENDING && this.getCreateQueryState() != QUERY_STATE.UNKNOWN, "State :" + this.getCreateQueryState().key);
 
         if ( err )
         {
-          this.setUpdateQueryState( QUERY_STATE.FAILED );
           konsole.error ('Houston on a un prbl : ' + err ); 
         }
-        else 
-        {
-          this.setUpdateQueryState( QUERY_STATE.DONE );
-          this.setIsUpdatedInDB ( true );
-        }
-
         end_of_waterfall_cb( this );   // increment 
       }; // afterInsertQueryCB()
 
 
       // 1. UNKNOWN --> 2. PENDING --> 3. DONE / FAILED 
-      if (  this.getCreateQueryState () == QUERY_STATE.UNKNOWN )
+      if (  this.getIsJustCreated () )
         selectQuery();
 
       else 
-      { konsole.log ("BB_OBJ.createInDBTable dans le else te salue ", LOG_LEVEL.OK)
-        //end_of_waterfall_cb( this );
+      { //konsole.log ("BB_OBJ.createInDBTable dans le else te salue ", LOG_LEVEL.OK)
+        end_of_waterfall_cb( this );
       } 
 
       return Konst.RC.OK;

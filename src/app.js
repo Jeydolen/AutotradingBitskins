@@ -32,7 +32,7 @@ if (commander.server)
   http_server.start(skin_map);
 }
 
-if (commander.update)               BitskinsFetcher.GetSingleton().updateDbWithAsynk() //                             BitskinsFetcher.GetSingleton().updateDb();
+if (commander.update)               BitskinsFetcher.GetSingleton().updateDb() //                             BitskinsFetcher.GetSingleton().updateDbWithAsynk();
 
 if (commander.clear)                               db.clearTables();
 

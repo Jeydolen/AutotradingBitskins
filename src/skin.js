@@ -180,14 +180,11 @@ class Skin extends BitskinsObject
         konsole.log ('Skin déja créé : ' + name, LOG_LEVEL.OK );
         //new_skin = Skin.Instances[name] ;
 
-        new_skin = Skin.Instances.get( name );
-
-        //konsole.log("Skin.Create new_skin retrouvé: " + JSON.stringify(new_skin));
-        //konsole.log("Skin.Instances: count: " +  Skin.Instances.size );
-        //konsole.log("Skin.Instances: Skin.Instances: \n" +  utility.mapToString(Skin.Instances), LOG_LEVEL.WARNING ); 
+        skin_obj = Skin.Instances.get( name );
+        skin_obj._is_just_created = false; 
     }
 
-    return new_skin ;
+    return skin_obj ;
   } // Create()
 
 } // Skin class

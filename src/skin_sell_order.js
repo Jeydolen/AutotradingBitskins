@@ -7,7 +7,7 @@ const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
 
 
 
-
+const NULL_SKIN_SELL_ORDER              = "NULL_SKIN_SELL_ORDER" ;
 /*
  /$$$$$$  /$$       /$$            /$$$$$$            /$$ /$$  /$$$$$$                  /$$                    
  /$$__  $$| $$      |__/           /$$__  $$          | $$| $$ /$$__  $$                | $$                    
@@ -22,16 +22,26 @@ const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
 
 
 class SkinSellOrder extends BitskinsObject
-{               // Valeur JSON
+{               
+    static Instances  = new Map();
+    static NULL       = SkinSellOrder.GetNullObject();
+
+            // Valeur JSON
     constructor( arg) 
     {
-        super(arg)
-        this.name               = arg.item_id.replace ("'", "''");
-        this.market_name        = arg.market_hash_name.replace ("'", "''");
-        this.state              = this.computeStateID (arg.float_value);
-        this.price              = arg.price;
-        this.recommanded_price  = arg.suggested_price;
+        super(arg);
         this.table              = 'skin_sell_order';
+
+        if (arg == NULL_SKIN_SELL_ORDER)
+            this.name = NULL_SKIN_SELL_ORDER;
+        else
+        {
+            this.name               = arg.item_id.replace ("'", "''");
+            this.market_name        = arg.market_hash_name.replace ("'", "''");
+            this.state              = this.computeStateID (arg.float_value);
+            this.price              = arg.price;
+            this.recommanded_price  = arg.suggested_price;  
+        }  
     } // constructor
 
     getCoVaSeq()
@@ -51,45 +61,43 @@ class SkinSellOrder extends BitskinsObject
     }
 
 
+
+    static GetNullObject() 
+    {
+        if (SkinSellOrder.NULL   == undefined)
+            SkinSellOrder.NULL   = new SkinSellOrder( NULL_SKIN_SELL_ORDER );
+        return SkinSellOrder.NULL;
+    } // GetNullObject() 
+
+
+
     static GetInstances ()
     {
-        if ( SkinSellOrder.Instances === undefined ) 
-        {
-          // console.log ('Skin sell order Dictionnaire init') ;
-          SkinSellOrder.Instances = {} ;
-        }
         return SkinSellOrder.Instances;
     }
 
     static Create (input_item)
     {
-        var sell_order = undefined ;
+        var sell_order_obj = SkinSellOrder.NULL ;
 
-        if ( SkinSellOrder.Instances === undefined ) 
+        var name = input_item.item_id ;
+
+
+        if (SkinSellOrder.Instances.get (name) == undefined )
         {
-         // console.log ('Skin sell order Dictionnaire init') ;
-            SkinSellOrder.Instances = {} ;
-        }
-
-        //var name = input_item.tags.itemset ;
-        var item_name = input_item.item_id ;
-
-
-        if (SkinSellOrder.Instances[item_name] == undefined )
-        {
-           konsole.log ('Détection nouvel élément: ' + item_name, LOG_LEVEL.OK)
-            //console.log ('Détection nouvel élément: ' + item_name) ;
-            sell_order = new SkinSellOrder (input_item);
-            SkinSellOrder.Instances[sell_order.getName()] = sell_order ;
+           konsole.log ('Détection nouvel élément: ' + name, LOG_LEVEL.OK)
+            //console.log ('Détection nouvel élément: ' + name) ;
+            sell_order_obj = new SkinSellOrder (input_item);
+            SkinSellOrder.Instances.set (name, sell_order_obj) ;
         }
         else 
         {
-            konsole.log('Sell order déja créé (instance de SkinSellOrder): ' + item_name, LOG_LEVEL.WARNING)
-            sell_order = SkinSellOrder.Instances[item_name] ;
+            konsole.log('Sell order déja créé (instance de SkinSellOrder): ' + name, LOG_LEVEL.WARNING)
+            sell_order_obj = SkinSellOrder.Instances.get (name) ;
+            sell_order_obj._is_just_created = false; 
         }
-        return sell_order ;
+        return sell_order_obj ;
     } // Create()
 } // SkinSellOrder class 
-SkinSellOrder.Instances ;
 exports.SkinSellOrder = SkinSellOrder;
 //-------------------- SkinSellOrder class --------------------

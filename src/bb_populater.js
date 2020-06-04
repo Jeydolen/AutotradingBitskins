@@ -18,6 +18,19 @@ const PAGE_INDEX_START = 90; //----------------------------------------
 //______________________________________________________________________
 
 
+/*
+ /$$$$$$$  /$$$$$$$  /$$$$$$$                               /$$             /$$                        
+| $$__  $$| $$__  $$| $$__  $$                             | $$            | $$                        
+| $$  \ $$| $$  \ $$| $$  \ $$ /$$$$$$   /$$$$$$  /$$   /$$| $$  /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$ 
+| $$  | $$| $$$$$$$ | $$$$$$$//$$__  $$ /$$__  $$| $$  | $$| $$ |____  $$|_  $$_/   /$$__  $$ /$$__  $$
+| $$  | $$| $$__  $$| $$____/| $$  \ $$| $$  \ $$| $$  | $$| $$  /$$$$$$$  | $$    | $$$$$$$$| $$  \__/
+| $$  | $$| $$  \ $$| $$     | $$  | $$| $$  | $$| $$  | $$| $$ /$$__  $$  | $$ /$$| $$_____/| $$      
+| $$$$$$$/| $$$$$$$/| $$     |  $$$$$$/| $$$$$$$/|  $$$$$$/| $$|  $$$$$$$  |  $$$$/|  $$$$$$$| $$      
+|_______/ |_______/ |__/      \______/ | $$____/  \______/ |__/ \_______/   \___/   \_______/|__/      
+                                       | $$                                                            
+                                       | $$                                                            
+                                       |_*/      
+
 class DBPopulater
 {
     static Instances = new Map();
@@ -28,9 +41,9 @@ class DBPopulater
         assert ( DBPopulater.Instances.size <1) ; // Singleton Design Pattern
         this.name = name;
         this.result = Konst.NOTHING;
-        this.page_index = PAGE_INDEX_START;
         this.create_in_db_done_count = new Map();
         this.next_cb = Konst.NOTHING;
+        this._page_index    = PAGE_INDEX_START;
     } // constructor
 
 
@@ -44,10 +57,9 @@ class DBPopulater
         return DBPopulater.Singleton;
     } // GetSingleton()
 
-    getName () {return this.name ;}
-    getType () {return this.constructor.name; }
-
-    getPageIndex () { return this.page_index; } 
+    getName         () { return this.name ; }
+    getType         () { return this.constructor.name; }
+    getPageIndex    () { return this._page_index; }
 
 
     populateDBInCascade ( json_obj ) 
@@ -69,16 +81,17 @@ class DBPopulater
             var klass = (bb_obj.constructor);
             //konsole.log (klass.name, LOG_LEVEL.CRITICAL);
 
-            var create_in_db_done_count = this.create_in_db_done_count.get( klass );
+            var done_count = this.create_in_db_done_count.get( klass );
 
-            konsole.error ("DBPopulater.countCreateInDBTableDone: " + bb_obj.getType() + " name:" + bb_obj.getName() + " count: " + create_in_db_done_count + "   next cb: " + this.next_cb.name);
+            assert (done_count <= json_sell_order_count);
+
+            konsole.log ("DBPopulater.countCreateInDBTableDone: " + bb_obj.getType()
+                         + " name:" + bb_obj.getName() + " count: " + done_count + " page: " + this._page_index, LOG_LEVEL.OK);
             
-            this.create_in_db_done_count.set ( klass, create_in_db_done_count + 1 );
+            this.create_in_db_done_count.set ( klass, done_count + 1 );
 
-            if ( create_in_db_done_count >= json_sell_order_count -1 )
+            if ( done_count >= json_sell_order_count -1 )
                 this.next_cb();
-            else
-                konsole.log("Je suis dans le else de countCreateInDBTableDone, ce qui n'est pas normal " + create_in_db_done_count, LOG_LEVEL.MSG);
         }; // countCreateInDBTableDone()
 
 
@@ -90,7 +103,7 @@ class DBPopulater
             konsole.error("create_in_db_done_count: " + this.create_in_db_done_count.get(klass));
 
             this.next_cb = populateDBWithSkinSet_CB;
-            //this.create_in_db_done_count.clear(); // Efface  toutes les clés
+            this.create_in_db_done_count.clear(); // Efface  toutes les clés
             this.create_in_db_done_count.set( klass, 0 );
 
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
@@ -146,7 +159,7 @@ class DBPopulater
         const populateEnd_CB = () =>
         {   
             konsole.log ("POPULATE IS FINISHED ", LOG_LEVEL.OK);
-            this.page_index++;
+            this._page_index++;
         }; // populateEnd_CB()
 
 
