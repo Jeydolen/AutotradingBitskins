@@ -14,7 +14,7 @@ const Weapon             = require ('./weapon.js').Weapon;
 const DB_POPULATER_SINGLETON = "DB_POPULATER_SINGLETON";
 
 //______________________________________________________________________
-const PAGE_INDEX_START = 90; //----------------------------------------
+const PAGE_INDEX_START = 2; //----------------------------------------
 //______________________________________________________________________
 
 
@@ -43,7 +43,7 @@ class DBPopulater
         this.result = Konst.NOTHING;
         this.create_in_db_done_count = new Map();
         this.next_cb = Konst.NOTHING;
-        this._page_index    = PAGE_INDEX_START;
+        //this._page_index    = PAGE_INDEX_START;
     } // constructor
 
 
@@ -59,10 +59,12 @@ class DBPopulater
 
     getName         () { return this.name ; }
     getType         () { return this.constructor.name; }
-    getPageIndex    () { return this._page_index; }
+    _getPageIndex    () { return this._page_index; }
+
+    
 
 
-    populateDBInCascade ( json_obj ) 
+    populateDBInCascade ( json_obj, page_index, set_is_populate_finished_cb ) 
     { 
         assert( json_obj != undefined );
 
@@ -83,15 +85,18 @@ class DBPopulater
 
             var done_count = this.create_in_db_done_count.get( klass );
 
-            assert (done_count <= json_sell_order_count);
+            assert (done_count <= json_sell_order_count, "Done count :" + done_count + " Json count: " + json_sell_order_count + " klass: " + klass.name);
 
             konsole.log ("DBPopulater.countCreateInDBTableDone: " + bb_obj.getType()
-                         + " name:" + bb_obj.getName() + " count: " + done_count + " page: " + this._page_index, LOG_LEVEL.OK);
+                         + " name:" + bb_obj.getName() + " count: " + done_count + " page: " + page_index, LOG_LEVEL.OK);
             
-            this.create_in_db_done_count.set ( klass, done_count + 1 );
-
-            if ( done_count >= json_sell_order_count -1 )
+            if ( done_count >= json_sell_order_count )
+            {
                 this.next_cb();
+                return;
+            }
+
+            this.create_in_db_done_count.set ( klass, done_count + 1 );
         }; // countCreateInDBTableDone()
 
 
@@ -159,7 +164,7 @@ class DBPopulater
         const populateEnd_CB = () =>
         {   
             konsole.log ("POPULATE IS FINISHED ", LOG_LEVEL.OK);
-            this._page_index++;
+            set_is_populate_finished_cb (true);
         }; // populateEnd_CB()
 
 

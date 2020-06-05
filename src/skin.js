@@ -157,7 +157,7 @@ class Skin extends BitskinsObject
     //konsole.log("Skin.Create()", LOG_LEVEL.WARNING);
     assert(input_item != undefined);
 
-    var new_skin = Skin.GetNullObject() ;
+    var skin_obj = Skin.GetNullObject() ;
 
     var name = Skin.ExtractName( input_item.market_hash_name );
 
@@ -167,10 +167,10 @@ class Skin extends BitskinsObject
     {
         konsole.log ('Détection nouveau skin', LOG_LEVEL.OK) ;
 
-        new_skin = new Skin ( input_item );
+        skin_obj = new Skin ( input_item );
         
         //konsole.log ("Avant Insertion : '" + name + "' + Instances.count: " + Skin.Instances.size, LOG_LEVEL.OK) ;
-        Skin.Instances.set( name, new_skin );
+        Skin.Instances.set( name, skin_obj );
         konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Skin.Instances.size, LOG_LEVEL.OK) ;
 
         //konsole.log("Skin.Instances: " + utility.mapToString(Skin.Instances));

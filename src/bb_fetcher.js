@@ -3,6 +3,7 @@ const assert            = require ('assert');
 const request           = require('request');
 const totp              = require('notp').totp;
 const base32            = require('thirty-two');
+const fetch             = require('node-fetch');
 
 
 const BB_Database       = require ('./bb_database.js').BB_Database;
@@ -10,6 +11,7 @@ const db                = require ('./db.js');
 const Konst             = require ('./constants.js');
 const konsole           = require ('./bb_log.js').konsole;
 const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL ;
+const pause     = require('./utility.js').pause;
 
 const BB_Pop            = require ('./bb_populater.js');
 const DBPopulater       = require ('./bb_populater.js').DBPopulater;
@@ -19,8 +21,9 @@ const SECRET_BITSKINS               = "ZW3LWWCSRIAVMVNR";
 const API_KEY                       = "3c75df64-c4c1-4066-8e65-34de828dd08e";
 const BITSKINS_FETCHER_SINGLETON    = "BITSKINS_FETCHER_SINGLETON";
 
-
-
+//______________________________________________________________________
+const PAGE_INDEX_START = 2; //----------------------------------------
+//______________________________________________________________________
 
 /*
  /$$$$$$$  /$$   /$$              /$$       /$$                     /$$$$$$$$          /$$               /$$                          
@@ -42,9 +45,11 @@ class BitskinsFetcher
     constructor (name)
     {
         assert ( BitskinsFetcher.Instances.size <1) ; // Singleton Design Pattern
-        this.name           = name;
-        this.exitFetchItems = false;
-        this._is_last_page  = false;
+        this.name                   = name;
+        this.exitFetchItems         = false;
+        this._is_last_page          = false;
+        this._page_index            = PAGE_INDEX_START;
+        this._is_populate_finished  = false;
     } // constructor
 
 
@@ -59,6 +64,7 @@ class BitskinsFetcher
     } // GetSingleton()
 
     getName () {return this.name ;}
+    setIsPopulateFinished (value) {this._is_populate_finished  = value ; }
     
     buildQuery (page_index)
     {
@@ -73,9 +79,9 @@ class BitskinsFetcher
     downloadPage ( url, on_response_ready ) 
     {
         var result = Konst.NOTHING;
-        result = new Promise((resolve, reject) => 
+        result = new Promise( ( resolve, reject ) => 
         {
-            request(url, (error, response, body) => 
+            request( url, (error, response, body ) => 
             {
                 if (error) reject(error);
                 if (response != undefined && response.statusCode != 200)
@@ -91,6 +97,7 @@ class BitskinsFetcher
         });
         return result;
     }; // downloadPage()
+
 
     async fetchItems ( page_index, on_response_ready ) 
     {
@@ -110,6 +117,7 @@ class BitskinsFetcher
             konsole.error("error: " + error);
             fetch_result = error;
         }
+        return Konst.NOTHING;
     } // fetchItems
 
 
@@ -147,13 +155,16 @@ class BitskinsFetcher
             konsole.log ("Items count :" + items_count, LOG_LEVEL.OK)
             konsole.log('firstItem : ' + json_obj['data']['items'][0].market_hash_name, LOG_LEVEL.MSG);
             konsole.log("page :" +json_obj['data']['page'], LOG_LEVEL.MSG)
+
+            var singleton  = BitskinsFetcher.Singleton;
     
            //populateDB( json_obj ); 
-           DBPopulater.GetSingleton().populateDBInCascade( json_obj );
+           DBPopulater.GetSingleton().populateDBInCascade( json_obj, singleton._page_index, singleton.setIsPopulateFinished );
         }
     
-        if (items_count == 0)
+        if ( items_count  == 0)
         {
+            konsole.log("items_count: " + items_count, LOG_LEVEL.CRITICAL);
             this.exitFetchItems = true;
             this._is_last_page  = true;
         }
@@ -169,28 +180,46 @@ class BitskinsFetcher
         return this.constructor.name;
     }
 
-    updateDb () 
+    async updateDb () 
     {
         db.clearTables();
 
-        var current_page = DBPopulater.GetSingleton().getPageIndex();
-        var exit_condition = (  BitskinsFetcher.Singleton.getExitFetchItems() &&   ! BitskinsFetcher.Singleton.getIsLastPage() );
-        while ( ! this._is_last_page )
+        // var current_page = DBPopulater.GetSingleton().getPageIndex();
+        var exit_condition = ( BitskinsFetcher.Singleton.getIsLastPage() );
+        var current_page = 0;
+
+        const check_populate_finished = async () =>
         {
-            konsole.log("BitskinsFetcher.updateDb():  page : " + DBPopulater.GetSingleton().getPageIndex(), LOG_LEVEL.MSG);
-            this.fetchItems( current_page, this.parseOnResponseReady_CB );
-            exit_condition = (  BitskinsFetcher.Singleton.getExitFetchItems() &&  !   BitskinsFetcher.Singleton.getIsLastPage() );
+            if ( this._is_populate_finished ) 
+                this._page_index ++;
+
+            else
+                await pause(6000);
+        };
+
+        while ( (! exit_condition) )
+        {
+            konsole.log("BitskinsFetcher.updateDb():  page : " + this._page_index + " Cur page: "  + current_page, LOG_LEVEL.MSG);
+
+            if ( this._page_index > current_page ) 
+            {
+                current_page = this._page_index;
+                this.fetchItems( current_page, this.parseOnResponseReady_CB );
+                exit_condition = ( BitskinsFetcher.Singleton.getIsLastPage() );
+
+                await check_populate_finished();
+            }
         }
             //this.updateDb()
         
     }; // updateDb ()
 
-
+/*
     updateDbWithAsynk () 
     {
         db.clearTables();
 
-        var page_index = DBPopulater.GetSingleton().getPageIndex();
+        var page_index = this._page_index++;
 
         konsole.log("BitskinsFetcher.updateDb():  page : " + page_index, LOG_LEVEL.MSG);
         this.fetchItems( page_index, this.parseOnResponseReady_CB );
@@ -223,6 +252,7 @@ class BitskinsFetcher
 
         
     }; // updateDbWithAsynk ()
+    */
     
 } // BitskinsFetcher
 
@@ -237,5 +267,14 @@ const test = () =>
 
 //test();
 
+
+const fetchTest = () =>
+{
+    fetch(BitskinsFetcher.GetSingleton().buildQuery(2))
+    .then(res => res.json())
+    .then(json => konsole.log(JSON.stringify(json.data.items), LOG_LEVEL.STEP))
+
+}
+ //fetchTest()
 exports.BitskinsFetcher = BitskinsFetcher;
 
