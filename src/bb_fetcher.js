@@ -159,7 +159,7 @@ class BitskinsFetcher
             var singleton  = BitskinsFetcher.Singleton;
     
            //populateDB( json_obj ); 
-           DBPopulater.GetSingleton().populateDBInCascade( json_obj, singleton._page_index++, populate_finished_cb );
+           DBPopulater.GetSingleton().populateWaterfall( json_obj, singleton._page_index++, populate_finished_cb );
         }
     
         if ( items_count  == 0)

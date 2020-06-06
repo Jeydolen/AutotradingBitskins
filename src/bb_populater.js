@@ -62,7 +62,7 @@ class DBPopulater
     
 
 
-    populateDBInCascade ( json_obj, page_index, populate_finished_cb ) 
+    populateWaterfall ( json_obj, page_index, populate_finished_cb ) 
     { 
         assert( json_obj != undefined );
 
@@ -72,9 +72,26 @@ class DBPopulater
         konsole.log(" JSON Sell Order count : " + json_sell_order_count, LOG_LEVEL.MSG);
 
         var db = BB_Database.GetSingleton();
-        
 
-        const countCreateInDBTableDone = ( bb_obj ) =>
+
+        const getNextCB = ( klass ) =>
+        {
+            return  ( klass == SkinSellOrder )   ?  populateEnd_CB :
+                                                    populateDBWithKlassInstances ;
+        } // getNextgetNextCB()
+
+
+        const getNextKlass = ( klass ) =>
+        {
+            return  ( klass == Weapon   )   ?   SkinSet         :
+                    ( klass == SkinSet  )   ?   Skin            : 
+                    ( klass == Skin     )   ?   SkinSellOrder   : 
+                                                Weapon          ;
+        } // getNextKlass()
+        
+        
+        // Compte les query finies pour la page courante
+        const endOfWaterfallCB = ( bb_obj ) => 
         {
             assert( bb_obj != undefined );
 
@@ -85,17 +102,41 @@ class DBPopulater
 
             assert (done_count <= json_sell_order_count, "Done count :" + done_count + " Json count: " + json_sell_order_count + " klass: " + klass.name);
 
-            konsole.log ("DBPopulater.countCreateInDBTableDone: " + bb_obj.getType()
+            konsole.log ("DBPopulater.endOfWaterfallCB: " + bb_obj.getType()
                          + " name:" + bb_obj.getName() + " count: " + done_count + " page: " + page_index, LOG_LEVEL.OK);
             
             if ( done_count >= json_sell_order_count - 1 )
             {
+                //getNextCB( getNextKlass( klass ) );
                 this.next_cb();
                 return;
             }
 
             this.create_in_db_done_count.set ( klass, done_count + 1 );
-        }; // countCreateInDBTableDone()
+        }; // endOfWaterfallCB()
+
+
+        //                                     requis     optionnel
+        const populateDBWithKlassInstances = ( klass,  waterfall_start ) =>
+        {
+            assert( klass != undefined );
+            konsole.log("----------------------------------------------------------------------------------------", LOG_LEVEL.MSG)
+
+            konsole.error("create_in_db_done_count: " + this.create_in_db_done_count.get( klass ));
+
+            //this.next_cb = populateDBWithSkinSet_CB;
+
+            if ( waterfall_start )
+                this.create_in_db_done_count.clear(); // Efface  toutes les clés
+            
+            this.create_in_db_done_count.set( klass, 0 );
+
+            for (var i = 0, len = json_sell_order_count; i < len; i++) 
+            {
+                var weapon_obj = klass.Create (json_sell_orders[i]) ;
+                weapon_obj.createInDBTable ( db, endOfWaterfallCB );
+            }
+        }; // populateDBWithKlassInstances()
 
 
         const populateDBWithWeapon = () =>
@@ -106,13 +147,15 @@ class DBPopulater
             konsole.error("create_in_db_done_count: " + this.create_in_db_done_count.get(klass));
 
             this.next_cb = populateDBWithSkinSet_CB;
+
             this.create_in_db_done_count.clear(); // Efface  toutes les clés
+
             this.create_in_db_done_count.set( klass, 0 );
 
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var weapon_obj = klass.Create (json_sell_orders[i]) ;
-                weapon_obj.createInDBTable ( db, countCreateInDBTableDone );
+                weapon_obj.createInDBTable ( db, endOfWaterfallCB );
             }
         }; // populateDBWithWeapon()
 
@@ -126,7 +169,7 @@ class DBPopulater
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_set_obj            = klass.Create (json_sell_orders[i]) ;
-                skin_set_obj.createInDBTable (db, countCreateInDBTableDone );
+                skin_set_obj.createInDBTable (db, endOfWaterfallCB );
             }
         }; // populateDBWithSkinset_CB()
 
@@ -140,7 +183,7 @@ class DBPopulater
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_obj            = klass.Create (json_sell_orders[i]) ;
-                skin_obj.createInDBTable (db, countCreateInDBTableDone );
+                skin_obj.createInDBTable (db, endOfWaterfallCB );
             }
         }; // populateDBWithSkin_CB()
 
@@ -154,7 +197,7 @@ class DBPopulater
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_sell_order_obj     = klass.Create (json_sell_orders[i]) ;
-                skin_sell_order_obj.createInDBTable (db, countCreateInDBTableDone );
+                skin_sell_order_obj.createInDBTable (db, endOfWaterfallCB );
             }
         }; // populateDBWithSkinSellOrder_CB()
 
@@ -163,13 +206,12 @@ class DBPopulater
         {   
             konsole.log ("POPULATE IS FINISHED FOR PAGE: " + page_index, LOG_LEVEL.OK);
             populate_finished_cb();
-            //konsole.log (page_index);
         }; // populateEnd_CB()
-
-
         
-        populateDBWithWeapon();
-    } // populateDBInCascade()
+
+        populateDBWithWeapon(); // Waterfall start
+        //populateDBWithKlassInstances(Weapon); // Waterfall start
+    } // populateWaterfall() 
 
     
     populateDB(json_obj)
