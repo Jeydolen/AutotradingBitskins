@@ -43,7 +43,6 @@ class DBPopulater
         this.result = Konst.NOTHING;
         this.create_in_db_done_count = new Map();
         this.next_cb = Konst.NOTHING;
-        //this._page_index    = PAGE_INDEX_START;
     } // constructor
 
 
@@ -59,12 +58,11 @@ class DBPopulater
 
     getName         () { return this.name ; }
     getType         () { return this.constructor.name; }
-    _getPageIndex    () { return this._page_index; }
 
     
 
 
-    populateDBInCascade ( json_obj, page_index, set_is_populate_finished_cb ) 
+    populateDBInCascade ( json_obj, page_index, populate_finished_cb ) 
     { 
         assert( json_obj != undefined );
 
@@ -90,7 +88,7 @@ class DBPopulater
             konsole.log ("DBPopulater.countCreateInDBTableDone: " + bb_obj.getType()
                          + " name:" + bb_obj.getName() + " count: " + done_count + " page: " + page_index, LOG_LEVEL.OK);
             
-            if ( done_count >= json_sell_order_count )
+            if ( done_count >= json_sell_order_count - 1 )
             {
                 this.next_cb();
                 return;
@@ -163,8 +161,9 @@ class DBPopulater
 
         const populateEnd_CB = () =>
         {   
-            konsole.log ("POPULATE IS FINISHED ", LOG_LEVEL.OK);
-            set_is_populate_finished_cb (true);
+            konsole.log ("POPULATE IS FINISHED FOR PAGE: " + page_index, LOG_LEVEL.OK);
+            populate_finished_cb();
+            //konsole.log (page_index);
         }; // populateEnd_CB()
 
 

@@ -113,7 +113,7 @@ class BitskinsObject
             //konsole.log ( 'INSERT RESULT :' + JSON.stringify(query_insert_result) );
             var query_update_obj  = BB_SqlQuery.Create();
             var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : this.getCoVaSeq(), 'db-field' : 'name', 'db-field-value' : this.name });     
-            konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);
+            //konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);
             query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
           }
         }
