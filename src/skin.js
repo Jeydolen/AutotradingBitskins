@@ -5,6 +5,8 @@ const konsole     = require ('./bb_log.js').konsole ;
 
 
 const BitskinsObject  = require ('./bb_obj.js').BitskinsObject;
+const Weapon          = require ('./weapon.js').Weapon;
+const SkinSet         = require ('./skin_set.js').SkinSet;
 
 
 const NULL_SKIN   = "NULL_SKIN" ;
@@ -74,11 +76,24 @@ class Skin extends BitskinsObject
 
   } // constructor()
 
-  getCoVaSeq () 
+  //             optionnel
+  getCoVaSeq ( json_sell_order ) 
   { 
-    var assignement_value = "`image_url` = '" + this.image_url + "', `has_StatTrak` = " + this.hasStatTrak + ", `skin_rarity` = " + this.item_rarity ;
+    assert ( json_sell_order != undefined );
+
+    var weapon_name       = Weapon.ExtractName( json_sell_order );
+    var weapon_obj        = Weapon.GetWeapon (weapon_name);
+    assert ( weapon_obj != Weapon.NULL );
+
+    var skinset_name      = SkinSet.ExtractName( json_sell_order );
+    var skinset_obj       = SkinSet.GetSkinSet (skinset_name);
+    assert (skinset_obj != SkinSet.NULL);
+
+    var assignement_value = "`image_url` = '" + this.image_url + "', `has_StatTrak` = " + this.hasStatTrak
+                          + ", `skin_rarity` = " + this.item_rarity + ", skin_set = " + skinset_obj.getRecordId() + ", weapon = " + weapon_obj.getRecordId() ;
     return assignement_value;
-  }
+  } // getCoVaSeq()
+
 
   static ExtractName( market_hash_name )
   {

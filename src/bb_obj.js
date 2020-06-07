@@ -33,7 +33,7 @@ class BitskinsObject
   //   arg =    input_item ou name (pour NULL_SKIN)
   constructor( arg ) 
   {     
-    this.record_id            = Konst.NOTHING; 
+    this._record_id            = Konst.NOTHING; 
     this._create_query_state  = QUERY_STATE.UNKNOWN;
     this._update_query_state  = QUERY_STATE.UNKNOWN;
     this._created_in_db       = false;
@@ -43,16 +43,17 @@ class BitskinsObject
   } // constructor()
 
 
-  getIsJustCreated    ()      { return this._is_just_created;     }
-
-
+  getIsJustCreated    ()      { return this._is_just_created;     } // getIsJustCreated()
   getType             ()      { return this.constructor.name ;    } // getType()
   getName             ()      { return this.name ;                } // getName()
-  getCoVaSeq          ()      { return  Konst.NOTHING;            } // Column - value - sequence
+  getRecordId         ()      { return this._record_id;           } // getRecordId()
+
+  //            optionnel
+  getCoVaSeq(json_sell_order) { return  Konst.NOTHING;            } // Column - value - sequence
 
 
-  //                requis        requis          
-  createInDBTable (  db,    end_of_waterfall_cb )
+  //                requis        requis            optionnel
+  createInDBTable (  db,    end_of_waterfall_cb, json_sell_order )
   { 
       assert( db != undefined );
       assert( end_of_waterfall_cb != undefined);
@@ -62,7 +63,7 @@ class BitskinsObject
       {
 
           var query_select_obj = BB_SqlQuery.Create();
-          konsole.log( this.getType() +".createInDBTable() SELECT");
+          //konsole.log( this.getType() +".createInDBTable() SELECT");
           var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
           query_select_obj.executeWithCB( db, query_text, insertQueryCB );
         
@@ -73,16 +74,18 @@ class BitskinsObject
       {
         this.query_result = query_select_result ;
 
+        
         var query_insert_obj = BB_SqlQuery.Create();
-        assert (query_select_result[0].length <= 1 ); // SI plus de 1 on a merdé
-
+  
         if ( err )
         {
           konsole.error ("BB_Obj error: " + err, LOG_LEVEL.CRITICAL); 
           return Konst.RC.KO;
         }
+        
+        assert (query_select_result[0].length <= 1 ); // SI plus de 1 on a merdé
 
-        else if ( query_select_result[0].length == 0)
+        if ( query_select_result[0].length == 0)
         {
           var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this.table, 'db-name-value': this.name } );
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
@@ -94,17 +97,19 @@ class BitskinsObject
 
       const updateQueryCB = ( err, query_insert_result ) =>
       {
-
         if ( err )
         {
           konsole.log ("BB_Obj ERREURE: " + err, LOG_LEVEL.CRITICAL); 
           return Konst.RC.KO;
-        }
-
+        }     
         else
         {
 
-          if (this.getCoVaSeq() == Konst.NOTHING) 
+          var   insert_id = query_insert_result[0].insertId;
+          this._record_id = insert_id;
+          
+          var assignement_value = this.getCoVaSeq( json_sell_order) ;
+          if (assignement_value == Konst.NOTHING) 
           {
             afterUpdateQueryCB( null, Konst.NOTHING );
           }
@@ -112,12 +117,11 @@ class BitskinsObject
           {
             //konsole.log ( 'INSERT RESULT :' + JSON.stringify(query_insert_result) );
             var query_update_obj  = BB_SqlQuery.Create();
-            var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : this.getCoVaSeq(), 'db-field' : 'name', 'db-field-value' : this.name });     
+            var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : assignement_value, 'db-field' : 'name', 'db-field-value' : this.name });     
             //konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);
             query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
           }
         }
-        
       }; // updateQuery()
 
 

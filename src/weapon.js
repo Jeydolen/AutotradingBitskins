@@ -52,11 +52,11 @@ class Weapon extends BitskinsObject
         if (name == undefined || name == 'null' ||name == null)
             name = NULL_CASE;
         else    
-            name = name.replace ("'", "''");
-    
-        return name;// ExtractName()
-    }
+            name = name.replace ("'", "''");   
+        return name;
+    } // ExtractName()
 
+    
     computeWeaponTypeId (value)
     {
         return  ( value == 'Machinegun')        ? 7 :
@@ -69,7 +69,8 @@ class Weapon extends BitskinsObject
                                                   0 ;
     } // computeRarityID()
 
-    getCoVaSeq () 
+      //            optionnel
+    getCoVaSeq( json_sell_order )
     { 
         var assignement_value = "type = " + this.computeWeaponTypeId(this.item_type);
         return assignement_value;
@@ -123,7 +124,7 @@ class Weapon extends BitskinsObject
         var weapon = Weapon.GetNullObject() ; 
 
         //if (Weapon.Instances.hasOwnProperty(name))
-        konsole.log ("Weapon.Instances.get( name ): " + JSON.stringify(name), LOG_LEVEL.OK) ;
+        //konsole.log ("Weapon.Instances.get( name ): " + JSON.stringify(name), LOG_LEVEL.OK) ;
 
         if ( Weapon.Instances.get( name )  == undefined  || Weapon.Instances.get (name) === undefined )
         {
@@ -140,7 +141,7 @@ class Weapon extends BitskinsObject
         }
         else 
         {
-            konsole.log ('Weapon déja créé : ' + name, LOG_LEVEL.WARNING );
+            //konsole.log ('Weapon déja créé : ' + name, LOG_LEVEL.WARNING );
             weapon = Weapon.Instances.get( name );
             weapon._is_just_created = false; 
         }

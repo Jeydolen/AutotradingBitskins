@@ -169,7 +169,7 @@ class DBPopulater
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_set_obj            = klass.Create (json_sell_orders[i]) ;
-                skin_set_obj.createInDBTable (db, endOfWaterfallCB );
+                skin_set_obj.createInDBTable (db, endOfWaterfallCB);
             }
         }; // populateDBWithSkinset_CB()
 
@@ -183,7 +183,7 @@ class DBPopulater
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_obj            = klass.Create (json_sell_orders[i]) ;
-                skin_obj.createInDBTable (db, endOfWaterfallCB );
+                skin_obj.createInDBTable (db, endOfWaterfallCB, json_sell_orders[i] );
             }
         }; // populateDBWithSkin_CB()
 

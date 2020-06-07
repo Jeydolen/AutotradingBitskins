@@ -44,23 +44,20 @@ class SkinSellOrder extends BitskinsObject
         }  
     } // constructor
 
-    getCoVaSeq()
+    //            optionnel
+    getCoVaSeq( json_sell_order )
     { 
         var co_va_seq = "`market_name` = '" + this.market_name + "', `item_state` = " + this.state  + ", `price` = " + this.price + ", `recommanded_price` = " + this.recommanded_price ;
         return co_va_seq;
     }
 
     computeStateID (value) 
-    {
-      return  ( value < 0.07  ) ? 5 :
-              ( value < 0.15  ) ? 4 :
-              ( value < 0.38  ) ? 3 : 
-              ( value < 0.45 )  ? 2 : 
-              ( value < 1.00 )  ? 1 :
-                                  0 ;
-    }
-
-
+    {   return  ( value < 0.07  ) ? 5 :
+                ( value < 0.15  ) ? 4 :
+                ( value < 0.38  ) ? 3 : 
+                ( value < 0.45 )  ? 2 : 
+                ( value < 1.00 )  ? 1 :  0 ;
+    } // computeStateID()
 
     static GetNullObject() 
     {
@@ -70,11 +67,8 @@ class SkinSellOrder extends BitskinsObject
     } // GetNullObject() 
 
 
+    static GetInstances ()  {  return SkinSellOrder.Instances;  }
 
-    static GetInstances ()
-    {
-        return SkinSellOrder.Instances;
-    }
 
     static Create (input_item)
     {
@@ -85,14 +79,14 @@ class SkinSellOrder extends BitskinsObject
 
         if (SkinSellOrder.Instances.get (name) == undefined )
         {
-           konsole.log ('Détection nouvel élément: ' + name, LOG_LEVEL.OK)
+            //konsole.log ('Détection nouvel élément: ' + name, LOG_LEVEL.OK)
             //console.log ('Détection nouvel élément: ' + name) ;
             sell_order_obj = new SkinSellOrder (input_item);
             SkinSellOrder.Instances.set (name, sell_order_obj) ;
         }
         else 
         {
-            konsole.log('Sell order déja créé (instance de SkinSellOrder): ' + name, LOG_LEVEL.WARNING)
+            //konsole.log('Sell order déja créé (instance de SkinSellOrder): ' + name, LOG_LEVEL.WARNING)
             sell_order_obj = SkinSellOrder.Instances.get (name) ;
             sell_order_obj._is_just_created = false; 
         }
