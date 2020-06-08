@@ -189,7 +189,7 @@ class BitskinsFetcher
         const populate = () =>
         {
             assert (! this._is_last_page);
-            this.fetchItems( this._page_index, this.parseOnReady_CB, populate );
+            this.fetchItems( this._page_index, this.parseOnReady_CB, populate );    
             konsole.log ("Boucle du populate: " + this._page_index, LOG_LEVEL.OK);
         }
 

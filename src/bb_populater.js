@@ -9,7 +9,8 @@ const Skin               = require ('./skin.js').Skin ;
 const SkinSet            = require ('./skin_set.js').SkinSet ;
 const SkinSellOrder      = require ('./skin_sell_order.js').SkinSellOrder ;
 const Weapon             = require ('./weapon.js').Weapon; 
-
+const Agent              = require ('./agent.js').Agent; 
+const Sticker            = require ('./sticker.js').Sticker; 
 
 const DB_POPULATER_SINGLETON = "DB_POPULATER_SINGLETON";
 
@@ -115,7 +116,7 @@ class DBPopulater
             this.create_in_db_done_count.set ( klass, done_count + 1 );
         }; // endOfWaterfallCB()
 
-
+        /*
         //                                     requis     optionnel
         const populateDBWithKlassInstances = ( klass,  waterfall_start ) =>
         {
@@ -137,6 +138,7 @@ class DBPopulater
                 weapon_obj.createInDBTable ( db, endOfWaterfallCB );
             }
         }; // populateDBWithKlassInstances()
+        */
 
 
         const populateDBWithWeapon = () =>
@@ -146,12 +148,11 @@ class DBPopulater
             var klass = Weapon;
             konsole.error("create_in_db_done_count: " + this.create_in_db_done_count.get(klass));
 
-            this.next_cb = populateDBWithSkinSet_CB;
-
-            this.create_in_db_done_count.clear(); // Efface  toutes les clés
+            this.create_in_db_done_count.clear();
 
             this.create_in_db_done_count.set( klass, 0 );
-
+            this.next_cb = populateDBWithSkinSet_CB;
+            
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var weapon_obj = klass.Create (json_sell_orders[i]) ;
@@ -163,8 +164,9 @@ class DBPopulater
         const populateDBWithSkinSet_CB = () =>
         {
             var klass = SkinSet;
-            this.next_cb = populateDBWithSkin_CB;
+            
             this.create_in_db_done_count.set( klass, 0 );
+            this.next_cb = populateDBWith_Stck_Skn_Agt_CB;
 
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
@@ -174,18 +176,23 @@ class DBPopulater
         }; // populateDBWithSkinset_CB()
 
 
-        const populateDBWithSkin_CB = () =>
-        { 
-            var klass = Skin;
+        const populateDBWith_Stck_Skn_Agt_CB = () => // Sticker // Skin // Agent
+        {
             this.next_cb = populateDBWithSkinSellOrder_CB;
-            this.create_in_db_done_count.set( klass, 0 );
-            
+
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var skin_obj            = klass.Create (json_sell_orders[i]) ;
-                skin_obj.createInDBTable (db, endOfWaterfallCB, json_sell_orders[i] );
+                var input_item = json_sell_orders[i];
+
+                var klass = SkinSellOrder.ExtractType( input_item );
+                assert (klass != Konst.NOTHING);
+                if ( this.create_in_db_done_count.get( klass) == undefined )
+                    this.create_in_db_done_count.set( klass, 0 );
+
+                var stck_skn_agt_obj = klass.Create (input_item) ;
+                stck_skn_agt_obj.createInDBTable (db, endOfWaterfallCB);
             }
-        }; // populateDBWithSkin_CB()
+        }; // populateDBWithSticker_CB()
 
 
         const populateDBWithSkinSellOrder_CB = () =>

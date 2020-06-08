@@ -96,8 +96,11 @@ const clearTables = () =>
     
     executeClearQuery   (db, "skin_sell_order");
     executeClearQuery   (db, "skin");
+    executeClearQuery   (db, "sticker");
+    executeClearQuery   (db, "agent");
     executeClearQuery   (db, "skin_set");
     executeClearQuery   (db, "weapon");
+    
     
 }; // clearTables()
 

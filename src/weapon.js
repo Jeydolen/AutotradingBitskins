@@ -42,6 +42,7 @@ class Weapon extends BitskinsObject
 
     } // constructor
 
+
     static ExtractName( input_item )
     {
         assert (input_item != undefined);
@@ -57,7 +58,7 @@ class Weapon extends BitskinsObject
     } // ExtractName()
 
     
-    computeWeaponTypeId (value)
+    static ComputeWeaponTypeId (value)
     {
         return  ( value == 'Machinegun')        ? 7 :
                 ( value == 'Shotgun')           ? 6 :
@@ -67,12 +68,13 @@ class Weapon extends BitskinsObject
                 ( value == 'Pistol')            ? 2 :
                 ( value == 'Knife')             ? 1 :
                                                   0 ;
-    } // computeRarityID()
+    } // ComputeWeaponTypeId()
 
-      //            optionnel
+    
+    //            optionnel
     getCoVaSeq( json_sell_order )
     { 
-        var assignement_value = "type = " + this.computeWeaponTypeId(this.item_type);
+        var assignement_value = "type = " + Weapon.ComputeWeaponTypeId(this.item_type);
         return assignement_value;
     }
 

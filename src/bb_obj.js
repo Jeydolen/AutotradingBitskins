@@ -91,7 +91,10 @@ class BitskinsObject
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
         }
         else 
-          konsole.log ("Je ne suis pas censé être ici InsertQueryCB (bb_obj)" , LOG_LEVEL.CRITICAL);
+        {
+          konsole.log ("Cet objet est déja inséré dans la DB: " + this.name , LOG_LEVEL.INFO);
+          afterUpdateQueryCB( null, Konst.NOTHING );
+        }      
       }; // insertQueryCB()
 
 

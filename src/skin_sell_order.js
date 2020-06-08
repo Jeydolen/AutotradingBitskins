@@ -6,8 +6,19 @@ const konsole           = require ('./bb_log.js').konsole ;
 const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
 
 
+const Skin               = require ('./skin.js').Skin; 
+const Agent              = require ('./agent.js').Agent; 
+const Sticker            = require ('./sticker.js').Sticker; 
+const Weapon             = require ('./weapon.js').Weapon; 
 
-const NULL_SKIN_SELL_ORDER              = "NULL_SKIN_SELL_ORDER" ;
+
+const NULL_ITEM_TYPE            = "NULL_ITEM_TYPE";
+const NULL_SKIN_SELL_ORDER      = "NULL_SKIN_SELL_ORDER" ;
+const STICKER_TYPE              = "Sticker";
+const SKIN_TYPE                 = "Skin"
+const AGENT_TYPE                = "Agent";
+
+
 /*
  /$$$$$$  /$$       /$$            /$$$$$$            /$$ /$$  /$$$$$$                  /$$                    
  /$$__  $$| $$      |__/           /$$__  $$          | $$| $$ /$$__  $$                | $$                    
@@ -18,8 +29,6 @@ const NULL_SKIN_SELL_ORDER              = "NULL_SKIN_SELL_ORDER" ;
 |  $$$$$$/| $$ \  $$| $$| $$  | $$|  $$$$$$/|  $$$$$$$| $$| $$|  $$$$$$/| $$      |  $$$$$$$|  $$$$$$$| $$      
  \______/ |__/  \__/|__/|__/  |__/ \______/  \_______/|__/|__/ \______/ |__/       \_______/ \_______/|__/                                                                
                                                                                                                 */
-
-
 
 class SkinSellOrder extends BitskinsObject
 {               
@@ -65,6 +74,21 @@ class SkinSellOrder extends BitskinsObject
             SkinSellOrder.NULL   = new SkinSellOrder( NULL_SKIN_SELL_ORDER );
         return SkinSellOrder.NULL;
     } // GetNullObject() 
+
+    
+    static ExtractType( input_item )
+    {
+        assert (input_item != undefined);
+        assert (input_item.hasOwnProperty('item_type'));
+
+        var item_type = input_item.item_type;
+        konsole.log("SkinSellOrder.ExtractType(): " + item_type);
+
+
+        return  ( item_type == STICKER_TYPE)                              ? Sticker  :
+                ( item_type == AGENT_TYPE  )                              ? Agent    :
+                ( item_type == Weapon.ComputeWeaponTypeId(item_type)  )   ? Skin     : Konst.NOTHING;
+    } // ExtractType()
 
 
     static GetInstances ()  {  return SkinSellOrder.Instances;  }
