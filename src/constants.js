@@ -1,6 +1,4 @@
 const Enum   = require('enum');
-const chalk  = require ('chalk');
-
 
 
 const SQ = "\x27";

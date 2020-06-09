@@ -1,6 +1,6 @@
 const assert            = require ('assert');
 
-const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
+const DumbItem          = require ('./dumb_items.js').DumbItem;
 
 const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL; 
 const konsole           = require ('./bb_log.js').konsole ;
@@ -9,7 +9,8 @@ const NULL_AGENT = "NULL_AGENT";
 
 
 
-class Agent extends BitskinsObject
+/*
+class Agent extends DumbItem
 {
     static Instances    = new Map();
     static NULL         = Agent.GetNullObject();
@@ -30,17 +31,17 @@ class Agent extends BitskinsObject
     } // constructor
 
 
-    static ExtractName( input_item )
+    static ExtractName( json_sell_order )
     {
-        assert (input_item != undefined);
+        assert (json_sell_order != undefined);
         var name        = NULL_AGENT;
-        var item_type   = Agent.ExtractType( input_item );
+        var item_type   = Agent.ExtractType( json_sell_order );
 
         if ( item_type == AGENT_TYPE )
         {
-            if ( input_item.market_hash_name.search('|') != -1)
+            if ( json_sell_order.market_hash_name.search('|') != -1)
             {
-               var parts = input_item.market_hash_name.split('|');
+               var parts = json_sell_order.market_hash_name.split('|');
                name = parts[0] + parts[1];
             }
         }
@@ -62,9 +63,9 @@ class Agent extends BitskinsObject
     {
         Agent.GetNullObject();
   
-        var sticker = Agent.Instances.get (name);
-        if (sticker != undefined)   return sticker;
-        else                        return Agent.NULL;
+        var agent_obj = Agent.Instances.get (name);
+        if (agent_obj != undefined)     return agent_obj;
+        else                            return Agent.NULL;
     } // GetWeapon()
     
     
@@ -77,14 +78,14 @@ class Agent extends BitskinsObject
     } // GetInstanceCount()
 
 
-    static Create ( input_item )
+    static Create ( json_sell_order )
     {
-        assert(input_item != undefined);
+        assert(json_sell_order != undefined);
 
-        var item_type = Agent.ExtractType( input_item );
+        var item_type = DumbItem.ExtractType( json_sell_order );
         assert(item_type == AGENT_TYPE);
         
-        var name = Agent.ExtractName( input_item);
+        var name = Agent.ExtractName( json_sell_order);
         var agent_obj = Agent.GetNullObject() ; 
 
 
@@ -93,7 +94,7 @@ class Agent extends BitskinsObject
             konsole.log ("name : " + JSON.stringify(name)) ;
             konsole.log ('Détection nouveau Agent', LOG_LEVEL.OK) ;
 
-            agent_obj = new Agent ( input_item );
+            agent_obj = new Agent ( json_sell_order );
 
             Agent.Instances.set( name, agent_obj );
             konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Agent.Instances.size, LOG_LEVEL.OK) ;
@@ -112,3 +113,4 @@ class Agent extends BitskinsObject
 } // Agent class
 exports.Agent = Agent ;
 //----------------------- Agent class -----------------------
+*/

@@ -1,15 +1,15 @@
 const assert            = require ('assert');
 
 
-const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
+const DumbItem          = require ('./dumb_items.js').DumbItem;
 
 const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL; 
 const konsole           = require ('./bb_log.js').konsole ;
 
 const NULL_STICKER = "NULL_STICKER";
 
-
-class Sticker extends BitskinsObject
+/*
+class Sticker extends DumbItem
 {
     static Instances    = new Map();
     static NULL         = Sticker.GetNullObject();
@@ -32,17 +32,17 @@ class Sticker extends BitskinsObject
 
 
 
-    static ExtractName( input_item )
+    static ExtractName( json_sell_order )
     {
-        assert (input_item != undefined);
+        assert (json_sell_order != undefined);
         var name        = NULL_STICKER;
-        var item_type   = Sticker.ExtractType( input_item );
+        var item_type   = Sticker.ExtractType( json_sell_order );
 
         if ( item_type == STICKER_TYPE )
         {
-            if ( input_item.market_hash_name.search('|') != -1)
+            if ( json_sell_order.market_hash_name.search('|') != -1)
             {
-                var parts = input_item.market_hash_name.split('|');
+                var parts = json_sell_order.market_hash_name.split('|');
                 if (parts.length >= 2)
                 {
                     name = parts[1];
@@ -84,14 +84,14 @@ class Sticker extends BitskinsObject
     } // GetInstanceCount()
 
 
-    static Create ( input_item )
+    static Create ( json_sell_order )
     {
-        assert(input_item != undefined);
+        assert(json_sell_order != undefined);
 
-        var item_type = Sticker.ExtractType( input_item );
+        var item_type = DumbItem.ExtractType( json_sell_order );
         assert(item_type == STICKER_TYPE);
         
-        var name = Sticker.ExtractName( input_item);
+        var name = Sticker.ExtractName( json_sell_order);
         var sticker_obj = Sticker.GetNullObject() ; 
 
 
@@ -100,17 +100,13 @@ class Sticker extends BitskinsObject
             konsole.log ("name : " + JSON.stringify(name)) ;
             konsole.log ('Détection nouveau Sticker', LOG_LEVEL.OK) ;
 
-            sticker_obj = new Sticker ( input_item );
+            sticker_obj = new Sticker ( json_sell_order );
             
-            //konsole.log ("Avant Insertion : '" + name + "' + Instances.count: " + Sticker.Instances.size, LOG_LEVEL.OK) ;
             Sticker.Instances.set( name, sticker_obj );
             konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Sticker.Instances.size, LOG_LEVEL.OK) ;
-
-            //konsole.log("Sticker.Instances: " + utility.mapToString(Sticker.Instances));
         }
         else 
         {
-            //konsole.log ('Sticker déja créé : ' + name, LOG_LEVEL.WARNING );
             sticker_obj = Sticker.Instances.get( name );
             sticker_obj._is_just_created = false; 
         }
@@ -121,3 +117,4 @@ class Sticker extends BitskinsObject
 } // Sticker class
 exports.Sticker = Sticker ;
 //----------------------- Sticker class -----------------------
+*/

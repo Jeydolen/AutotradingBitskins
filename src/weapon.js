@@ -1,4 +1,5 @@
 const assert            = require ('assert');
+const Enum              = require('enum');
 
 
 const BitskinsObject    = require ('./bb_obj.js').BitskinsObject;
@@ -8,6 +9,9 @@ const konsole           = require ('./bb_log.js').konsole ;
 
 const NULL_WEAPON  = "NULL_WEAPON" ;
 const NULL_CASE    = "NULL_CASE";
+
+const WEAPON_TYPE_DB_IDS = new Enum  ({ 'Unknown' : 0, 'Knife' : 1, 'Pistol' : 2,
+                                        'SMG' : 3, 'Rifle' : 4, 'Sniper Rifle' : 5, 'Shotgun': 6, 'Machinegun' : 7 });
 
 /*
 /$$      /$$                                                                              
@@ -58,16 +62,16 @@ class Weapon extends BitskinsObject
     } // ExtractName()
 
     
-    static ComputeWeaponTypeId (value)
+    static ComputeWeaponTypeId ( item_type )
     {
-        return  ( value == 'Machinegun')        ? 7 :
-                ( value == 'Shotgun')           ? 6 :
-                ( value == 'Sniper Rifle')      ? 5 : 
-                ( value == 'Rifle')             ? 4 : 
-                ( value == 'SMG')               ? 3 :
-                ( value == 'Pistol')            ? 2 :
-                ( value == 'Knife')             ? 1 :
-                                                  0 ;
+        return  ( item_type == 'Machinegun')        ? WEAPON_TYPE_DB_IDS['Machinegun'].value:
+                ( item_type == 'Shotgun')           ? WEAPON_TYPE_DB_IDS['Shotgun'].value :
+                ( item_type == 'Sniper Rifle')      ? WEAPON_TYPE_DB_IDS['Sniper Rifle'].value : 
+                ( item_type == 'Rifle')             ? WEAPON_TYPE_DB_IDS['Rifle'].value : 
+                ( item_type == 'SMG')               ? WEAPON_TYPE_DB_IDS['SMG'].value :
+                ( item_type == 'Pistol')            ? WEAPON_TYPE_DB_IDS['Pistol'].value :
+                ( item_type == 'Knife')             ? WEAPON_TYPE_DB_IDS['Knife'].value :
+                                                      WEAPON_TYPE_DB_IDS['Unknown'].value ;
     } // ComputeWeaponTypeId()
 
     

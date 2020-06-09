@@ -8,6 +8,7 @@ const LOG_LEVEL          = require ('./bb_log.js').LOG_LEVEL ;
 const Skin               = require ('./skin.js').Skin ;
 const SkinSet            = require ('./skin_set.js').SkinSet ;
 const SkinSellOrder      = require ('./skin_sell_order.js').SkinSellOrder ;
+const DumbItem           = require ('./dumb_items.js').DumbItem ;
 const Weapon             = require ('./weapon.js').Weapon; 
 const Agent              = require ('./agent.js').Agent; 
 const Sticker            = require ('./sticker.js').Sticker; 
@@ -166,7 +167,7 @@ class DBPopulater
             var klass = SkinSet;
             
             this.create_in_db_done_count.set( klass, 0 );
-            this.next_cb = populateDBWith_Stck_Skn_Agt_CB;
+            this.next_cb = populateDBWithSkinOrDumb_CB;
 
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
@@ -176,7 +177,7 @@ class DBPopulater
         }; // populateDBWithSkinset_CB()
 
 
-        const populateDBWith_Stck_Skn_Agt_CB = () => // Sticker // Skin // Agent
+        const populateDBWithSkinOrDumb_CB = () => // Sticker // Skin // Agent
         {
             this.next_cb = populateDBWithSkinSellOrder_CB;
 
@@ -184,7 +185,7 @@ class DBPopulater
             {
                 var input_item = json_sell_orders[i];
 
-                var klass = SkinSellOrder.ExtractType( input_item );
+                var klass = DumbItem.ExtractType( input_item );
                 assert (klass != Konst.NOTHING);
                 if ( this.create_in_db_done_count.get( klass) == undefined )
                     this.create_in_db_done_count.set( klass, 0 );
@@ -192,7 +193,7 @@ class DBPopulater
                 var stck_skn_agt_obj = klass.Create (input_item) ;
                 stck_skn_agt_obj.createInDBTable (db, endOfWaterfallCB);
             }
-        }; // populateDBWithSticker_CB()
+        }; // populateDBWithSkinOrDumb_CB()
 
 
         const populateDBWithSkinSellOrder_CB = () =>
