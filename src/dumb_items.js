@@ -18,8 +18,10 @@ const AGENT_TYPE                = "Agent";
 const CONTAINER_TYPE            = "Container";
 const NULL_ITEM_TYPE            = "NULL_ITEM_TYPE";
 
-const ITEM_TYPE_TABLE_IDS = new Enum  ({  'NULL_ITEM_TYPE' : 0, 'SKIN_TYPE' : 1, 'AGENT_TYPE' : 2,
-                                          'STICKER_TYPE' : 3, 'CONTAINER_TYPE' : 4, 'AFER' : 5 });
+
+//============================================ https://www.npmjs.com/package/enum =====================================================
+const ITEM_TYPE_TABLE_IDS = new Enum  ({  'NULL_ITEM_TYPE' : 0, 'Skin' : 1, 'Agent' : 2,
+                                          'Sticker' : 3, 'Container' : 4, 'AFER' : 5 });
 
 class DumbItem extends BitskinsObject
 {
@@ -52,7 +54,7 @@ class DumbItem extends BitskinsObject
     {   
         konsole.log("item_type: '" + item_type + "'", LOG_LEVEL.STEP);
         var weapon_type_id = Weapon.ComputeWeaponTypeId( item_type) ;
-        konsole.log (ITEM_TYPE_TABLE_IDS[CONTAINER_TYPE], LOG_LEVEL.CRITICAL);
+        konsole.log (ITEM_TYPE_TABLE_IDS[CONTAINER_TYPE], LOG_LEVEL.STEP);
 
         if (weapon_type_id != 0 )
         {
@@ -79,9 +81,12 @@ class DumbItem extends BitskinsObject
         // Item is either a 'Skin' or a 'DumbItem'
         var item_type_id = DumbItem.ComputeItemTypeID( item_type)
         konsole.log("item_type_id: " + item_type_id, LOG_LEVEL.PAUSE);
-        konsole.log("item_type: " + ITEM_TYPE_TABLE_IDS[ item_type ], LOG_LEVEL.STEP);
+        
+        konsole.log("item_type: " + item_type, LOG_LEVEL.OK);
+        konsole.log("item_type key: " + ITEM_TYPE_TABLE_IDS[item_type].key, LOG_LEVEL.OK);
+        konsole.log("item_type value: " + ITEM_TYPE_TABLE_IDS[item_type].value, LOG_LEVEL.STEP);
 
-        if ( item_type_id == ITEM_TYPE_TABLE_IDS[ SKIN_TYPE ].value )
+        if ( item_type_id == ITEM_TYPE_TABLE_IDS[SKIN_TYPE].value )
             return Skin; 
         else 
             return DumbItem;
