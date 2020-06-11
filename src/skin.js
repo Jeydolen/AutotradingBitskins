@@ -76,7 +76,7 @@ class Skin extends BitskinsObject
 
   } // constructor()
 
-  //             optionnel
+  //             requis
   getCoVaSeq ( json_sell_order ) 
   { 
     assert ( json_sell_order != undefined );

@@ -97,10 +97,19 @@ class DBPopulater
         {
             assert( bb_obj != undefined );
 
+            
             var klass = (bb_obj.constructor);
-            //konsole.log (klass.name, LOG_LEVEL.CRITICAL);
-
             var done_count = this.create_in_db_done_count.get( klass );
+
+            if ( klass == Skin || klass == DumbItem ) 
+            {
+                done_count = 0;
+                if (this.create_in_db_done_count.get( Skin ) != undefined )
+                    done_count += this.create_in_db_done_count.get( Skin );
+
+                if (this.create_in_db_done_count.get( DumbItem ) != undefined )
+                    done_count += this.create_in_db_done_count.get( DumbItem );
+            }   
 
             assert (done_count <= json_sell_order_count, "Done count :" + done_count + " Json count: " + json_sell_order_count + " klass: " + klass.name);
 
@@ -114,7 +123,7 @@ class DBPopulater
                 return;
             }
 
-            this.create_in_db_done_count.set ( klass, done_count + 1 );
+            this.create_in_db_done_count.set ( klass, this.create_in_db_done_count.get( klass ) + 1 );
         }; // endOfWaterfallCB()
 
         /*
@@ -183,15 +192,15 @@ class DBPopulater
 
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var input_item = json_sell_orders[i];
+                var json_sell_order = json_sell_orders[i];
 
-                var klass = DumbItem.ExtractType( input_item );
+                var klass = DumbItem.ExtractType( json_sell_order );
                 assert (klass != Konst.NOTHING);
                 if ( this.create_in_db_done_count.get( klass) == undefined )
                     this.create_in_db_done_count.set( klass, 0 );
 
-                var stck_skn_agt_obj = klass.Create (input_item) ;
-                stck_skn_agt_obj.createInDBTable (db, endOfWaterfallCB);
+                var stck_skn_agt_obj = klass.Create (json_sell_order) ;
+                stck_skn_agt_obj.createInDBTable (db, endOfWaterfallCB, json_sell_order);
             }
         }; // populateDBWithSkinOrDumb_CB()
 
