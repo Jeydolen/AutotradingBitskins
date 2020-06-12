@@ -104,7 +104,7 @@ class Weapon extends BitskinsObject
     static GetInstanceCount  ()
     {
         var instance_count = Weapon.Instances.size ;  // Map !!
-        konsole.log("Weapon.GetInstanceCount:" + instance_count, LOG_LEVEL.OK);
+        //konsole.log("Weapon.GetInstanceCount:" + instance_count, LOG_LEVEL.OK);
         return instance_count;
     } // GetInstanceCount()
 
@@ -129,13 +129,13 @@ class Weapon extends BitskinsObject
 
         if ( Weapon.Instances.get( name )  == undefined  || Weapon.Instances.get (name) === undefined )
         {
-            konsole.log ("name : " + JSON.stringify(name)) ;
-            konsole.log ('Détection nouveau Weapon', LOG_LEVEL.OK) ;
+            //konsole.log ("name : " + JSON.stringify(name)) ;
+            //konsole.log ('Détection nouveau Weapon', LOG_LEVEL.OK) ;
 
             weapon = new Weapon ( input_item );
             
             Weapon.Instances.set( name, weapon );
-            konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Weapon.Instances.size, LOG_LEVEL.OK) ;
+            //konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Weapon.Instances.size, LOG_LEVEL.OK) ;
         }
         else 
         {

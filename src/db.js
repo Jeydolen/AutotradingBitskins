@@ -20,7 +20,73 @@ const DATA_PATH = './data/';
 var page_index = Konst.PAGE_INDEX_START;
 // ----------------------------------------------------------------
 
+//===================================================================================================================================================
+const restoreDefaultDBState =  (db, table) =>
+{
+    const executeDeleteQuery = () =>
+    {
+        var query_text  = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
+        var query_obj   = BB_SqlQuery.Create( query_text );
+        konsole.log(query_obj.getCommand() + "\t\t Trying DELETE in '" + table + "'", LOG_LEVEL.INFO);
+         query_obj.executeWithCB( db,query_text, executeAlterRstAiQuery_CB );
 
+    }; // executeDeleteQuery()
+    
+    
+    const  executeAlterRstAiQuery_CB =  ( err,  query_delete_result ) =>
+    {
+        konsole.log ('DELETE SUCCESSFULL', LOG_LEVEL.INFO)
+        var query_result = query_delete_result ;
+        var query_insert_obj = BB_SqlQuery.Create();
+    
+        if ( err )
+        {
+            konsole.error ("DB error: " + err, LOG_LEVEL.CRITICAL); 
+            return Konst.RC.KO;
+        }
+    
+        var query_text  = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
+         query_insert_obj.executeWithCB( db, query_text, executeInsertNullQuery_CB );
+    }; // executeAlterRstAiQuery_CB()
+    
+    
+    const executeInsertNullQuery_CB =  ( err, query_ARAI_result ) =>
+    {
+        konsole.log ('ALTER RST AI SUCCESSFULL', LOG_LEVEL.INFO)
+        var query_result = query_ARAI_result;
+        if ( err )
+        {
+            konsole.log ("BB_Obj ERREURE: " + err, LOG_LEVEL.CRITICAL); 
+            afterUpdateQueryCB( null, Konst.NOTHING );
+            return Konst.RC.KO;
+        }     
+        else
+        {
+            var query_update_obj  = BB_SqlQuery.Create();
+            var query_text  = expand(SQL_TEMPLATE.INSERT_NULL.value, { 'db-table': table, 'db-name-value': 'NULL_'+ table.toUpperCase()});  
+            query_update_obj.executeWithCB(db, query_text, afterExecuteInsertNullQuery_CB );
+        }
+    }; // executeInsertNullQuery_CB()
+    
+    
+    const afterExecuteInsertNullQuery_CB =  ( err, query_insert_null_result ) =>
+    {  
+        konsole.log ('INSERT_NULL SUCCESSFULL', LOG_LEVEL.INFO)
+        var query_result = query_insert_null_result; 
+    
+        if ( err )
+        {
+            konsole.error ('BB_OBJ.afterUpdateQueryCB() Houston on a un prbl : ' + err ); 
+        }
+        konsole.log ('RESET SUCCESSFULL', LOG_LEVEL.OK)
+    }; // afterExecuteInsertNullQuery_CB()
+
+    executeDeleteQuery(db, table)
+
+}; // restoreDefaultDBState
+
+
+//===================================================================================================================================================
                            
 const executeDeleteQuery = ( db , table , cb ) =>
 {   
@@ -93,17 +159,22 @@ const clearTables = () =>
     var db = BB_Database.GetSingleton();
     konsole.log("db.clearTables() db: " + db.toString());
 
-    
+    /*
     executeClearQuery   (db, "skin_sell_order");
     executeClearQuery   (db, "skin");
     executeClearQuery   (db, "dumb_item");
     executeClearQuery   (db, "skin_set");
     executeClearQuery   (db, "weapon");
-    
+    */
+
+   restoreDefaultDBState (db, "skin_sell_order");
+   restoreDefaultDBState (db, "skin");
+   restoreDefaultDBState (db, "skin_set");
+   restoreDefaultDBState (db, "weapon");
     
 }; // clearTables()
 
-
+/*
 const updateDb = () => 
 {
     clearTables();
@@ -132,7 +203,7 @@ const updateDb = () =>
     ); // async.whilst()
 
 }; // updateDb ()
-
+*/
 
 const updateDBInCascade = () => 
 {
@@ -143,4 +214,5 @@ const updateDBInCascade = () =>
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
 exports.restoreDB = restoreDB ;
-exports.updateDb = updateDb ;
+exports.restoreDefaultDBState = restoreDefaultDBState;
+//exports.updateDb = updateDb ;

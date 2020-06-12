@@ -52,13 +52,13 @@ class DumbItem extends BitskinsObject
 
     static ComputeItemTypeID ( item_type ) 
     {   
-        konsole.log("item_type: '" + item_type + "'", LOG_LEVEL.OK);
+        //konsole.log("item_type: '" + item_type + "'", LOG_LEVEL.OK);
         var weapon_type_id = Weapon.ComputeWeaponTypeId( item_type) ;
-        konsole.log (ITEM_TYPE_TABLE_IDS[CONTAINER_TYPE], LOG_LEVEL.OK);
+        //konsole.log (ITEM_TYPE_TABLE_IDS[CONTAINER_TYPE], LOG_LEVEL.OK);
 
         if (weapon_type_id != 0 )
         {
-            konsole.log('weapon_type_id: ' + weapon_type_id );
+            //konsole.log('weapon_type_id: ' + weapon_type_id );
             return  ITEM_TYPE_TABLE_IDS[SKIN_TYPE].value;
         }    
 
@@ -76,14 +76,10 @@ class DumbItem extends BitskinsObject
         assert (json_sell_order.hasOwnProperty('item_type'));
 
         var item_type = json_sell_order.item_type;
-        //konsole.log("DumbItem.ExtractType(): '" + item_type + "'");
 
         // Item is either a 'Skin' or a 'DumbItem'
         var item_type_id = DumbItem.ComputeItemTypeID( item_type)
-        //konsole.log("item_type_id: " + item_type_id, LOG_LEVEL.OK);
-        //konsole.log("ITEM_TYPE_TABLE_IDS[SKIN_TYPE]: " + ITEM_TYPE_TABLE_IDS[SKIN_TYPE], LOG_LEVEL.OK);
-        //konsole.log("item_type: " + item_type, LOG_LEVEL.OK);
-        //konsole.log("item_type value: " + ITEM_TYPE_TABLE_IDS[item_type].value, LOG_LEVEL.OK);
+
 
         if ( item_type_id == ITEM_TYPE_TABLE_IDS[SKIN_TYPE].value )
             return Skin; 
@@ -124,7 +120,7 @@ class DumbItem extends BitskinsObject
     static GetInstanceCount  ()
     {
         var instance_count = DumbItem.Instances.size ;  // Map !!
-        konsole.log("DumbItem.GetInstanceCount:" + instance_count, LOG_LEVEL.OK);
+        //konsole.log("DumbItem.GetInstanceCount:" + instance_count, LOG_LEVEL.OK);
         return instance_count;
     } // GetInstanceCount()
 
@@ -156,13 +152,13 @@ class DumbItem extends BitskinsObject
 
         if ( DumbItem.Instances.get( name )  == undefined  || DumbItem.Instances.get (name) === undefined )
         {
-            konsole.log ("name : " + JSON.stringify(name)) ;
-            konsole.log ('Détection nouveau DumbItem', LOG_LEVEL.OK) ;
+            //konsole.log ("name : " + JSON.stringify(name)) ;
+            //konsole.log ('Détection nouveau DumbItem', LOG_LEVEL.OK) ;
 
             dumb_item_obj = new DumbItem ( json_sell_order );
            
             DumbItem.Instances.set( name, dumb_item_obj );
-            konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + DumbItem.Instances.size, LOG_LEVEL.OK) ;
+            //konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + DumbItem.Instances.size, LOG_LEVEL.OK) ;
         }
         else 
         {

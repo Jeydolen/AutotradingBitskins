@@ -175,16 +175,16 @@ class Skin extends BitskinsObject
     if (  Skin.Instances.get( name )  == undefined  || Skin.Instances.get (name) === undefined 
       ||  Skin.Instances.get (name)   === null      || Skin.Instances.get (name) == null)
     {
-        konsole.log ('Détection nouveau skin', LOG_LEVEL.OK) ;
+        //konsole.log ('Détection nouveau skin', LOG_LEVEL.OK) ;
 
         skin_obj = new Skin ( input_item );
         
         Skin.Instances.set( name, skin_obj );
-        konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Skin.Instances.size, LOG_LEVEL.OK) ;
+        //konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Skin.Instances.size, LOG_LEVEL.OK) ;
     }
     else 
     {
-        konsole.log ('Skin déja créé : ' + name, LOG_LEVEL.OK );
+        //konsole.log ('Skin déja créé : ' + name, LOG_LEVEL.OK );
 
         skin_obj = Skin.Instances.get( name );
         skin_obj._is_just_created = false; 

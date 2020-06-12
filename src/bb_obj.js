@@ -27,7 +27,7 @@ class BitskinsObject
   //   arg =    input_item ou name (pour NULL_SKIN)
   constructor( arg ) 
   {     
-    this._record_id            = 0; 
+    this._record_id            = 1; // NULL_OBJECT DANS LES TABLES 
     this._create_query_state  = QUERY_STATE.UNKNOWN;
     this._update_query_state  = QUERY_STATE.UNKNOWN;
     this._created_in_db       = false;
