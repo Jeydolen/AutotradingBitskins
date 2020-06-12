@@ -7,13 +7,10 @@ const expand    = require('expand-template')();
 const Konst     = require ('./constants');
 const konsole   = require ('./bb_log').konsole;
 const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
-const pause     = require('./utility.js').pause;
 
 const QUERY_STATE = new Enum ({ 'UNKNOWN': 0, 'PENDING': 1, 'DONE': 2, 'FAILED': 3 });
 
 // https://dev.mysql.com/doc/refman/5.7/en/comments.html
-
-// Placeholder https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals
 
 const SQL_TEMPLATE = new Enum ({    
 //   statement          :           template sql
@@ -44,8 +41,7 @@ const statement2sqlTmpl = ( statement ) =>
     return sql_tmpl;
 }; // statement2sqlTmpl()
 
-/*
-/$$$$$$$  /$$$$$$$        /$$$$$$   /$$$$$$  /$$        /$$$$$$                                         
+/*$$$$$$$  /$$$$$$$        /$$$$$$   /$$$$$$  /$$        /$$$$$$                                         
 | $$__  $$| $$__  $$      /$$__  $$ /$$__  $$| $$       /$$__  $$                                        
 | $$  \ $$| $$  \ $$     | $$  \__/| $$  \ $$| $$      | $$  \ $$ /$$   /$$  /$$$$$$   /$$$$$$  /$$   /$$
 | $$$$$$$ | $$$$$$$      |  $$$$$$ | $$  | $$| $$      | $$  | $$| $$  | $$ /$$__  $$ /$$__  $$| $$  | $$
@@ -55,9 +51,8 @@ const statement2sqlTmpl = ( statement ) =>
 |_______/ |_______//$$$$$$\______/  \____ $$$|________/ \____ $$$ \______/  \_______/|__/       \____  $$
                   |______/               \__/                \__/                               /$$  | $$
                                                                                                |  $$$$$$/
-                                                                                                \______/  */
+                                                                                                \______*/
 
-// https://codeburst.io/node-js-mysql-and-promises-4c3be599909b
 
 class BB_SqlQuery 
 {
@@ -126,9 +121,6 @@ class BB_SqlQuery
     {   
         assert  (db_obj     != undefined);
 
-        // konsole.log("BB_SqlQuery execute()", LOG_LEVEL.MSG);
-        // konsole.log("query: " + query_text, LOG_LEVEL.MSG);
-
         if (query_text != undefined)    
             this.query_text = query_text;
 
@@ -147,17 +139,12 @@ class BB_SqlQuery
 
         const default_query_cb = (err, result) =>
         {   
-            konsole.log ("BB_SQL_QUERY executeWithCB default_cb", LOG_LEVEL.CRITICAL);
+            //konsole.log ("BB_SQL_QUERY executeWithCB default_cb", LOG_LEVEL.CRITICAL);
         
             if ( err )
             {   konsole.log("BB_SqlQuery execute() (peut être WAMP qui n'est pas lancé): \n" + err , LOG_LEVEL.CRITICAL) }
-        
-            //konsole.log( "BB_SQL_QUERY.execute() err " + err + " AFTER state: " + this.state.key, LOG_LEVEL.MSG);
                                         
             this.setResult(result);
-
-            //konsole.log("BB_SQL_QUERY.execute() INSIDE TRY 2 after QUERY", LOG_LEVEL.WARNING );
-            //konsole.log("BB_SQL_QUERY.execute() query_result :" + JSON.stringify(this.getResult()),LOG_LEVEL.OK );
         };
 
         if (query_cb == undefined)
@@ -178,8 +165,6 @@ class BB_SqlQuery
     {   
         assert(db_obj != undefined); 
 
-        // konsole.log("BB_SqlQuery execute()", LOG_LEVEL.MSG);
-        // konsole.log("query: " + query_text, LOG_LEVEL.MSG);
 
         if (query_text != undefined)    
             this.query_text = query_text;

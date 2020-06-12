@@ -11,7 +11,6 @@ const db                = require ('./db.js');
 const Konst             = require ('./constants.js');
 const konsole           = require ('./bb_log.js').konsole;
 const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL ;
-const pause             = require('./utility.js').pause;
 
 const BB_Pop            = require ('./bb_populater.js');
 const DBPopulater       = require ('./bb_populater.js').DBPopulater;
@@ -22,7 +21,7 @@ const API_KEY                       = "3c75df64-c4c1-4066-8e65-34de828dd08e";
 const BITSKINS_FETCHER_SINGLETON    = "BITSKINS_FETCHER_SINGLETON";
 
 //______________________________________________________________________
-const PAGE_INDEX_START = 65; //----------------------------------------
+const PAGE_INDEX_START = 2; //----------------------------------------
 //______________________________________________________________________
 
 /*
@@ -66,6 +65,7 @@ class BitskinsFetcher
     getName () {return this.name ;}
     setIsPopulateFinished (value) {this._is_populate_finished  = value ; }
     
+
     buildQuery (page_index)
     {
         var   two_FA_code      =  totp.gen(base32.decode(SECRET_BITSKINS));
@@ -108,8 +108,6 @@ class BitskinsFetcher
         try 
         {
             fetch_result = await this.downloadPage( this.buildQuery( page_index ), on_response_ready, populate_finished_cb );
-            //  console.log('SHOULD WORK:');
-            // console.log (result);
         } 
         catch ( error ) 
         {
@@ -183,7 +181,6 @@ class BitskinsFetcher
     {
         db.clearTables();
 
-        // var current_page = DBPopulater.GetSingleton().getPageIndex();
         var exit_condition = ( BitskinsFetcher.Singleton.getIsLastPage() );
 
         const populate = () =>
@@ -199,25 +196,5 @@ class BitskinsFetcher
 
 } // BitskinsFetcher
 
-
-const test = () =>
-{
-    var singleton = BitskinsFetcher.GetSingleton();
-    konsole.log("Singleton: " + singleton.getName()  );
-    //var singletwo = new BitskinsFetcher("tututt");
-    BitskinsFetcher.GetSingleton().updateDb()
-}
-
-//test();
-
-
-const fetchTest = () =>
-{
-    fetch(BitskinsFetcher.GetSingleton().buildQuery(2))
-    .then(res => res.json())
-    .then(json => konsole.log(JSON.stringify(json.data.items), LOG_LEVEL.STEP))
-
-}
- //fetchTest()
 exports.BitskinsFetcher = BitskinsFetcher;
 

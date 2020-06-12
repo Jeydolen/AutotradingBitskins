@@ -20,8 +20,7 @@ const PAGE_INDEX_START = 2; //----------------------------------------
 //______________________________________________________________________
 
 
-/*
- /$$$$$$$  /$$$$$$$  /$$$$$$$                               /$$             /$$                        
+/*$$$$$$$  /$$$$$$$  /$$$$$$$                               /$$             /$$                        
 | $$__  $$| $$__  $$| $$__  $$                             | $$            | $$                        
 | $$  \ $$| $$  \ $$| $$  \ $$ /$$$$$$   /$$$$$$  /$$   /$$| $$  /$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$ 
 | $$  | $$| $$$$$$$ | $$$$$$$//$$__  $$ /$$__  $$| $$  | $$| $$ |____  $$|_  $$_/   /$$__  $$ /$$__  $$
@@ -156,7 +155,6 @@ class DBPopulater
             konsole.log("----------------------------------------------------------------------------------------", LOG_LEVEL.MSG)
 
             var klass = Weapon;
-            konsole.error("create_in_db_done_count: " + this.create_in_db_done_count.get(klass));
 
             this.create_in_db_done_count.clear();
 
@@ -166,7 +164,7 @@ class DBPopulater
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var weapon_obj = klass.Create (json_sell_orders[i]) ;
-                weapon_obj.createInDBTable ( db, endOfWaterfallCB );
+                weapon_obj.createInDBTable ( db, endOfWaterfallCB, json_sell_orders[i] );
             }
         }; // populateDBWithWeapon()
 
@@ -181,7 +179,7 @@ class DBPopulater
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_set_obj            = klass.Create (json_sell_orders[i]) ;
-                skin_set_obj.createInDBTable (db, endOfWaterfallCB);
+                skin_set_obj.createInDBTable (db, endOfWaterfallCB, json_sell_orders[i]);
             }
         }; // populateDBWithSkinset_CB()
 
@@ -200,7 +198,7 @@ class DBPopulater
                     this.create_in_db_done_count.set( klass, 0 );
 
                 var stck_skn_agt_obj = klass.Create (json_sell_order) ;
-                stck_skn_agt_obj.createInDBTable (db, endOfWaterfallCB, json_sell_order);
+                stck_skn_agt_obj.createInDBTable (db, endOfWaterfallCB, json_sell_orders[i]);
             }
         }; // populateDBWithSkinOrDumb_CB()
 
@@ -214,7 +212,7 @@ class DBPopulater
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_sell_order_obj     = klass.Create (json_sell_orders[i]) ;
-                skin_sell_order_obj.createInDBTable (db, endOfWaterfallCB );
+                skin_sell_order_obj.createInDBTable (db, endOfWaterfallCB, json_sell_orders[i] );
             }
         }; // populateDBWithSkinSellOrder_CB()
 
@@ -230,56 +228,8 @@ class DBPopulater
         //populateDBWithKlassInstances(Weapon); // Waterfall start
     } // populateWaterfall() 
 
-    
-    populateDB(json_obj)
-    {
-        var json_sell_orders = json_obj['data']['items'];
-        var json_sell_order_count = json_sell_orders.length;
-
-        konsole.log(" JSON Sell Order count : " + json_sell_order_count, LOG_LEVEL.MSG);
-
-        var db = BB_Database.GetSingleton();
-
-    
-
-        for (var i = 0, len = json_sell_order_count; i < len; i++) 
-        {
-
-            //------------------ skin_set ------------------
-            var skin_set_obj            = SkinSet.Create (json_sell_orders[i]) ;
-            skin_set_obj.createInDBTable (db);
-            //------------------ skin_set ------------------
-
-
-            //------------------ weapon ------------------
-            var weapon_obj     = Weapon.Create (json_sell_orders[i]) ;
-            weapon_obj.createInDBTable (db);
-            //------------------ weapon ------------------
-
-
-            //------------------ skin ------------------
-            var skin_obj                = Skin.Create   (json_sell_orders[i]) ;  
-            skin_obj.createInDBTable(db);
-            //------------------ skin ------------------
-            
-
-            //------------------ skin_sell_order ------------------
-            var skin_sell_order_obj     = SkinSellOrder.Create (json_sell_orders[i]) ;
-            skin_sell_order_obj.createInDBTable (db);
-            //------------------ skin_sell_order ------------------
-        } // for (CREATE)
-    } // populateDB()
-
 } // DBPopulater class
 
-const test = () =>
-{
-    var singleton = DBPopulater.GetSingleton();
-    konsole.log("Singleton: " + singleton.getName()  );
-    //var singletwo = new DBPopulater("tututt");
-}
-
-//test();
 
 exports.DBPopulater = DBPopulater;
 exports.PAGE_INDEX_START = PAGE_INDEX_START;

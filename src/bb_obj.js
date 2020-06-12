@@ -1,8 +1,6 @@
 const assert      = require ('assert');
 const expand      = require ('expand-template')();
 
-
-const pause       = require ('./utility.js').pause;
 const Konst       = require ('./constants.js') ;
 const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
 const konsole     = require ('./bb_log.js').konsole ;
@@ -11,8 +9,7 @@ const SQL_TEMPLATE = require('./bb_sql_query.js').SQL_TEMPLATE;
 const QUERY_STATE = require ('./bb_sql_query.js').QUERY_STATE;
 
 
-/*
- /$$$$$$$  /$$   /$$              /$$       /$$                      /$$$$$$  /$$                                 /$$    
+/*$$$$$$$  /$$   /$$              /$$       /$$                      /$$$$$$  /$$                                 /$$    
 | $$__  $$|__/  | $$             | $$      |__/                     /$$__  $$| $$                                | $$    
 | $$  \ $$ /$$ /$$$$$$   /$$$$$$$| $$   /$$ /$$ /$$$$$$$   /$$$$$$$| $$  \ $$| $$$$$$$  /$$  /$$$$$$   /$$$$$$$ /$$$$$$  
 | $$$$$$$ | $$|_  $$_/  /$$_____/| $$  /$$/| $$| $$__  $$ /$$_____/| $$  | $$| $$__  $$|__/ /$$__  $$ /$$_____/|_  $$_/  
@@ -22,18 +19,15 @@ const QUERY_STATE = require ('./bb_sql_query.js').QUERY_STATE;
 |_______/ |__/   \___/ |_______/ |__/  \__/|__/|__/  |__/|_______/  \______/ |_______/ | $$ \_______/ \_______/   \___/  
                                                                                   /$$  | $$                              
                                                                                  |  $$$$$$/                              
-                                                                                  \______/         */
+                                                                                  \_____*/
 class BitskinsObject 
 {
-  // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Classes/Class_fields
-  // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Map
-  // http://thecodebarbarian.com/static-properties-in-javascript-with-inheritance.html
   static Instances  = new Map();
 
   //   arg =    input_item ou name (pour NULL_SKIN)
   constructor( arg ) 
   {     
-    this._record_id            = Konst.NOTHING; 
+    this._record_id            = 0; 
     this._create_query_state  = QUERY_STATE.UNKNOWN;
     this._update_query_state  = QUERY_STATE.UNKNOWN;
     this._created_in_db       = false;
@@ -52,11 +46,12 @@ class BitskinsObject
   getCoVaSeq(json_sell_order) { return  Konst.NOTHING;            } // Column - value - sequence
 
 
-  //                requis        requis            optionnel
+  //                requis        requis            requis
   createInDBTable (  db,    end_of_waterfall_cb, json_sell_order )
   { 
       assert( db != undefined );
       assert( end_of_waterfall_cb != undefined);
+      assert (json_sell_order != undefined);
 
 
       const selectQuery = () =>
@@ -103,6 +98,7 @@ class BitskinsObject
         if ( err )
         {
           konsole.log ("BB_Obj ERREURE: " + err, LOG_LEVEL.CRITICAL); 
+          afterUpdateQueryCB( null, Konst.NOTHING );
           return Konst.RC.KO;
         }     
         else
@@ -110,7 +106,7 @@ class BitskinsObject
 
           var   insert_id = query_insert_result[0].insertId;
           this._record_id = insert_id;
-          
+          //                                         requis ou optionnel ?
           var assignement_value = this.getCoVaSeq( json_sell_order) ;
           if (assignement_value == Konst.NOTHING) 
           {
@@ -118,10 +114,8 @@ class BitskinsObject
           }
           else 
           {
-            //konsole.log ( 'INSERT RESULT :' + JSON.stringify(query_insert_result) );
             var query_update_obj  = BB_SqlQuery.Create();
-            var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : assignement_value, 'db-field' : 'name', 'db-field-value' : this.name });     
-            //konsole.log("Trying update of '" + this.name + "' in '" + this.table + "'", LOG_LEVEL.INFO);
+            var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : assignement_value, 'db-field' : 'name', 'db-field-value' : this.name });    
             query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
           }
         }
@@ -133,20 +127,23 @@ class BitskinsObject
 
         if ( err )
         {
-          konsole.error ('Houston on a un prbl : ' + err ); 
+          konsole.error ('BB_OBJ.afterUpdateQueryCB() Houston on a un prbl : ' + err ); 
         }
         end_of_waterfall_cb( this );   // increment 
       }; // afterInsertQueryCB()
 
 
+      //===============================================================================================
       // 1. UNKNOWN --> 2. PENDING --> 3. DONE / FAILED 
-      if (  this.getIsJustCreated () )
+      var item_type = json_sell_order.item_type;
+      if (item_type == "Container" || item_type == "Sticker" || item_type == "Agent" || item_type == "Gloves")
+        end_of_waterfall_cb( this );
+
+      else if (  this.getIsJustCreated () )
         selectQuery();
 
-      else 
-      { //konsole.log ("BB_OBJ.createInDBTable dans le else te salue ", LOG_LEVEL.OK)
+      else
         end_of_waterfall_cb( this );
-      } 
 
       return Konst.RC.OK;
 

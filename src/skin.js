@@ -15,14 +15,14 @@ const NULL_RARITY = "Unknown"; // M^mem valeur que dans la Table de constantes '
 
 
 
-                            //    /$$$$$$  /$$       /$$          
-                            //   /$$__  $$| $$      |__/          
-                            //  | $$  \__/| $$   /$$ /$$ /$$$$$$$ 
-                            //  |  $$$$$$ | $$  /$$/| $$| $$__  $$
-                            //   \____  $$| $$$$$$/ | $$| $$  \ $$
-                            //   /$$  \ $$| $$_  $$ | $$| $$  | $$
-                            //  |  $$$$$$/| $$ \  $$| $$| $$  | $$
-                            //   \______/ |__/  \__/|__/|__/  |__/
+                        /*$$$$$$  /$$       /$$          
+                        /$$__  $$| $$      |__/          
+                        |$$  \__/| $$   /$$ /$$ /$$$$$$$ 
+                        | $$$$$$ | $$  /$$/| $$| $$__  $$
+                        \____  $$| $$$$$$/ | $$| $$  \ $$
+                        /$$  \ $$| $$_  $$ | $$| $$  | $$
+                        | $$$$$$/| $$ \  $$| $$| $$  | $$
+                        \______/ |__/  \__/|__/|__/  |_*/
 
 class Skin extends BitskinsObject
 {
@@ -90,18 +90,17 @@ class Skin extends BitskinsObject
     assert (skinset_obj != SkinSet.NULL);
 
     var assignement_value = "`image_url` = '" + this.image_url + "', `has_StatTrak` = " + this.hasStatTrak
-                          + ", `skin_rarity` = " + this.item_rarity + ", skin_set = " + skinset_obj.getRecordId() + ", weapon = " + weapon_obj.getRecordId() ;
+                          + ", `skin_rarity` = " + this.item_rarity + ", skin_set = " + skinset_obj.getRecordId() 
+                          + ", weapon = " + weapon_obj.getRecordId() ;
     return assignement_value;
   } // getCoVaSeq()
 
 
   static ExtractName( market_hash_name )
   {
-    //konsole.log("Skin.ExtractName market_hash_name: '" + market_hash_name + "'", LOG_LEVEL.MSG)
     var name = market_hash_name;
     if ( market_hash_name.search('|') != -1)
     {
-      //konsole.log("Skin.ExtractName '|' trouvée", LOG_LEVEL.MSG);
 
       var parts = market_hash_name.split('|');
 
@@ -113,11 +112,10 @@ class Skin extends BitskinsObject
 
         // !!! Probléme: ' dans la valeur SQL de chaine ex: 'l'Horizon' -> 'l''Horizon'
         // !!! Solution: escape de ' rempacé par ''
-        name = name.replace ("'", "''");
+        name = name.replace ("'", "\\'");
       } 
 
     }
-    //konsole.log("Skin.ExtractName name: '" + name + "'", LOG_LEVEL.MSG)
     return name;
   } // ExtractName()
 
@@ -137,7 +135,6 @@ class Skin extends BitskinsObject
   static GetInstanceCount  ()
   {
       var instance_count = Skin.Instances.size ;  // Map !!
-      //konsole.log("Skin.GetInstanceCount:" + instance_count, LOG_LEVEL.CRITICAL);
       return instance_count;
   } // GetInstanceCount()
 
@@ -169,14 +166,12 @@ class Skin extends BitskinsObject
   // Encapsulation du constructeur selon Design Pattern 'Factory'
   static Create ( input_item )
   {
-    //konsole.log("Skin.Create()", LOG_LEVEL.WARNING);
     assert(input_item != undefined);
 
     var skin_obj = Skin.GetNullObject() ;
 
     var name = Skin.ExtractName( input_item.market_hash_name );
 
-    //if (Skin.Instances.hasOwnProperty(name))
     if (  Skin.Instances.get( name )  == undefined  || Skin.Instances.get (name) === undefined 
       ||  Skin.Instances.get (name)   === null      || Skin.Instances.get (name) == null)
     {
@@ -184,16 +179,12 @@ class Skin extends BitskinsObject
 
         skin_obj = new Skin ( input_item );
         
-        //konsole.log ("Avant Insertion : '" + name + "' + Instances.count: " + Skin.Instances.size, LOG_LEVEL.OK) ;
         Skin.Instances.set( name, skin_obj );
         konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Skin.Instances.size, LOG_LEVEL.OK) ;
-
-        //konsole.log("Skin.Instances: " + utility.mapToString(Skin.Instances));
     }
     else 
     {
         konsole.log ('Skin déja créé : ' + name, LOG_LEVEL.OK );
-        //new_skin = Skin.Instances[name] ;
 
         skin_obj = Skin.Instances.get( name );
         skin_obj._is_just_created = false; 
@@ -203,7 +194,7 @@ class Skin extends BitskinsObject
   } // Create()
 
 } // Skin class
-//Skin.Instances  = new Array();
+
 Skin.NULL_SKIN ;
 exports.Skin = Skin ;
 //------------------------ Skin class -------------------------

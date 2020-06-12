@@ -76,14 +76,13 @@ class DumbItem extends BitskinsObject
         assert (json_sell_order.hasOwnProperty('item_type'));
 
         var item_type = json_sell_order.item_type;
-        konsole.log("DumbItem.ExtractType(): '" + item_type + "'");
+        //konsole.log("DumbItem.ExtractType(): '" + item_type + "'");
 
         // Item is either a 'Skin' or a 'DumbItem'
         var item_type_id = DumbItem.ComputeItemTypeID( item_type)
-        konsole.log("item_type_id: " + item_type_id, LOG_LEVEL.OK);
-        konsole.log("ITEM_TYPE_TABLE_IDS[SKIN_TYPE]: " + ITEM_TYPE_TABLE_IDS[SKIN_TYPE], LOG_LEVEL.OK);
-        
-        konsole.log("item_type: " + item_type, LOG_LEVEL.OK);
+        //konsole.log("item_type_id: " + item_type_id, LOG_LEVEL.OK);
+        //konsole.log("ITEM_TYPE_TABLE_IDS[SKIN_TYPE]: " + ITEM_TYPE_TABLE_IDS[SKIN_TYPE], LOG_LEVEL.OK);
+        //konsole.log("item_type: " + item_type, LOG_LEVEL.OK);
         //konsole.log("item_type value: " + ITEM_TYPE_TABLE_IDS[item_type].value, LOG_LEVEL.OK);
 
         if ( item_type_id == ITEM_TYPE_TABLE_IDS[SKIN_TYPE].value )
@@ -98,6 +97,7 @@ class DumbItem extends BitskinsObject
         assert (json_sell_order != undefined);
         assert (json_sell_order.hasOwnProperty('item_type'));
         var name = json_sell_order.market_hash_name;
+        name = name.replace("'", "\\'")
         return name;
     } // ExtractName()
 
@@ -130,12 +130,13 @@ class DumbItem extends BitskinsObject
 
 
     //            optionnel
+    /*
     getCoVaSeq( json_sell_order )
     { 
         var assignement_value = "item_type = " + DumbItem.ComputeItemTypeID(this.item_type);
         return assignement_value;
     }
-
+    */
 
     static Create ( json_sell_order )
     {

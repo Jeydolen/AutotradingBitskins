@@ -51,7 +51,6 @@ class Weapon extends BitskinsObject
     {
         assert (input_item != undefined);
         assert (input_item.hasOwnProperty('item_weapon'));
-        //konsole.log ('coucou :' + typeof (input_item.item_weapon), LOG_LEVEL.STEP);
         var name = input_item.item_weapon;
 
         if (name == undefined || name == 'null' ||name == null)
@@ -123,14 +122,10 @@ class Weapon extends BitskinsObject
                 konsole.log ("PAS COOL !!", LOG_LEVEL.OK);
         
         var name = Weapon.ExtractName( input_item);
-        //konsole.log ("Weapon.Create( " + name + " )", LOG_LEVEL.OK);
-        //konsole.log ("item_weapon : " + item_weapon, LOG_LEVEL.MSG);
    
 
         var weapon = Weapon.GetNullObject() ; 
 
-        //if (Weapon.Instances.hasOwnProperty(name))
-        //konsole.log ("Weapon.Instances.get( name ): " + JSON.stringify(name), LOG_LEVEL.OK) ;
 
         if ( Weapon.Instances.get( name )  == undefined  || Weapon.Instances.get (name) === undefined )
         {
@@ -139,15 +134,11 @@ class Weapon extends BitskinsObject
 
             weapon = new Weapon ( input_item );
             
-            //konsole.log ("Avant Insertion : '" + name + "' + Instances.count: " + Weapon.Instances.size, LOG_LEVEL.OK) ;
             Weapon.Instances.set( name, weapon );
             konsole.log ("Après Insertion : '" + name + "' + Instances.count: " + Weapon.Instances.size, LOG_LEVEL.OK) ;
-
-            //konsole.log("Weapon.Instances: " + utility.mapToString(Weapon.Instances));
         }
         else 
         {
-            //konsole.log ('Weapon déja créé : ' + name, LOG_LEVEL.WARNING );
             weapon = Weapon.Instances.get( name );
             weapon._is_just_created = false; 
         }

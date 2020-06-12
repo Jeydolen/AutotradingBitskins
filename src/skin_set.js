@@ -9,17 +9,14 @@ const konsole     = require ('./bb_log.js').konsole ;
 const NULL_SKINSET              = "NULL_SKINSET" ;
 const NULL_STICKER_CAPSULE      = "NULL_STICKER_CAPSULE";
 
-/*
-  /$$$$$$  /$$       /$$            /$$$$$$              /$$    
+ /*$$$$$$  /$$       /$$            /$$$$$$              /$$    
  /$$__  $$| $$      |__/           /$$__  $$            | $$    
 | $$  \__/| $$   /$$ /$$ /$$$$$$$ | $$  \__/  /$$$$$$  /$$$$$$  
 |  $$$$$$ | $$  /$$/| $$| $$__  $$|  $$$$$$  /$$__  $$|_  $$_/  
  \____  $$| $$$$$$/ | $$| $$  \ $$ \____  $$| $$$$$$$$  | $$    
  /$$  \ $$| $$_  $$ | $$| $$  | $$ /$$  \ $$| $$_____/  | $$ /$$
 |  $$$$$$/| $$ \  $$| $$| $$  | $$|  $$$$$$/|  $$$$$$$  |  $$$$/
- \______/ |__/  \__/|__/|__/  |__/ \______/  \_______/   \___/  */
-
-
+ \______/ |__/  \__/|__/|__/  |__/ \______/  \_______/   \___*/
 
 class SkinSet extends BitskinsObject
 {
@@ -49,14 +46,11 @@ class SkinSet extends BitskinsObject
                 name = NULL_STICKER_CAPSULE;
         }
             
-        //konsole.log (JSON.stringify(input_item.tags));
         assert (name != undefined);
-
-        //konsole.log ('coucou :' + typeof (input_item.item_weapon), LOG_LEVEL.STEP);
         name = name.replace ("'", "''");
     
-        return name;// ExtractName()
-    }
+        return name;
+    }// ExtractName()
   
     static GetNullObject() 
     {
@@ -95,18 +89,17 @@ class SkinSet extends BitskinsObject
         if (SkinSet.Instances.get (name) == undefined )
         {
             skin_set = new SkinSet (input_item);
-            // MxI.$Log.write (skin_set.getName(), ColorConsole.LOG_LEVEL.MSG);
             SkinSet.Instances.set ( name,skin_set );
         }
         else
         {
-            //konsole.log ('SkinSet déja créé : ' + name, LOG_LEVEL.WARNING);
             skin_set = SkinSet.Instances.get (name) ;
             skin_set._is_just_created = false; 
         }
 
         return skin_set ;
-    }
+    }// Create()
+    
 } // SkinSet class
 
 exports.SkinSet = SkinSet ;
