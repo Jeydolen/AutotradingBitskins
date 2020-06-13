@@ -1,8 +1,0 @@
-!!! ### Skin déja créé : Prisma Case
-### B_L.parseOnResponseReady () : Error when Parsing
-### error code: 
-TypeError: query_promise.then is not a function
-!!! ### Skin déja créé : Prisma 2 Case
-### B_L.parseOnResponseReady () : Error when Parsing
-### error code: 
-TypeError: query_promise.then is not a function

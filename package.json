@@ -2,9 +2,9 @@
   "name": "autotrading_bitskins",
   "version": "1.0.0",
   "description": "Bite",
-  "main": "rechercheduprofit.js",
+  "main": "app.js",
   "scripts": {
-    "test": "cls && node src/app.js --update --server"
+    "test": "cls && node app.js --update"
   },
   "keywords": [
     "bitskins",
@@ -19,6 +19,7 @@
   "author": "Jeydolen & Echopraxium",
   "license": "SEE LICENSE IN License.txt",
   "dependencies": {
+    "app-root-path": "^3.0.0",
     "assert": "^2.0.0",
     "async": "^3.2.0",
     "chalk": "^4.0.0",
@@ -32,8 +33,10 @@
     "mixin-interface": "^4.9.3",
     "mixin-interface-api": "^0.1.32",
     "mysql": "^2.18.1",
+    "node-fetch": "^2.6.0",
     "notp": "^2.0.3",
     "path": "^0.12.7",
+    "readline-sync": "^1.4.10",
     "request": "^2.88.2",
     "thirty-two": "^1.0.2",
     "time-stamp": "^2.2.0"

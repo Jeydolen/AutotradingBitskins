@@ -1,13 +1,11 @@
-const MxI = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
-const Enum = require('enum');
-const chalk = require ('chalk');
+const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
+const Enum      = require('enum');
+const chalk     = require ('chalk');
 const timestamp = require ('time-stamp');
-const path = require('path');
-const readline          = require('readline-sync');
+const readline  = require('readline-sync');
+const appRoot   = require ('app-root-path');
+const Konst     = require ('./constants.js'); 
 
-const Konst   = require ('./constants.js'); 
-
-global.appRoot = path.resolve(__dirname);
 
 const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO', 'PAUSE', 'ERROR', 'CRITICAL', 'STEP' ])
 
@@ -23,8 +21,7 @@ const init_log_sinks = () =>
     var color_logger = new ColorConsole();
     MxI.$Log.addSink(color_logger);
     
-    var data_path = appRoot + "/../data/log/";
-    konsole.log("init_log_sinks(): data_path: " + data_path);
+    konsole.log("init_log_sinks(): data_path: " + appRoot);
     //var file_logger = new FileLogger( data_path + "/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
     //MxI.$Log.addSink(file_logger);
     konsole.log("Sinks succefuly inintialised", LOG_LEVEL.MSG);

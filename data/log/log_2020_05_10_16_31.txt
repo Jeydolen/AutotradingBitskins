@@ -1,3 +1,0 @@
-### BB_SqlQuery.execute() TEST
-### BB_SqlQuery.execute() TEST
-### BB_SqlQuery.execute() TEST

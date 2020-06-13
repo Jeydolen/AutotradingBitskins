@@ -1,0 +1,32 @@
+
+<html>
+<head>
+	<title>Panel d'Administration BitskinsBroker�</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./style.css">
+    <script>
+        function setProgressValue( value ) 
+        {
+            var elem = document.getElementById("progress-bar-value");
+            elem.style.width = value + "%";
+        }
+
+        $( document ).ready(function() 
+        {
+            setProgressValue( 50 ) ;
+        });
+    </script>
+
+
+</head>	
+
+<body style="background-color: #1C1C1C;">
+
+
+    <p style="color: #d1d1d1; font-family: 'Lucida Console'; font-size: 20px;">Traitement des items dans la page</p>
+    <div id="progress-bar">
+        <div id="progress-bar-value"></div>
+    </div>
+
+</body>
+</html>

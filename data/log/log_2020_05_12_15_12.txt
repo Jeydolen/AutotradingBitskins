@@ -1,6 +1,0 @@
-### BB_SqlQuery execute(): 
-Error: ER_BAD_DB_ERROR: Base 'undefined' inconnue
-### BB_SqlQuery execute(): 
-Error: ER_BAD_DB_ERROR: Base 'undefined' inconnue
-### BB_SqlQuery execute(): 
-Error: ER_BAD_DB_ERROR: Base 'undefined' inconnue

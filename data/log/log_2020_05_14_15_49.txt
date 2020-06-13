@@ -1,3 +1,0 @@
-### B_L.parseOnResponseReady () : Error when Parsing
-### error code: 
-TypeError: skin.createInDB(...).then is not a function

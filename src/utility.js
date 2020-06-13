@@ -1,6 +1,7 @@
 const konsole   = require("./bb_log.js").konsole;
 const LOG_LEVEL = require("./bb_log.js").LOG_LEVEL;
 
+
 // https://stackoverflow.com/questions/44740423/create-json-string-from-js-map-and-string
 const mapToObj = (map) =>
 {

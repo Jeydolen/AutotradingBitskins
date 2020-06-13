@@ -12,10 +12,8 @@
         <table border="1px">
             <% items.forEach(function(item) { %>
             <tr>
-                <td>    <%= item.market_hash_name %>  
-                    <br>  <a href="https://bskn.co/view_item?app_id=730&item_id=<%= item.id_str %>">
-                            <img width="128px" height="128px"  src=" <%= item.image %> "> 
-                          </a>
+                <td>    <%= item.getName() %>  
+                            <img width="128px" height="128px"  src=" <%= item.image_url %> "> 
                 </td>
                 <td>
                     <%= item.price %> $

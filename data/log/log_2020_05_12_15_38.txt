@@ -1,4 +1,0 @@
-### BB_SqlQuery execute() Affronte les arabes !!
-### B_L.parseOnResponseReady () : Error when Parsing
-### error code: 
-ReferenceError: Konst is not defined

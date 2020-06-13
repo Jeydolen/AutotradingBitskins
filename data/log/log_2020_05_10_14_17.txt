@@ -1,4 +1,0 @@
-### Database bitskins_csgo is not registered 
-### Main.parseOnResponseReady () : Error when Parsing
-### error code: 
-ReferenceError: db is not defined

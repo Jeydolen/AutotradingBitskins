@@ -1,7 +1,5 @@
 const Enum   = require('enum');
 
-
-const SQ = "\x27";
 const RC = new Enum (['OK', 'KO']);
 const NOTHING = 'NOTHING';
 const DEFAULT_NAMES = new Enum (['NOTHING']);
@@ -18,7 +16,6 @@ const getFunctionName = (f) =>
 
 
 exports.RC = RC ;
-exports.SQ = SQ ;
 exports.NOTHING = NOTHING ;
 exports.DEFAULT_NAMES = DEFAULT_NAMES ;
 exports.getFunctionName = getFunctionName ;

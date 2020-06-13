@@ -1,17 +1,16 @@
 const assert             = require ('assert');
 
+const BB_Database        = rekwire ('/src/bb_database.js').BB_Database;
+const Konst              = rekwire ('/src/constants.js');
+const konsole            = rekwire ('/src/bb_log.js').konsole;
+const LOG_LEVEL          = rekwire ('/src/bb_log.js').LOG_LEVEL ;
 
-const BB_Database        = require ('./bb_database.js').BB_Database;
-const Konst              = require ('./constants.js');
-const konsole            = require ('./bb_log.js').konsole;
-const LOG_LEVEL          = require ('./bb_log.js').LOG_LEVEL ;
-const Skin               = require ('./skin.js').Skin ;
-const SkinSet            = require ('./skin_set.js').SkinSet ;
-const SkinSellOrder      = require ('./skin_sell_order.js').SkinSellOrder ;
-const DumbItem           = require ('./dumb_items.js').DumbItem ;
-const Weapon             = require ('./weapon.js').Weapon; 
-const Agent              = require ('./agent.js').Agent; 
-const Sticker            = require ('./sticker.js').Sticker; 
+
+const Skin               = rekwire ('/src/model/skin.js').Skin ;
+const SkinSet            = rekwire ('/src/model//skin_set.js').SkinSet ;
+const SkinSellOrder      = rekwire ('/src/model/skin_sell_order.js').SkinSellOrder ;
+const DumbItem           = rekwire ('/src/model/dumb_items.js').DumbItem ;
+const Weapon             = rekwire ('/src/model/weapon.js').Weapon; 
 
 const DB_POPULATER_SINGLETON = "DB_POPULATER_SINGLETON";
 

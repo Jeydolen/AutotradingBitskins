@@ -1,0 +1,14 @@
+#progress-bar 
+{
+    width: 100%;
+    background-color: rgb(73, 67, 67);
+}
+
+
+  
+#progress-bar-value 
+{
+    width: 1%;
+    height: 30px;
+    background-color: #21610B;
+}
