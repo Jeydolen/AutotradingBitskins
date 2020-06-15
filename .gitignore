@@ -1,0 +1,15 @@
+# https://riptutorial.com/fr/git/example/1777/ignorer-les-fichiers-qui-ont-deja-ete-valides-dans-un-referentiel-git
+# git rm --cached -r node_modules
+
+
+# Lines starting with `#` are comments.
+
+# Ignoring directories
+# Both the directory itself and its contents will be ignored.
+node_modules/
+node_modules
+**node_modules
+**/node_modules
+*/node_modules
+./node_modules
+data/
