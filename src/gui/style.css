@@ -11,4 +11,7 @@
     width: 1%;
     height: 30px;
     background-color: #21610B;
+    text-align: center; /* To center it horizontally (if you want) */
+    line-height: 30px; /* To center it vertically */
+    color: white;
 }

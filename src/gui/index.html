@@ -1,26 +1,32 @@
 
 <html>
 <head>
-	<title>Panel d'Administration BitskinsBroker�</title>
+	<title>Panel d'Administration BitskinsBroker</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="./style.css">
     <script>
-        function setProgressValue( value ) 
-        {
-            var elem = document.getElementById("progress-bar-value");
-            elem.style.width = value + "%";
-        }
+        const { ipcRenderer } = require('electron');
 
-        $( document ).ready(function() 
+        ipcRenderer.on('populate-db-progress', (event, arg) => 
         {
-            setProgressValue( 50 ) ;
+            var percent_value = (arg / 480) * 100;
+            setProgressBarValue( percent_value );
         });
+
+        function setProgressBarValue( value ) 
+        {
+            if (value > 100) value = 100;
+            var pbar_value          = document.getElementById("progress-bar-value");
+            pbar_value.style.width = value + "%";
+            pbar_value.innerHTML = value + "%";
+            
+        }
     </script>
 
 
 </head>	
 
-<body style="background-color: #1C1C1C;">
+<body style="background-color: #1C1C1C;" onload="setProgressBarValue(0);">
 
 
     <p style="color: #d1d1d1; font-family: 'Lucida Console'; font-size: 20px;">Traitement des items dans la page</p>

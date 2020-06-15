@@ -24,9 +24,6 @@ const BITSKINS_FETCHER_SINGLETON    = "BITSKINS_FETCHER_SINGLETON";
 const PAGE_INDEX_START = 2; //----------------------------------------
 //______________________________________________________________________
 
-
-var a = a;
-
 /*
  /$$$$$$$  /$$   /$$              /$$       /$$                     /$$$$$$$$          /$$               /$$                          
 | $$__  $$|__/  | $$             | $$      |__/                    | $$_____/         | $$              | $$                          
@@ -43,7 +40,6 @@ class BitskinsFetcher
     static Instances = new Map();
     static result   = null;
     static Singleton = BitskinsFetcher.GetSingleton();
-    
     
     constructor (name)
     {

@@ -1,10 +1,12 @@
-const assert             = require ('assert');
+const assert                = require ('assert');
 
-const BB_Database        = rekwire ('/src/bb_database.js').BB_Database;
-const Konst              = rekwire ('/src/constants.js');
-const konsole            = rekwire ('/src/bb_log.js').konsole;
-const LOG_LEVEL          = rekwire ('/src/bb_log.js').LOG_LEVEL ;
-
+const BB_Database           = rekwire ('/src/bb_database.js').BB_Database;
+const Konst                 = rekwire ('/src/constants.js');
+const konsole               = rekwire ('/src/bb_log.js').konsole;
+const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
+const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
+const EVENTS                = rekwire ('/src/event_dispatcher.js').EVENTS;
+const POPULATE_DB_PROGRESS  = rekwire ('/src/event_dispatcher.js').POPULATE_DB_PROGRESS;
 
 const Skin               = rekwire ('/src/model/skin.js').Skin ;
 const SkinSet            = rekwire ('/src/model//skin_set.js').SkinSet ;
@@ -13,11 +15,6 @@ const DumbItem           = rekwire ('/src/model/dumb_items.js').DumbItem ;
 const Weapon             = rekwire ('/src/model/weapon.js').Weapon; 
 
 const DB_POPULATER_SINGLETON = "DB_POPULATER_SINGLETON";
-
-//______________________________________________________________________
-const PAGE_INDEX_START = 2; //----------------------------------------
-//______________________________________________________________________
-
 
 /*$$$$$$$  /$$$$$$$  /$$$$$$$                               /$$             /$$                        
 | $$__  $$| $$__  $$| $$__  $$                             | $$            | $$                        
@@ -95,7 +92,6 @@ class DBPopulater
         {
             assert( bb_obj != undefined );
 
-            
             var klass = (bb_obj.constructor);
             var done_count = this.create_in_db_done_count.get( klass );
 
@@ -121,7 +117,9 @@ class DBPopulater
                 return;
             }
 
-            this.create_in_db_done_count.set ( klass, this.create_in_db_done_count.get( klass ) + 1 );
+            var done_count = this.create_in_db_done_count.get( klass ) + 1;
+            this.create_in_db_done_count.set ( klass, done_count );
+            EventDispatcher.Dispatch( EVENTS[POPULATE_DB_PROGRESS], done_count );
         }; // endOfWaterfallCB()
 
         /*
@@ -231,4 +229,3 @@ class DBPopulater
 
 
 exports.DBPopulater = DBPopulater;
-exports.PAGE_INDEX_START = PAGE_INDEX_START;
