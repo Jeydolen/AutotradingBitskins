@@ -58,6 +58,7 @@ const ParseCommandLineArgs = (args) =>
   if (commander.admin)
   {
     console.log ("Bienvenue");
+    electron_debug();
     app.whenReady().then( createWindow ).then( createMenu );
   }
   
@@ -115,6 +116,5 @@ const createMenu = () =>
 
 //app.whenReady().then( createWindow ).then( createMenu );
 
-electron_debug();
 
 ParseCommandLineArgs()

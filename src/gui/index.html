@@ -9,13 +9,16 @@
     
             ipcRenderer.on('populate-db-progress', (event, arg) => 
             {
+                
                 var percent_value = (arg / 480) * 100;
-                setProgressBarValue( percent_value );
+                setProgressBarValue( Math.trunc(percent_value) );
             });
 
             const onClickUpdateButton = () =>
             {
                 ipcRenderer.send ('START_UPDATE_DB', null);
+                var update_button          = document.getElementById("update-button");
+                update_button.disabled = true ;
             }
     
             function setProgressBarValue( value ) 
@@ -38,7 +41,7 @@
         <div id="progress-bar">
             <div id="progress-bar-value"></div>
         </div>
-        <button type="button" onclick="onClickUpdateButton()">Click Me!</button>
+        <button id='update-button' type="button" onclick="onClickUpdateButton()">Start Update!</button>
     
     </body>
     </html>
