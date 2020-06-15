@@ -4,47 +4,80 @@ const Enum   = require('enum');
 const Konst = rekwire('/src/constants.js');
 
 const POPULATE_DB_PROGRESS = "POPULATE_DB_PROGRESS";
+const START_UPDATE_DB = "START_UPDATE_DB";
+const EVENT_DISPATCHER_SINGLETON = "EVENT_DISPATCHER_SINGLETON";
 
-const EVENTS = new Enum ({ "Unknown": Konst.NOTHING, POPULATE_DB_PROGRESS : 'populate-db-progress'});
+const EVENTS = new Enum ({ "Unknown": Konst.NOTHING, POPULATE_DB_PROGRESS : 'populate-db-progress', START_UPDATE_DB : 'start-update-db'});
 
 class EventDispatcher
 {
-    static #is_initialized  = false;
-    static #EventSinks      = new Map();
+    static Instances = new Map();
+    static Singleton = EventDispatcher.GetSingleton();
 
-    static Init() 
+    constructor ()
     {
-        if ( EventDispatcher.#is_initialized) return;
+        this.is_initialized = false;
+        this.event_sinks    = new Map();
 
         EVENTS.enums.forEach( (event) => 
         {
             console.log("event.key: "+ event.key);
             console.log("event.value: "+ event.value);
-            EventDispatcher.#EventSinks.set(event.key, [] );
+            this.event_sinks.set( event.key, [] );
         })
-        EventDispatcher.#is_initialized = true;
-    } // init()
+    } // constructor
 
-
-    static Subscribe ( event_sink_obj, event ) 
+    static GetSingleton()
     {
-        EventDispatcher.Init();
+        console.log ("Bienvenue dans GetSingleton  de EventDispatcher.js");
+        if (EventDispatcher.Singleton == null || EventDispatcher.Singleton == undefined )
+        {
+            EventDispatcher.Singleton = new EventDispatcher() ;
+            EventDispatcher.Instances.set ( EVENT_DISPATCHER_SINGLETON, EventDispatcher.Singleton );
+        }
+        return EventDispatcher.Singleton;
+    } // GetSingleton()
+
+
+    subscribe ( event_sink_obj, event ) 
+    {
+        console.log("subscribe event_sink_obj: " + event_sink_obj.name + " event: " + event.key);
         assert ( EVENTS.isDefined( event ));
-        EventDispatcher.#EventSinks.get( event.key ).push( event_sink_obj );
+        if (this.event_sinks.get( event.key ).indexOf (event_sink_obj) == -1)
+        {
+            console.log("event_sink_obj pas déjà enreguistré");
+
+            var registered_event_sinks = this.event_sinks.get( event.key );
+            console.log(JSON.stringify(registered_event_sinks));
+
+            this.event_sinks.get( event.key ).push( event_sink_obj );
+
+            registered_event_sinks = this.event_sinks.get( event.key );
+            console.log(JSON.stringify(registered_event_sinks));
+        }
     } // Subscribe()
 
 
-    static Dispatch ( event, args ) 
+    dispatch ( event, args ) 
     {
-        assert ( EventDispatcher.#is_initialized );
-        assert ( EVENTS.isDefined( event ));
-        for ( const event_sink_obj in EventDispatcher.#EventSinks.get( event ) )
+        assert (event != undefined && event.key != undefined)
+        assert ( EVENTS.isDefined( event.key ));
+
+        console.log ("event_sinks.get(event) " + event.key );
+
+        for ( const event_sink_obj in this.event_sinks.get( event.key ) )
         {
-            event_sink_obj.inform( event, args );
+            if (event_sink_obj != undefined)
+            {
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!XXXXXXXXxXXXXXXX   " + event_sink_obj);
+                event_sink_obj.inform( event, args );
+            }
+   
         }
     } // Dispatch()
 } // EventDispatcher
 
 exports.EVENTS = EVENTS;
-exports.POPULATE_DB_PROGRESS = POPULATE_DB_PROGRESS;
-exports.EventDispatcher = EventDispatcher;
+exports.POPULATE_DB_PROGRESS    = POPULATE_DB_PROGRESS;
+exports.START_UPDATE_DB         = START_UPDATE_DB;
+exports.EventDispatcher         = EventDispatcher;

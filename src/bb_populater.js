@@ -119,7 +119,7 @@ class DBPopulater
 
             var done_count = this.create_in_db_done_count.get( klass ) + 1;
             this.create_in_db_done_count.set ( klass, done_count );
-            EventDispatcher.Dispatch( EVENTS[POPULATE_DB_PROGRESS], done_count );
+            EventDispatcher.GetSingleton().dispatch( EVENTS.get(POPULATE_DB_PROGRESS), done_count );
         }; // endOfWaterfallCB()
 
         /*

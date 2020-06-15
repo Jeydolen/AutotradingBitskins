@@ -1,5 +1,6 @@
 const commander     = require ('commander');
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require( 'electron' );
+const electron_debug = require('electron-debug');
 
 // https://github.com/inxilpro/node-app-root-path 
 global.rekwire = require('app-root-path').require;
@@ -17,6 +18,8 @@ const MENU_LABELS =
 }; // MENU_LABELS
 
 var main_window;
+
+
 
 //====================================================================================================================
 //=================================================  main de app.js  =================================================
@@ -74,14 +77,14 @@ const createWindow = () =>
   // Create the browser window.
   main_window = new BrowserWindow
   ({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: { nodeIntegration: true }
   })
   main_window.loadFile( './src/gui/index.html' );
 
   Controller.GetSingleton( main_window );
-  
+  console.log ("Bienvenue dans l'appel de  GetSingleton  de controller.js (app.js)");
 }; // createWindow()
 
 
@@ -112,5 +115,6 @@ const createMenu = () =>
 
 //app.whenReady().then( createWindow ).then( createMenu );
 
+electron_debug();
 
 ParseCommandLineArgs()

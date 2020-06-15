@@ -1,38 +1,44 @@
 
 <html>
-<head>
-	<title>Panel d'Administration BitskinsBroker</title>
-    <meta charset="utf-8">
-    <link rel="stylesheet" href="./style.css">
-    <script>
-        const { ipcRenderer } = require('electron');
+    <head>
+        <title>Panel d'Administration BitskinsBroker</title>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="./style.css">
+        <script>
+            const { ipcRenderer } = require('electron');
+    
+            ipcRenderer.on('populate-db-progress', (event, arg) => 
+            {
+                var percent_value = (arg / 480) * 100;
+                setProgressBarValue( percent_value );
+            });
 
-        ipcRenderer.on('populate-db-progress', (event, arg) => 
-        {
-            var percent_value = (arg / 480) * 100;
-            setProgressBarValue( percent_value );
-        });
-
-        function setProgressBarValue( value ) 
-        {
-            if (value > 100) value = 100;
-            var pbar_value          = document.getElementById("progress-bar-value");
-            pbar_value.style.width = value + "%";
-            pbar_value.innerHTML = value + "%";
-            
-        }
-    </script>
-
-
-</head>	
-
-<body style="background-color: #1C1C1C;" onload="setProgressBarValue(0);">
-
-
-    <p style="color: #d1d1d1; font-family: 'Lucida Console'; font-size: 20px;">Traitement des items dans la page</p>
-    <div id="progress-bar">
-        <div id="progress-bar-value"></div>
-    </div>
-
-</body>
-</html>
+            const onClickUpdateButton = () =>
+            {
+                ipcRenderer.send ('START_UPDATE_DB', null);
+            }
+    
+            function setProgressBarValue( value ) 
+            {
+                if (value > 100) value = 100;
+                var pbar_value          = document.getElementById("progress-bar-value");
+                pbar_value.style.width = value + "%";
+                pbar_value.innerHTML = value + "%";
+                
+            }
+        </script>
+    
+    
+    </head>	
+    
+    <body style="background-color: #1C1C1C;" onload="setProgressBarValue(0);">
+    
+    
+        <p style="color: #d1d1d1; font-family: 'Lucida Console'; font-size: 20px;">Traitement des items dans la page</p>
+        <div id="progress-bar">
+            <div id="progress-bar-value"></div>
+        </div>
+        <button type="button" onclick="onClickUpdateButton()">Click Me!</button>
+    
+    </body>
+    </html>
