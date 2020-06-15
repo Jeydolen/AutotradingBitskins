@@ -65,11 +65,12 @@ class EventDispatcher
 
         console.log ("event_sinks.get(event) " + event.key );
 
-        for ( const event_sink_obj in this.event_sinks.get( event.key ) )
+        for ( var i=0; i< this.event_sinks.get( event.key ).length; i++ )
         {
+            var event_sink_obj = this.event_sinks.get( event.key )[i];
             if (event_sink_obj != undefined)
             {
-                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!XXXXXXXXxXXXXXXX   " + event_sink_obj);
+                console.log("!!!!!!!!!!!!!!!!!!!!!!!!!XXXXXXXXxXXXXXXX    " + event_sink_obj.toString());
                 event_sink_obj.inform( event, args );
             }
    
