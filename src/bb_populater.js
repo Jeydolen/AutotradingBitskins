@@ -5,8 +5,7 @@ const Konst                 = rekwire ('/src/constants.js');
 const konsole               = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
-const EVENTS                = rekwire ('/src/event_dispatcher.js').EVENTS;
-const POPULATE_DB_PROGRESS  = rekwire ('/src/event_dispatcher.js').POPULATE_DB_PROGRESS;
+const GUI                = rekwire ('/src/gui/GUI.js').GUI;
 
 const Skin               = rekwire ('/src/model/skin.js').Skin ;
 const SkinSet            = rekwire ('/src/model//skin_set.js').SkinSet ;
@@ -119,7 +118,7 @@ class DBPopulater
 
             var done_count = this.create_in_db_done_count.get( klass ) + 1;
             this.create_in_db_done_count.set ( klass, done_count );
-            EventDispatcher.GetSingleton().dispatch( EVENTS.get(POPULATE_DB_PROGRESS), done_count );
+            EventDispatcher.GetSingleton().dispatch( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT), done_count );
         }; // endOfWaterfallCB()
 
         /*

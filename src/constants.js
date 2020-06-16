@@ -12,7 +12,7 @@ const getFunctionName = (f) =>
     ret = ret.substr('function '.length);
     ret = ret.substr(0, ret.indexOf('('));
     return ret;
-};
+}; // getFunctionName()
 
 
 exports.RC = RC ;

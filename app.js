@@ -1,6 +1,6 @@
 const commander     = require ('commander');
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require( 'electron' );
-const electron_debug = require('electron-debug');
+//const electron_debug = require('electron-debug');
 
 // https://github.com/inxilpro/node-app-root-path 
 global.rekwire = require('app-root-path').require;
@@ -57,8 +57,8 @@ const ParseCommandLineArgs = (args) =>
   
   if (commander.admin)
   {
-    console.log ("Bienvenue");
-    electron_debug();
+    //console.log ("Bienvenue");
+    //electron_debug();
     app.whenReady().then( createWindow ).then( createMenu );
   }
   
@@ -85,7 +85,7 @@ const createWindow = () =>
   main_window.loadFile( './src/gui/index.html' );
 
   Controller.GetSingleton( main_window );
-  console.log ("Bienvenue dans l'appel de  GetSingleton  de controller.js (app.js)");
+  //console.log ("Bienvenue dans l'appel de  GetSingleton  de controller.js (app.js)");
 }; // createWindow()
 
 

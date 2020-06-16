@@ -7,9 +7,7 @@ const Konst                 = rekwire ('/src/constants.js');
 const konsole               = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
-const EVENTS                = rekwire ('/src/event_dispatcher.js').EVENTS;
-const POPULATE_DB_PROGRESS  = rekwire ('/src/event_dispatcher.js').POPULATE_DB_PROGRESS;
-const START_UPDATE_DB       = rekwire ('/src/event_dispatcher.js').START_UPDATE_DB;
+const GUI                = rekwire ('/src/gui/GUI.js').GUI;
 
 const CONTROLLER_SINGLETON = "CONTROLLER_SINGLETON";
 const CONTROLLER = "CONTROLLER";
@@ -21,7 +19,7 @@ class Controller
 
     constructor ( main_window_arg )
     {
-        console.log ("Bienvenue dans controller.js");
+        //console.log ("Bienvenue dans controller.js");
         this.name = CONTROLLER;
         assert ( Controller.Instances.size <1) ; // Singleton Design Pattern
         this.main_window = main_window_arg;
@@ -30,27 +28,27 @@ class Controller
 
     subscribeToEvents ()
     {
-        ipcMain.on( START_UPDATE_DB, function (event, arg) 
+        ipcMain.on( GUI.START_UPDATE_DB_EVT, function (event, arg) 
         {
-            console.log ('Test controller.js')
+            //console.log ('Test controller.js')
             BitskinsFetcher.GetSingleton().updateDb()
         });
         
-        EventDispatcher.GetSingleton().subscribe(this, EVENTS.get(POPULATE_DB_PROGRESS));
+        EventDispatcher.GetSingleton().subscribe(this, GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT));
     } // subscribeToEvents ()
 
 
     inform ( event, args )
     {
-        assert ( EVENTS.isDefined( event ));
-        konsole.log("Controller.inform " + EVENTS[ POPULATE_DB_PROGRESS ].value + " " + args);
-        this.main_window.webContents.send( EVENTS[ POPULATE_DB_PROGRESS ].value, args );
+        assert ( GUI.EVENTS.isDefined( event ));
+        //konsole.log("Controller.inform " + EVENTS[ POPULATE_DB_PROGRESS ].value + " " + args);
+        this.main_window.webContents.send( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT).value, args );
     } // constructor
 
 
     static GetSingleton( main_window )
     {
-        console.log ("Bienvenue dans GetSingleton  de controller.js");
+       //console.log ("Bienvenue dans GetSingleton  de controller.js");
         if (Controller.Singleton == null || Controller.Singleton == undefined )
         {
             Controller.Singleton = new Controller( main_window ) ;
