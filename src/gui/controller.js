@@ -31,7 +31,7 @@ class Controller
         ipcMain.on( GUI.START_UPDATE_DB_EVT, function (event, arg) 
         {
             //console.log ('Test controller.js')
-            BitskinsFetcher.GetSingleton().updateDb()
+            BitskinsFetcher.GetSingleton().populateDB()
         });
         
         EventDispatcher.GetSingleton().subscribe(this, GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT));

@@ -177,7 +177,7 @@ class BitskinsFetcher
         return this.constructor.name;
     }
 
-    async updateDb () 
+    async populateDB () 
     {
         db.clearTables();
 
@@ -192,7 +192,7 @@ class BitskinsFetcher
 
         populate();
        
-    }; // updateDb ()
+    }; // populateDB ()
 
 } // BitskinsFetcher
 

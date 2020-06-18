@@ -12,11 +12,11 @@
     <body style="background-color: #1C1C1C;" onload="setProgressBarValue(0);">
     
     
-        <p style="color: #d1d1d1; font-family: 'Lucida Console'; font-size: 20px;">Traitement des items dans la page</p>
+        <div id='progress-label'>Traitement des <span id='type-label'>item</span> dans la page: <span id='page-label'>0</span> </div>
         <div id="progress-bar">
             <div id="progress-bar-value"></div>
         </div>
-        <button id='update-button' type="button" onclick="onClickUpdateButton()">Start Update!</button>
+        <button id='populate-button' type="button" onclick="onClickPopulateButton()">Start Populate!</button>
     
     </body>
     </html>

@@ -118,7 +118,8 @@ class DBPopulater
 
             var done_count = this.create_in_db_done_count.get( klass ) + 1;
             this.create_in_db_done_count.set ( klass, done_count );
-            EventDispatcher.GetSingleton().dispatch( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT), done_count );
+            var values_obj = new GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT](bb_obj.getType(), done_count, json_sell_order_count, page_index);
+            EventDispatcher.GetSingleton().dispatch( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT), values_obj );
         }; // endOfWaterfallCB()
 
         /*

@@ -4,6 +4,20 @@
     background-color: rgb(73, 67, 67);
 }
 
+#type-label
+{
+    color: rgba(73, 233, 158, 0.911);
+}
+
+#progress-label 
+{
+    color: #d1d1d1;
+    font-family: 'Lucida Console'; 
+    font-size: 20px;
+    margin-bottom: 8px;
+    margin-top: 1.5%;
+    width: 100%;
+}
 
   
 #progress-bar-value 

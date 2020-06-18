@@ -53,7 +53,7 @@ const ParseCommandLineArgs = (args) =>
     http_server.start(skin_map);
   }
   
-  if (commander.update)                              BitskinsFetcher.GetSingleton().updateDb()
+  if (commander.update)                              BitskinsFetcher.GetSingleton().populateDB()
   
   if (commander.admin)
   {
@@ -99,7 +99,7 @@ const createMenu = () =>
             [   {   label: MENU_LABELS['run-id'],
                     click() 
                     {
-                      BitskinsFetcher.GetSingleton().updateDb();
+                      BitskinsFetcher.GetSingleton().populateDB();
                     }
                     
                 },
