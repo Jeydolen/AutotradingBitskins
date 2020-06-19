@@ -9,6 +9,9 @@ const http_server     = rekwire ('/src/httpserver.js');
 const db              = rekwire ('/src/db.js');
 const BitskinsFetcher = rekwire ('/src/bb_fetcher.js').BitskinsFetcher;
 const Controller      = rekwire ('/src/gui/controller.js').Controller;
+const Boostrap        = rekwire ('/src/boostrap.js').Boostrap;
+const CommandRegistry = rekwire ('/src/commands/command_registry.js').CommandRegistry;
+
 
 const MENU_LABELS = 
 {
@@ -53,8 +56,20 @@ const ParseCommandLineArgs = (args) =>
     http_server.start(skin_map);
   }
   
-  if (commander.update)                              BitskinsFetcher.GetSingleton().populateDB()
-  
+  //if (commander.update)                              BitskinsFetcher.GetSingleton().populateDB()
+
+  if (commander.update)                              
+  {
+    var cmd_klass =  CommandRegistry.GetSingleton().getItem( Boostrap.POPULATE_DB_ID );
+    console.log ( "cmd_klass: " + cmd_klass.name);
+    var update_cmd = cmd_klass.GetSingleton();
+    console.log ( "update_cmd:" + JSON.stringify(update_cmd) );
+    console.log ( "update_cmd.getName():" + update_cmd.getName() );
+    //console.log (cmd_klass + update_cmd);
+    update_cmd.execute(null);
+    
+  }
+
   if (commander.admin)
   {
     //console.log ("Bienvenue");
@@ -116,5 +131,5 @@ const createMenu = () =>
 
 //app.whenReady().then( createWindow ).then( createMenu );
 
-
+Boostrap.GetSingleton().init();
 ParseCommandLineArgs()

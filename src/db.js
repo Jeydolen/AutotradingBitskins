@@ -159,14 +159,6 @@ const clearTables = () =>
     var db = BB_Database.GetSingleton();
     konsole.log("db.clearTables() db: " + db.toString());
 
-    /*
-    executeClearQuery   (db, "skin_sell_order");
-    executeClearQuery   (db, "skin");
-    executeClearQuery   (db, "dumb_item");
-    executeClearQuery   (db, "skin_set");
-    executeClearQuery   (db, "weapon");
-    */
-
    restoreDefaultDBState (db, "skin_sell_order");
    restoreDefaultDBState (db, "skin");
    restoreDefaultDBState (db, "skin_set");
@@ -174,43 +166,6 @@ const clearTables = () =>
     
 }; // clearTables()
 
-/*
-const updateDb = () => 
-{
-    clearTables();
-  
-    asynk.until( 
-      function test(cb) 
-      {
-        cb(null, B_L.getExitFetchItems()); 
-      },
-  
-      function iter(cb) 
-      {
-        konsole.log("Traitementde la page : " + page_index, LOG_LEVEL.MSG);
-        rdp.fetchItems( page_index, B_L.parseOnResponseReady );
-        // console.log("avant pause de 6 sec");
-        var page_ready = setTimeout(cb, 6000); 
-        page_index++;
-      },
-  
-      // End
-      function (err) 
-      {
-        // All things are done!
-        konsole.log("Main.updateDB() : Fin de traitement des pages (depuis: " + Konst.PAGE_INDEX_START + ")", LOG_LEVEL.MSG);
-       }
-    ); // async.whilst()
-
-}; // updateDb ()
-*/
-
-const updateDBInCascade = () => 
-{
-    clearTables();
-  
- 
-}; // updateDb ()
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
 exports.restoreDB = restoreDB ;

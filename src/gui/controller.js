@@ -7,7 +7,7 @@ const Konst                 = rekwire ('/src/constants.js');
 const konsole               = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
-const GUI                = rekwire ('/src/gui/GUI.js').GUI;
+const GUI                   = rekwire ('/src/gui/GUI.js').GUI;
 
 const CONTROLLER_SINGLETON = "CONTROLLER_SINGLETON";
 const CONTROLLER = "CONTROLLER";
