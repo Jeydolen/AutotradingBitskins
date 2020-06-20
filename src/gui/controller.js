@@ -8,6 +8,8 @@ const konsole               = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
 const GUI                   = rekwire ('/src/gui/GUI.js').GUI;
+const CommandRegistry       = rekwire ('/src/commands/command_registry.js').CommandRegistry;
+const CMD_KONST             = rekwire ('/src/commands/command_constants.js').CMD_KONST;
 
 const CONTROLLER_SINGLETON = "CONTROLLER_SINGLETON";
 const CONTROLLER = "CONTROLLER";
@@ -28,21 +30,40 @@ class Controller
 
     subscribeToEvents ()
     {
-        ipcMain.on( GUI.START_UPDATE_DB_EVT, function (event, arg) 
+        ipcMain.on( GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT).value, function (event, arg) 
         {
             //console.log ('Test controller.js')
-            BitskinsFetcher.GetSingleton().populateDB()
+            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
+            cmd_klass.GetSingleton().execute(null);
         });
         
-        EventDispatcher.GetSingleton().subscribe(this, GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT));
+        EventDispatcher.GetSingleton().subscribe( this, GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT) );
+        EventDispatcher.GetSingleton().subscribe( this, GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT) );
+        EventDispatcher.GetSingleton().subscribe( this, GUI.EVENTS.get(GUI.STOP_IPC_MAIN_EVT) );
     } // subscribeToEvents ()
 
 
     inform ( event, args )
     {
         assert ( GUI.EVENTS.isDefined( event ));
-        //konsole.log("Controller.inform " + EVENTS[ POPULATE_DB_PROGRESS ].value + " " + args);
-        this.main_window.webContents.send( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT).value, args );
+
+        console.log ('controller.js inform event: ' + event);
+        
+        if (event == GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT).key )
+            this.main_window.webContents.send( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT).value, args );
+
+        else if (event == GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT).key)
+        {
+            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
+            cmd_klass.GetSingleton().execute(null);
+        }
+
+        else if (event == GUI.EVENTS.get(GUI.STOP_IPC_MAIN_EVT).key)
+        {
+           console.log("STOP");
+        }
+
+        else return Konst.RC.KO;
     } // constructor
 
 
@@ -53,7 +74,7 @@ class Controller
         {
             Controller.Singleton = new Controller( main_window ) ;
             Controller.Instances.set ( CONTROLLER_SINGLETON, Controller.Singleton );
-        }
+        } 
         return Controller.Singleton;
     } // GetSingleton()
 } // Controller

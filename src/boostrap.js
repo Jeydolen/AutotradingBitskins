@@ -5,13 +5,14 @@ const konsole               = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
 const CommandRegistry       = rekwire ('/src/commands/command_registry.js').CommandRegistry;
 const PopulateDbCmd         = rekwire ('/src/commands/populate_db_cmd.js').PopulateDbCmd;
+const CMD_KONST             = rekwire ('/src/commands/command_constants.js').CMD_KONST;
 
 
 const BOOSTRAP_SINGLETON = "BOOSTRAP_SINGLETON";
 
 class Boostrap
 {
-    static POPULATE_DB_ID = "populate-db-id";
+    
     static Instances = new Map();
     static Singleton = Boostrap.GetSingleton();
     
@@ -22,7 +23,7 @@ class Boostrap
 
     init = () =>
     {
-        CommandRegistry.GetSingleton().add( Boostrap.POPULATE_DB_ID, PopulateDbCmd );
+        CommandRegistry.GetSingleton().add( CMD_KONST.POPULATE_DB_ID, PopulateDbCmd );
     }
 
     static GetSingleton()

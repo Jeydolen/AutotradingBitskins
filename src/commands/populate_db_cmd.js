@@ -15,7 +15,6 @@ class PopulateDbCmd extends Command
         this.name = name;
     }
 
-
     execute ( args )
     {
         BitskinsFetcher.GetSingleton().populateDB();

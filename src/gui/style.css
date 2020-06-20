@@ -6,7 +6,33 @@
 
 #type-label
 {
-    color: rgba(73, 233, 158, 0.911);
+    color: rgb(73, 233, 158);
+}
+
+#populate-button
+{
+    background-color: rgb(46, 122, 46);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    margin: auto;
+    display:block;
+    font-family: 'Lucida Console'; 
+    font-size: 20px;
+}
+
+#stop-button
+{
+    background-color: rgba(202, 32, 46, 0.733);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    margin: auto;
+    display:block;
+    font-family: 'Lucida Console'; 
+    font-size: 20px;
 }
 
 #progress-label 
@@ -24,7 +50,7 @@
 {
     width: 1%;
     height: 30px;
-    background-color: #21610B;
+    background-color: rgb(33, 97, 11);
     text-align: center; /* To center it horizontally (if you want) */
     line-height: 30px; /* To center it vertically */
     color: white;

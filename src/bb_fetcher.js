@@ -21,7 +21,7 @@ const API_KEY                       = "3c75df64-c4c1-4066-8e65-34de828dd08e";
 const BITSKINS_FETCHER_SINGLETON    = "BITSKINS_FETCHER_SINGLETON";
 
 //______________________________________________________________________
-const PAGE_INDEX_START = 2; //----------------------------------------
+const PAGE_INDEX_START = 86; //----------------------------------------
 //______________________________________________________________________
 
 /*
@@ -162,9 +162,9 @@ class BitskinsFetcher
     
         if ( items_count  == 0)
         {
-            konsole.log("items_count: " + items_count, LOG_LEVEL.CRITICAL);
-            this.exitFetchItems = true;
-            this._is_last_page  = true;
+            konsole.log("items_count: " + items_count, LOG_LEVEL.STEP);
+            BitskinsFetcher.GetSingleton().exitFetchItems = true;
+            BitskinsFetcher.GetSingleton()._is_last_page  = true;
         }
         return json_obj;
     } // parseOnReady_CB()

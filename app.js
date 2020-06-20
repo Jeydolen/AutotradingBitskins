@@ -1,6 +1,6 @@
 const commander     = require ('commander');
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require( 'electron' );
-//const electron_debug = require('electron-debug');
+const { EventDispatcher } = require('./src/event_dispatcher');
 
 // https://github.com/inxilpro/node-app-root-path 
 global.rekwire = require('app-root-path').require;
@@ -9,8 +9,10 @@ const http_server     = rekwire ('/src/httpserver.js');
 const db              = rekwire ('/src/db.js');
 const BitskinsFetcher = rekwire ('/src/bb_fetcher.js').BitskinsFetcher;
 const Controller      = rekwire ('/src/gui/controller.js').Controller;
+const GUI             = rekwire ('/src/gui/GUI.js').GUI;
 const Boostrap        = rekwire ('/src/boostrap.js').Boostrap;
 const CommandRegistry = rekwire ('/src/commands/command_registry.js').CommandRegistry;
+const CMD_KONST        = rekwire ('/src/commands/command_constants.js').CMD_KONST;
 
 
 const MENU_LABELS = 
@@ -55,25 +57,15 @@ const ParseCommandLineArgs = (args) =>
     
     http_server.start(skin_map);
   }
-  
-  //if (commander.update)                              BitskinsFetcher.GetSingleton().populateDB()
 
   if (commander.update)                              
   {
-    var cmd_klass =  CommandRegistry.GetSingleton().getItem( Boostrap.POPULATE_DB_ID );
-    console.log ( "cmd_klass: " + cmd_klass.name);
-    var update_cmd = cmd_klass.GetSingleton();
-    console.log ( "update_cmd:" + JSON.stringify(update_cmd) );
-    console.log ( "update_cmd.getName():" + update_cmd.getName() );
-    //console.log (cmd_klass + update_cmd);
-    update_cmd.execute(null);
-    
+    var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
+    cmd_klass.GetSingleton().execute(null);
   }
 
   if (commander.admin)
   {
-    //console.log ("Bienvenue");
-    //electron_debug();
     app.whenReady().then( createWindow ).then( createMenu );
   }
   
@@ -99,6 +91,8 @@ const createWindow = () =>
   })
   main_window.loadFile( './src/gui/index.html' );
 
+  //main_window.webContents.openDevTools();
+
   Controller.GetSingleton( main_window );
   //console.log ("Bienvenue dans l'appel de  GetSingleton  de controller.js (app.js)");
 }; // createWindow()
@@ -114,7 +108,9 @@ const createMenu = () =>
             [   {   label: MENU_LABELS['run-id'],
                     click() 
                     {
-                      BitskinsFetcher.GetSingleton().populateDB();
+                      var event = GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT);
+                      console.log('event:' + event.value.toString());
+                      EventDispatcher.GetSingleton().dispatch(event, null);
                     }
                     
                 },

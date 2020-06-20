@@ -3,25 +3,34 @@ const expand    = require ('expand-template')();
 
 class GUI
 {
-    static POPULATE_DB_PROGRESS_EVT = "POPULATE_DB_PROGRESS_EVT";
-    static START_UPDATE_DB_EVT = "START_UPDATE_DB_EVT";
-    static UNKNOWN_EVT  = "UNKNOWN_EVT";
-    static EVENTS       = new Enum ({ UNKNOWN_EVT: "unknown-evt", POPULATE_DB_PROGRESS_EVT : 'populate-db-progress', START_UPDATE_DB_EVT : 'start-update-db'});
+    static UNKNOWN_EVT                  = "UNKNOWN_EVT";
+    static POPULATE_DB_PROGRESS_EVT     = "POPULATE_DB_PROGRESS_EVT";
+    static START_POPULATE_DB_EVT        = "START_POPULATE_DB_EVT";
+    static STOP_IPC_MAIN_EVT            = "STOP_IPC_MAIN_EVT";
+
+    static EVENTS       = new Enum (
+    {   UNKNOWN_EVT:                'unknown-evt', 
+        POPULATE_DB_PROGRESS_EVT :  'populate-db-progress', 
+        START_POPULATE_DB_EVT :     'start-populate-db',
+        STOP_IPC_MAIN_EVT :         'stop-ipc-main'
+    } );
    
+
     static PopulateDBEventObj = class
     {
        constructor (type, value, max_value, page)
         {
-        this.type = type; 
-        this.value = value; 
-        this.max_value = max_value; 
-        this.page = page;
+            this.type = type; 
+            this.value = value; 
+            this.max_value = max_value; 
+            this.page = page;
         }
     }; // PopulateDBEventObj klass
     
 
     static EVT_ARGS  = { POPULATE_DB_PROGRESS_EVT : GUI.PopulateDBEventObj };
 } // GUI klass
+
 
 const test_2 = () =>
 {

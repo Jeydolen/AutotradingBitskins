@@ -1,4 +1,5 @@
 const assert = require('assert');
+global.rekwire        = require('app-root-path').require;
 
 const GUI = rekwire ('/src/gui/GUI.js').GUI;
 
@@ -30,6 +31,8 @@ class EventDispatcher
 
     subscribe ( event_sink_obj, event ) 
     {
+
+        //console.log('Subscrobe event_dispatcher : ' + JSON.stringify(event_sink_obj));
         assert ( GUI.EVENTS.isDefined( event ));
         if (this.event_sinks.get( event.key ).indexOf (event_sink_obj) == -1)
         {
@@ -42,17 +45,19 @@ class EventDispatcher
 
     dispatch ( event, args ) 
     {
-        assert (event != undefined && event.key != undefined)
+        assert (event != undefined );
+        assert (event.key != undefined)
         assert ( GUI.EVENTS.isDefined( event.key ));
 
         for ( var i=0; i< this.event_sinks.get( event.key ).length; i++ )
         {
+            //console.log('Yo');
             var event_sink_obj = this.event_sinks.get( event.key )[i];
-            if (event_sink_obj != undefined)
-            {
-                
-                //console.log("!!!!!!!!!!!!!!!!!!!!!!!!!XXXXXXXXxXXXXXXX    " + event_sink_obj.toString());
-                event_sink_obj.inform( event, args );
+
+            if (event_sink_obj != undefined) 
+            { 
+                //console.log('Yolo');
+                event_sink_obj.inform( event.key, args );
             }
    
         }
