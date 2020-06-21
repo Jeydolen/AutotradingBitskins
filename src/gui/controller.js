@@ -38,6 +38,8 @@ class Controller
         });
         
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT) );
+        EventDispatcher.GetSingleton().subscribe( this, GUI.EVENTS.get(GUI.BACKUP_DB_EVT) );
+        EventDispatcher.GetSingleton().subscribe( this, GUI.EVENTS.get(GUI.RESTORE_DB_EVT) );
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT) );
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENTS.get(GUI.STOP_IPC_MAIN_EVT) );
     } // subscribeToEvents ()
@@ -47,10 +49,22 @@ class Controller
     {
         assert ( GUI.EVENTS.isDefined( event ));
 
-        console.log ('controller.js inform event: ' + event);
+        //console.log ('controller.js inform event: ' + event);
         
         if (event == GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT).key )
             this.main_window.webContents.send( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT).value, args );
+
+        else if (event == GUI.EVENTS.get(GUI.BACKUP_DB_EVT).key )
+        {
+            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.BACKUP_DB_ID );
+            cmd_klass.GetSingleton().execute(args);
+        }
+            
+        else if (event == GUI.EVENTS.get(GUI.RESTORE_DB_EVT).key )
+        {
+            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.RESTORE_DB_ID );
+            cmd_klass.GetSingleton().execute(args);
+        }
 
         else if (event == GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT).key)
         {

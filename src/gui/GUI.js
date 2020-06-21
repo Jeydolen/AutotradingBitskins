@@ -6,13 +6,17 @@ class GUI
     static UNKNOWN_EVT                  = "UNKNOWN_EVT";
     static POPULATE_DB_PROGRESS_EVT     = "POPULATE_DB_PROGRESS_EVT";
     static START_POPULATE_DB_EVT        = "START_POPULATE_DB_EVT";
+    static BACKUP_DB_EVT                = "BACKUP_DB_EVT";
+    static RESTORE_DB_EVT               = "RESTORE_DB_EVT";
     static STOP_IPC_MAIN_EVT            = "STOP_IPC_MAIN_EVT";
 
     static EVENTS       = new Enum (
-    {   UNKNOWN_EVT:                'unknown-evt', 
-        POPULATE_DB_PROGRESS_EVT :  'populate-db-progress', 
-        START_POPULATE_DB_EVT :     'start-populate-db',
-        STOP_IPC_MAIN_EVT :         'stop-ipc-main'
+    {   UNKNOWN_EVT                 : 'unknown-evt', 
+        POPULATE_DB_PROGRESS_EVT    : 'populate-db-progress', 
+        START_POPULATE_DB_EVT       : 'start-populate-db',
+        STOP_IPC_MAIN_EVT           : 'stop-ipc-main',
+        BACKUP_DB_EVT               : 'backup-db',
+        RESTORE_DB_EVT              : 'restore-db'
     } );
    
 

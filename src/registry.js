@@ -10,7 +10,7 @@ const REGISTRY_SINGLETON = "REGISTRY_SINGLETON";
 class Registry
 {
     static Instances = new Map();
-    static Singleton = Registry.GetSingleton();
+    static Singleton = null;
 
     constructor ( name )
     {
@@ -39,15 +39,20 @@ class Registry
     }
 
 
-    static GetSingleton()
+
+        static GetSingleton()
     {
-       //console.log ("Bienvenue dans GetSingleton  de Registry.js");
-        if (Registry.Singleton == null || Registry.Singleton == undefined )
+        var klass = this;
+        console.log ("klass: " + klass.name);
+
+        console.log ("Bienvenue dans GetSingleton  de Registry.js");
+        if (klass.Singleton == null || klass.Singleton == undefined )
         {
-            Registry.Singleton = new Registry() ;
-            Registry.Instances.set ( REGISTRY_SINGLETON, Registry.Singleton );
+            var name = klass.name.toUpperCase() + "_SINGLETON";
+            klass.Singleton = new klass(name) ;
+            klass.Instances.set ( name, klass.Singleton );
         }
-        return Registry.Singleton;
+        return klass.Singleton;
     } // GetSingleton()
 }
 

@@ -32,8 +32,8 @@ class EventDispatcher
     subscribe ( event_sink_obj, event ) 
     {
 
-        //console.log('Subscrobe event_dispatcher : ' + JSON.stringify(event_sink_obj));
-        assert ( GUI.EVENTS.isDefined( event ));
+        //console.log('Subscrobe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event);
+        assert ( GUI.EVENTS.isDefined( event ), event);
         if (this.event_sinks.get( event.key ).indexOf (event_sink_obj) == -1)
         {
             var registered_event_sinks = this.event_sinks.get( event.key );
@@ -51,12 +51,12 @@ class EventDispatcher
 
         for ( var i=0; i< this.event_sinks.get( event.key ).length; i++ )
         {
-            //console.log('Yo');
+            console.log('Yo');
             var event_sink_obj = this.event_sinks.get( event.key )[i];
 
             if (event_sink_obj != undefined) 
             { 
-                //console.log('Yolo');
+                console.log('Yolo');
                 event_sink_obj.inform( event.key, args );
             }
    

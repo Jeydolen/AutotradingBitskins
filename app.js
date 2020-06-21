@@ -2,29 +2,32 @@ const commander     = require ('commander');
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require( 'electron' );
 const { EventDispatcher } = require('./src/event_dispatcher');
 
+
 // https://github.com/inxilpro/node-app-root-path 
 global.rekwire = require('app-root-path').require;
 
-const http_server     = rekwire ('/src/httpserver.js');
-const db              = rekwire ('/src/db.js');
-const BitskinsFetcher = rekwire ('/src/bb_fetcher.js').BitskinsFetcher;
-const Controller      = rekwire ('/src/gui/controller.js').Controller;
-const GUI             = rekwire ('/src/gui/GUI.js').GUI;
-const Boostrap        = rekwire ('/src/boostrap.js').Boostrap;
-const CommandRegistry = rekwire ('/src/commands/command_registry.js').CommandRegistry;
-const CMD_KONST        = rekwire ('/src/commands/command_constants.js').CMD_KONST;
+const  View             = rekwire('/src/gui/view.js').View;
+const http_server       = rekwire ('/src/httpserver.js');
+const db                = rekwire ('/src/db.js');
+const BitskinsFetcher   = rekwire ('/src/bb_fetcher.js').BitskinsFetcher;
+const Controller        = rekwire ('/src/gui/controller.js').Controller;
+const GUI               = rekwire ('/src/gui/GUI.js').GUI;
+const Boostrap          = rekwire ('/src/boostrap.js').Boostrap;
+const CommandRegistry   = rekwire ('/src/commands/command_registry.js').CommandRegistry;
+const CMD_KONST         = rekwire ('/src/commands/command_constants.js').CMD_KONST;
 
 
 const MENU_LABELS = 
 {
-  'file-id':    'Fichier',
-  'run-id' :    'Lancer',
-  'quit-id':    'Quitter'
+  'file-id'           :    'Fichier',
+  'run-id'            :    'Lancer',
+  'backup-id'         :    'Backup DB',
+  'backup-as-id'      :    'Backup DB as...',
+  'restore-id'        :    'Restore DB from...',
+  'quit-id'           :    'Quitter'
 }; // MENU_LABELS
 
 var main_window;
-
-
 
 //====================================================================================================================
 //=================================================  main de app.js  =================================================
@@ -110,13 +113,73 @@ const createMenu = () =>
                     {
                       var event = GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT);
                       console.log('event:' + event.value.toString());
+                      //View.GetSingleton().dispatch(event, null);
                       EventDispatcher.GetSingleton().dispatch(event, null);
                     }
                     
                 },
+                {   label: MENU_LABELS['backup-id'],
+                    click() 
+                    {
+                      var event = GUI.EVENTS.get(GUI.BACKUP_DB_EVT);
+                      View.GetSingleton().dispatch(event, null);
+                    }
+                    
+                },
+                {   label: MENU_LABELS['backup-as-id'],
+                  click() 
+                  {
+                    dialog.showSaveDialog
+                    ( main_window, 
+                      {   properties: ['saveFile'],
+                          title:  MENU_LABELS['backup-as-id'],
+                          defaultPath : ".",
+                          filters: [ { name: 'SQL Files', extensions: ['sql'] } ]
+                      }
+                    ).then
+                    ( result => 
+                      {
+                        if ( result.canceled ) return;
+                        console.log (JSON.stringify(result));
+                        if ( result.filePath != undefined )
+                        {
+                          var output_sql_file_path = result.filePath;
+                          var event = GUI.EVENTS.get(GUI.BACKUP_DB_EVT);
+                          View.GetSingleton().dispatch(event, output_sql_file_path);
+
+                        } // if 
+                      }
+                    ).catch( err => { console.log( err) });   
+                  }
+                
+                },
+                {   label: MENU_LABELS['restore-id'],
+                  click() 
+                  {
+                    dialog.showOpenDialog
+                    ( main_window, 
+                      {   properties: ['openFile'],
+                          title:  MENU_LABELS['restore-id'],
+                          defaultPath : ".",
+                          filters: [ { name: 'SQL Files', extensions: ['sql'] } ]
+                      }
+                    ).then
+                    ( result => 
+                      {
+                        if ( result.canceled ) return;
+                        if ( result.filePath != undefined )
+                        {
+                          var input_sql_file_path = result.filePath[0];
+                          var event = GUI.EVENTS.get(GUI.RESTORE_DB_EVT);
+                          View.GetSingleton().dispatch(event, input_sql_file_path);
+                        } // if 
+                      }
+                    )     
+                  }
+                
+                },
                 {   type: 'separator' },
-                {
-                    label: MENU_LABELS['quit-id'], 
+                {  label: MENU_LABELS['quit-id'], 
                     click() { app.quit(); } 
                 }
             ],

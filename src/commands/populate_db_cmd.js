@@ -5,9 +5,7 @@ const Command               = rekwire ('/src/commands/command.js').Command;
 const BitskinsFetcher       = rekwire ('/src/bb_fetcher.js').BitskinsFetcher;
 
 
-const POPULATE_DB_CMD_SINGLETON = "POPULATE_DB_CMD_SINGLETON";
-
-class PopulateDbCmd extends Command
+class PopulateDBCmd extends Command
 {
     constructor( name ) 
     {
@@ -20,4 +18,4 @@ class PopulateDbCmd extends Command
         BitskinsFetcher.GetSingleton().populateDB();
     }
 }
-exports.PopulateDbCmd = PopulateDbCmd;
+exports.PopulateDBCmd = PopulateDBCmd;

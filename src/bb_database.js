@@ -98,3 +98,5 @@ BB_Database.Singleton;
 
 exports.BB_Database = BB_Database ;
 exports.DB_NAME     = DB_NAME;
+exports.ADMIN_NAME  = ADMIN_NAME;
+exports.ADMIN_PWD   = ADMIN_PWD;

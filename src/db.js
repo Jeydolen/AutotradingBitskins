@@ -1,5 +1,4 @@
 const timestamp    = require ('time-stamp');
-const exec         = require('child_process').exec;
 const asynk        = require ('async');
 const assert       = require ('assert');
 const expand       = require ('expand-template')();
@@ -13,12 +12,9 @@ const rdp          = require ('./rechercheduprofit.js');
 const B_L          = require ('./business-logic.js');
 const bb_db        = require ('./bb_database.js');
 const Konst        = require('./constants.js');
+const { CommandRegistry } = require('./commands/command_registry.js');
 
-const DATA_PATH = './data/';
 
-// ----------------------------------------- Commencement de page
-var page_index = Konst.PAGE_INDEX_START;
-// ----------------------------------------------------------------
 
 //===================================================================================================================================================
 const restoreDefaultDBState =  (db, table) =>
@@ -84,10 +80,7 @@ const restoreDefaultDBState =  (db, table) =>
     executeDeleteQuery(db, table)
 
 }; // restoreDefaultDBState
-
-
-//===================================================================================================================================================
-                           
+//===================================================================================================================================================                       
 const executeDeleteQuery = ( db , table , cb ) =>
 {   
     var query_text  = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
@@ -96,7 +89,6 @@ const executeDeleteQuery = ( db , table , cb ) =>
     query_obj.execute( db,query_text );
     cb( null, db , table);
 }; // executeDeleteQuery()
-
 
 const executeAlterRstAiQuery = ( db , table, cb ) =>
 {   
@@ -107,7 +99,6 @@ const executeAlterRstAiQuery = ( db , table, cb ) =>
     cb( null, db , table);
 }; // executeAlterRstAiQuery()
 
-
 const executeInsertNullQuery = ( db , table, cb ) =>
 {   
     var query_text  = expand(SQL_TEMPLATE.INSERT_NULL.value, { 'db-table': table, 'db-name-value': 'NULL_'+ table.toUpperCase()});
@@ -116,41 +107,18 @@ const executeInsertNullQuery = ( db , table, cb ) =>
     query_obj.execute( db, query_text );
 }; // executeInsertNullQuery()
 
-
-
-// https://stackoverflow.com/questions/23266854/node-mysql-multiple-statements-in-one-query
-const executeClearQuery = (db, table) =>
-{
-    assert (table != undefined && table != "" && db != undefined);
-
-    // https://caolan.github.io/async/v3/seq.js.html
-    var D_ARAI_IN = asynk.seq( executeDeleteQuery, executeAlterRstAiQuery, executeInsertNullQuery );
-    D_ARAI_IN
-    (   db, table, 
-        () => 
-        { konsole.log("D_ARAI_IN successful !!", LOG_LEVEL.OK)
-        }
-    );
-
-};
-
 const backupDB = () =>  
 {
-    var now_time_stamp = timestamp('YYYY_MM_DD_HH_mm');
-    var fullpath_to_sql_output_file = DATA_PATH + DB_NAME + '_' + now_time_stamp + '.sql';
-    var child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' > ' + fullpath_to_sql_output_file);
-    konsole.log('Backup succesfuly completed', LOG_LEVEL.OK)
+    var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.BACKUP_DB_ID );
+    cmd_klass.GetSingleton().execute(file_path);
 }; // backupDB ()
 
 
-//-----------------------------------------------------
 //--------------------  restoreDB  --------------------
-//-----------------------------------------------------
 const restoreDB = (file_path) =>
 {
-    var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  sql_u.DB_NAME + ' < ' + file_path);
-
-    konsole.log('Restore succesfuly completed', LOG_LEVEL.OK)
+    var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.RESTORE_DB_ID );
+    cmd_klass.GetSingleton().execute(file_path);
 }; // restoreDB ()
 //--------------------  restoreDB  --------------------
 
@@ -170,4 +138,3 @@ exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
 exports.restoreDB = restoreDB ;
 exports.restoreDefaultDBState = restoreDefaultDBState;
-//exports.updateDb = updateDb ;
