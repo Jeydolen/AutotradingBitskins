@@ -4,6 +4,7 @@ const Konst             = rekwire ('/src/constants.js') ;
 const LOG_LEVEL         = rekwire ('/src/bb_log.js').LOG_LEVEL; 
 const konsole           = rekwire ('/src/bb_log.js').konsole ;
 const BitskinsObject    = rekwire ('/src/bb_obj.js').BitskinsObject;
+const Skin              = rekwire ('/src/model/skin.js').Skin;
 
 
 
@@ -33,7 +34,10 @@ class SkinSellOrder extends BitskinsObject
         this.table              = 'skin_sell_order';
 
         if (arg == NULL_SKIN_SELL_ORDER)
+        {
             this.name = NULL_SKIN_SELL_ORDER;
+            this.skin_id = 1;
+        }
         else
         {
             this.name               = arg.item_id.replace ("'", "''");
@@ -41,13 +45,16 @@ class SkinSellOrder extends BitskinsObject
             this.state              = this.computeStateID (arg.float_value);
             this.price              = arg.price;
             this.recommanded_price  = arg.suggested_price;  
+            this.skin_name          = Skin.ExtractName(this.market_name);
+            this.skin_id            = Skin.GetSkin(this.skin_name).getRecordId();
         }  
     } // constructor
 
     //            optionnel
     getCoVaSeq( json_sell_order )
     { 
-        var co_va_seq = "`market_name` = '" + this.market_name + "', `item_state` = " + this.state  + ", `price` = " + this.price + ", `recommanded_price` = " + this.recommanded_price ;
+        var co_va_seq = "`market_name` = '" + this.market_name + "', `item_state` = " + this.state  
+                      + ", `price` = " + this.price + ", `recommanded_price` = " + this.recommanded_price + ", `skin` = " + this.skin_id;
         return co_va_seq;
     }
 
