@@ -10,7 +10,7 @@ const COMMAND_SINGLETON = "COMMAND_SINGLETON";
 class Command 
 {
     static Instances = new Map();
-    static Singleton = null;
+    static Singletons = new Map();
 
     constructor( name)
     {
@@ -20,24 +20,24 @@ class Command
 
     getName = () => {this.name}
 
-    execute( args )
-    {
-        konsole.log ( this.getName() + ': execute ()');
-    }
+    execute( args ) { konsole.log ( this.getName() + ': execute ()'); }
 
     static GetSingleton()
     {
         var klass = this;
         console.log ("klass: " + klass.name);
+        var singleton_name = klass.name.toUpperCase() + "_SINGLETON";
 
-        console.log ("Bienvenue dans GetSingleton  de Command.js");
-        if (klass.Singleton == null || klass.Singleton == undefined )
+        console.log ("Bienvenue dans GetSingleton  de Command.js " + singleton_name);
+
+        var klass_singleton = klass.Singletons.get( singleton_name );
+        if ( klass_singleton == undefined )
         {
-            var name = klass.name.toUpperCase() + "_SINGLETON";
-            klass.Singleton = new klass(name) ;
-            klass.Instances.set ( name, klass.Singleton );
+            klass_singleton = new klass(singleton_name) ;
+            klass.Instances.set     ( singleton_name, klass_singleton );
+            klass.Singletons.set    ( singleton_name, klass_singleton );
         }
-        return klass.Singleton;
+        return klass_singleton;
     } // GetSingleton()
 }
 exports.Command = Command;

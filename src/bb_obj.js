@@ -45,6 +45,12 @@ class BitskinsObject
   //            optionnel
   getCoVaSeq(json_sell_order) { return  Konst.NOTHING;            } // Column - value - sequence
 
+  buildQueryText = () => 
+  { 
+    var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
+    return query_text;
+  } // buildQueryText()
+
 
   //                requis        requis            requis
   createInDBTable (  db,    end_of_waterfall_cb, json_sell_order )
@@ -53,13 +59,13 @@ class BitskinsObject
       assert( end_of_waterfall_cb != undefined);
       assert (json_sell_order != undefined);
 
-
       const selectQuery = () =>
       {
 
           var query_select_obj = BB_SqlQuery.Create();
           //konsole.log( this.getType() +".createInDBTable() SELECT");
-          var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
+          
+          var query_text = this.buildQueryText();
           query_select_obj.executeWithCB( db, query_text, insertQueryCB );
         
       }; // selectQuery()

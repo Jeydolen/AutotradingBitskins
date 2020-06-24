@@ -3,12 +3,10 @@ const Enum              = require('enum');
 
 
 const BitskinsObject    = rekwire ('/src/bb_obj.js').BitskinsObject;
-
 const LOG_LEVEL         = rekwire ('/src/bb_log.js').LOG_LEVEL; 
 const konsole           = rekwire ('/src/bb_log.js').konsole ;
 
 const NULL_WEAPON  = "NULL_WEAPON" ;
-const NULL_CASE    = "NULL_CASE";
 
 const WEAPON_TYPE_DB_IDS = new Enum  ({ 'Unknown' : 0, 'Knife' : 1, 'Pistol' : 2,
                                         'SMG' : 3, 'Rifle' : 4, 'Sniper Rifle' : 5, 'Shotgun': 6, 'Machinegun' : 7 });
@@ -47,14 +45,14 @@ class Weapon extends BitskinsObject
     } // constructor
 
 
-    static ExtractName( input_item )
+    static ExtractName( json_sell_order )
     {
-        assert (input_item != undefined);
-        assert (input_item.hasOwnProperty('item_weapon'));
-        var name = input_item.item_weapon;
+        assert (json_sell_order != undefined);
+        assert (json_sell_order.hasOwnProperty('item_weapon'));
+        var name = json_sell_order.item_weapon;
 
         if (name == undefined || name == 'null' ||name == null)
-            name = NULL_CASE;
+            name = NULL_WEAPON;
         else    
             name = name.replace ("'", "''");   
         return name;

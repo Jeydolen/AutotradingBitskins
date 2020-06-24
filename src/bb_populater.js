@@ -122,30 +122,6 @@ class DBPopulater
             EventDispatcher.GetSingleton().dispatch( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT), values_obj );
         }; // endOfWaterfallCB()
 
-        /*
-        //                                     requis     optionnel
-        const populateDBWithKlassInstances = ( klass,  waterfall_start ) =>
-        {
-            assert( klass != undefined );
-            konsole.log("----------------------------------------------------------------------------------------", LOG_LEVEL.MSG)
-
-            konsole.error("create_in_db_done_count: " + this.create_in_db_done_count.get( klass ));
-
-            //this.next_cb = populateDBWithSkinSet_CB;
-
-            if ( waterfall_start )
-                this.create_in_db_done_count.clear(); // Efface  toutes les clés
-            
-            this.create_in_db_done_count.set( klass, 0 );
-
-            for (var i = 0, len = json_sell_order_count; i < len; i++) 
-            {
-                var weapon_obj = klass.Create (json_sell_orders[i]) ;
-                weapon_obj.createInDBTable ( db, endOfWaterfallCB );
-            }
-        }; // populateDBWithKlassInstances()
-        */
-
 
         const populateDBWithWeapon = () =>
         {

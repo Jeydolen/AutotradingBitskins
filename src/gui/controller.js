@@ -34,6 +34,7 @@ class Controller
         {
             //console.log ('Test controller.js')
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
+            console.log ('controller.js cmd_klass' + cmd_klass.name);
             cmd_klass.GetSingleton().execute(null);
         });
         

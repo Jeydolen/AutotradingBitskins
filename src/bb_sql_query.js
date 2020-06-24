@@ -4,9 +4,9 @@ const asynk     = require ('async');
 const Enum      = require ('enum');
 const expand    = require('expand-template')();
 
-const Konst     = require ('./constants');
-const konsole   = require ('./bb_log').konsole;
-const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
+const Konst     = rekwire ('/src/constants.js');
+const konsole   = rekwire ('/src/bb_log.js').konsole;
+const LOG_LEVEL = rekwire ('/src/bb_log.js').LOG_LEVEL;
 
 const QUERY_STATE = new Enum ({ 'UNKNOWN': 0, 'PENDING': 1, 'DONE': 2, 'FAILED': 3 });
 
@@ -21,6 +21,7 @@ const SQL_TEMPLATE = new Enum ({
     'UPDATE_STR'        : "UPDATE {db-table} SET `{db-field}` = '{db-field-value}'  WHERE  name = '{db-name-value}' ;   #UPDATE_STR",
     'UPDATE'            : "UPDATE {db-table} SET {co-va-seq}                        WHERE  `{db-field}` = '{db-field-value}' ;"     ,
     'SELECT_NAME'       : "SELECT `id`, `name`  FROM `{db-table}`                   WHERE   `name`='{db-name-value}'; #SELECT_NAME" ,
+    'SELECT_SKIN'       : "SELECT `id`,`name`,`weapon`  FROM `skin`                 WHERE   `name`='{db-name-value}' AND `weapon` = {db-weapon-id}; #SELECT_SKIN" ,
     'SELECT'            : "SELECT {db-fields}   FROM `{db-table}`                   WHERE   {db-condition}      ;"                  ,
     'DELETE'            : "DELETE FROM {db-table}                                                               ;"                  ,
     'ALTER_RST_AI'      : "ALTER TABLE {db-table}                                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
@@ -71,18 +72,13 @@ class BB_SqlQuery
     } // constructor  
 
     getId()         { return this.id; }                     // getId()
-
-    getDebug()      { return this.debug; }          // getDebug()
-    setDebug(value) {        this.debug = value; }  // setDebug()
-
+    getDebug()      { return this.debug; }                  // getDebug()
+    setDebug(value) {        this.debug = value; }          // setDebug()
     getType()       { return this.constructor.name; }       // getType()
-
     getName()       { return this.sql_tmpl.key; }           // getName()  
-
     getCommand()    { return this.sql_tmpl.toString(); }    // getCommand()  
-
-    getResult()     { return this.result; }         // getResult()  
-    setResult(value){        this.result = value; } // setResult()  
+    getResult()     { return this.result; }                 // getResult()  
+    setResult(value){        this.result = value; }         // setResult()  
 
     //                       requis
     static _ExtractSQLTmpl( query_text )
@@ -105,6 +101,9 @@ class BB_SqlQuery
 
             else if (query_text.search("#UPDATE_STR") != -1)
                 sql_tmpl = SQL_TEMPLATE.UPDATE_STR;
+            
+            else if (query_text.search("#SELECT_SKIN") != -1)
+                sql_tmpl = SQL_TEMPLATE.SELECT_SKIN;
 
             else if (query_text.search("#INSERT_NAME") != -1)
                 sql_tmpl = SQL_TEMPLATE.INSERT_NAME;
