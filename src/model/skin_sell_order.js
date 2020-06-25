@@ -33,20 +33,21 @@ class SkinSellOrder extends BitskinsObject
         super(arg);
         this.table              = 'skin_sell_order';
 
-        if (arg == NULL_SKIN_SELL_ORDER)
+        if (arg == NULL_SKIN_SELL_ORDER) // Cas NULL_OBJ
         {
             this.name = NULL_SKIN_SELL_ORDER;
             this.skin_id = 1;
         }
-        else
+        else // Cas nominal
         {
-            this.name               = arg.item_id.replace ("'", "''");
-            this.market_name        = arg.market_hash_name.replace ("'", "''");
-            this.state              = this.computeStateID (arg.float_value);
-            this.price              = arg.price;
-            this.recommanded_price  = arg.suggested_price;  
-            this.skin_name          = Skin.ExtractName(this.market_name);
-            this.skin_id            = Skin.GetSkin(this.skin_name).getRecordId();
+            var json_sell_order     = arg;
+            this.name               = json_sell_order.item_id.replace ("'", "''");
+            this.market_name        = json_sell_order.market_hash_name.replace ("'", "''");
+            this.state              = this.computeStateID (json_sell_order.float_value);
+            this.price              = json_sell_order.price;
+            this.recommanded_price  = json_sell_order.suggested_price;  
+            this.skin_name          = Skin.ExtractName( json_sell_order);
+            this.skin_id            = Skin.GetSkin( this.skin_name).getRecordId();
         }  
     } // constructor
 

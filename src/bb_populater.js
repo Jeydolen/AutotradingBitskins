@@ -5,7 +5,7 @@ const Konst                 = rekwire ('/src/constants.js');
 const konsole               = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
-const GUI                = rekwire ('/src/gui/GUI.js').GUI;
+const GUI                   = rekwire ('/src/gui/GUI.js').GUI;
 
 const Skin               = rekwire ('/src/model/skin.js').Skin ;
 const SkinSet            = rekwire ('/src/model//skin_set.js').SkinSet ;
@@ -106,8 +106,9 @@ class DBPopulater
 
             assert (done_count <= json_sell_order_count, "Done count :" + done_count + " Json count: " + json_sell_order_count + " klass: " + klass.name);
 
-            konsole.log ("DBPopulater.endOfWaterfallCB: " + bb_obj.getType()
-                         + " name:" + bb_obj.getName() + " count: " + done_count + " page: " + page_index, LOG_LEVEL.OK);
+            konsole.log ( bb_obj.getType() + " name: '" + bb_obj.getName() + "' count: " 
+                        + done_count + " page: " + page_index, LOG_LEVEL.OK
+                        );
             
             if ( done_count >= json_sell_order_count - 1 )
             {

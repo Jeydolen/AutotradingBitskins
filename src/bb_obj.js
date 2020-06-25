@@ -1,12 +1,11 @@
 const assert      = require ('assert');
 const expand      = require ('expand-template')();
 
-const Konst       = require ('./constants.js') ;
-const LOG_LEVEL   = require ('./bb_log.js').LOG_LEVEL; 
-const konsole     = require ('./bb_log.js').konsole ;
-const BB_SqlQuery = require ('./bb_sql_query.js').BB_SqlQuery ;
-const SQL_TEMPLATE = require('./bb_sql_query.js').SQL_TEMPLATE;
-const QUERY_STATE = require ('./bb_sql_query.js').QUERY_STATE;
+const Konst         = rekwire ('/src/constants.js') ;
+const LOG_LEVEL     = rekwire ('/src/bb_log.js').LOG_LEVEL; 
+const konsole       = rekwire ('/src/bb_log.js').konsole ;
+const BB_SqlQuery   = rekwire ('/src/bb_sql_query.js').BB_SqlQuery ;
+const SQL_TEMPLATE  = rekwire('/src/bb_sql_query.js').SQL_TEMPLATE;
 
 
 /*$$$$$$$  /$$   /$$              /$$       /$$                      /$$$$$$  /$$                                 /$$    
@@ -28,8 +27,6 @@ class BitskinsObject
   constructor( arg ) 
   {     
     this._record_id            = 1; // NULL_OBJECT DANS LES TABLES 
-    this._create_query_state  = QUERY_STATE.UNKNOWN;
-    this._update_query_state  = QUERY_STATE.UNKNOWN;
     this._created_in_db       = false;
     this._updated_in_db       = false;
     this.table                = Konst.NOTHING;

@@ -8,7 +8,6 @@ const Konst     = rekwire ('/src/constants.js');
 const konsole   = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL = rekwire ('/src/bb_log.js').LOG_LEVEL;
 
-const QUERY_STATE = new Enum ({ 'UNKNOWN': 0, 'PENDING': 1, 'DONE': 2, 'FAILED': 3 });
 
 // https://dev.mysql.com/doc/refman/5.7/en/comments.html
 
@@ -21,7 +20,6 @@ const SQL_TEMPLATE = new Enum ({
     'UPDATE_STR'        : "UPDATE {db-table} SET `{db-field}` = '{db-field-value}'  WHERE  name = '{db-name-value}' ;   #UPDATE_STR",
     'UPDATE'            : "UPDATE {db-table} SET {co-va-seq}                        WHERE  `{db-field}` = '{db-field-value}' ;"     ,
     'SELECT_NAME'       : "SELECT `id`, `name`  FROM `{db-table}`                   WHERE   `name`='{db-name-value}'; #SELECT_NAME" ,
-    'SELECT_SKIN'       : "SELECT `id`,`name`,`weapon`  FROM `skin`                 WHERE   `name`='{db-name-value}' AND `weapon` = {db-weapon-id}; #SELECT_SKIN" ,
     'SELECT'            : "SELECT {db-fields}   FROM `{db-table}`                   WHERE   {db-condition}      ;"                  ,
     'DELETE'            : "DELETE FROM {db-table}                                                               ;"                  ,
     'ALTER_RST_AI'      : "ALTER TABLE {db-table}                                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
@@ -64,7 +62,6 @@ class BB_SqlQuery
     {
         this.id             = BB_SqlQuery.name + "_" + BB_SqlQuery.Instances.size;
         this.debug          = false;
-        this.state          = QUERY_STATE.UNKNOWN;
         this.sql_tmpl       = sql_tmpl;
         this.query_text     = query_text;
         this.result         = Konst.NOTHING;
@@ -101,9 +98,6 @@ class BB_SqlQuery
 
             else if (query_text.search("#UPDATE_STR") != -1)
                 sql_tmpl = SQL_TEMPLATE.UPDATE_STR;
-            
-            else if (query_text.search("#SELECT_SKIN") != -1)
-                sql_tmpl = SQL_TEMPLATE.SELECT_SKIN;
 
             else if (query_text.search("#INSERT_NAME") != -1)
                 sql_tmpl = SQL_TEMPLATE.INSERT_NAME;
@@ -193,5 +187,4 @@ BB_SqlQuery.CLEAR_TABLES;
 
 exports.BB_SqlQuery = BB_SqlQuery;
 exports.SQL_TEMPLATE = SQL_TEMPLATE;
-exports.QUERY_STATE = QUERY_STATE ;
 //------------------------------  BB_SqlQuery

@@ -1,4 +1,5 @@
 const assert      = require ('assert');
+const { json } = require('express');
 const expand      = require ('expand-template')();
 
 const LOG_LEVEL       = rekwire ('/src/bb_log.js').LOG_LEVEL; 
@@ -6,6 +7,7 @@ const konsole         = rekwire ('/src/bb_log.js').konsole ;
 
 
 const BitskinsObject  = rekwire ('/src/bb_obj.js').BitskinsObject;
+const Konst           = rekwire ('/src/constants.js');
 const SQL_TEMPLATE    = rekwire('/src/bb_sql_query.js').SQL_TEMPLATE;
 const Weapon          = rekwire ('/src/model/weapon.js').Weapon;
 const SkinSet         = rekwire ('/src/model/skin_set.js').SkinSet;
@@ -13,7 +15,7 @@ const SkinSet         = rekwire ('/src/model/skin_set.js').SkinSet;
 
 const NULL_SKIN   = "NULL_SKIN" ;
 const NULL_URL    = "http://NULL_URL";
-const NULL_RARITY = "Unknown"; // M^mem valeur que dans la Table de constantes 'skin_rarity'
+const NULL_RARITY = "Unknown"; // Meme valeur que dans la Table de constantes 'skin_rarity'
 
 
 
@@ -31,7 +33,6 @@ class Skin extends BitskinsObject
   // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Classes/Class_fields
   // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Map
   static Instances  = new Map();
-  static WeaponToSkin = new Map();
 
   //   arg =    json_sell_order ou name (pour NULL_SKIN)
   constructor( arg ) 
@@ -49,38 +50,36 @@ class Skin extends BitskinsObject
       this.hasStatTrak  = false;
       this.item_rarity  = NULL_RARITY ;
       this.weapon_id    = 1; // NULL_WEAPON Dans DB
+      this.short_name   = NULL_SKIN;
     }
     else
     {  
       // Cas nominal: instance != Skin.NULL_SKIN
-      var json_sell_order = arg;
-      assert(json_sell_order != undefined);
 
-      this.image_url = json_sell_order.image ;
+      assert (arg != undefined);
 
-      this.weapon_name       = Weapon.ExtractName( json_sell_order );
-      this.weapon_obj        = Weapon.GetWeapon (this.weapon_name);
+      var json_sell_order     = arg;
+      this.name               = Skin.ExtractName(json_sell_order); 
+      this.short_name         = Skin.ExtractShortName ( json_sell_order );
+      this.image_url          = json_sell_order.image ;
+      this.weapon_name        = Weapon.ExtractName( json_sell_order );
+      this.weapon_obj         = Weapon.GetWeapon (this.weapon_name);
+      this.weapon_id          = this.weapon_obj.getRecordId();
+      this.item_rarity    = this.computeRarityID(json_sell_order.item_rarity);
+      this.table          = 'skin';
+
       assert ( this.weapon_obj   != Weapon.NULL );
-      this.weapon_id        = this.weapon_obj.getRecordId();
 
       var tags = json_sell_order['tags'];
 
       if (tags != undefined)
       {
         var quality = tags['quality'];
-        // konsole.log("quality: " + quality);
         if (quality != undefined)
             this.hasStatTrak = (quality.search("StatTrak") != -1);
       }    
       else
-        this.hasStatTrak = false;
-
-      //                     ------ left ------   ---------- right ----------
-      // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
-      this.name = "tututt";
-      this.name           = Skin.ExtractName(json_sell_order.market_hash_name); 
-      this.item_rarity    = this.computeRarityID(json_sell_order.item_rarity);
-      this.table          = 'skin';
+        this.hasStatTrak = false;      
     } // if (arg == NULL_SKIN)
   } // constructor()
 
@@ -95,41 +94,48 @@ class Skin extends BitskinsObject
 
     var assignement_value = "`image_url` = '" + this.image_url + "', `has_StatTrak` = " + this.hasStatTrak
                           + ", `skin_rarity` = " + this.item_rarity + ", skin_set = " + skinset_obj.getRecordId() 
-                          + ", weapon = " + this.weapon_id ;
+                          + ", weapon = " + this.weapon_id  + ", `short_name` = '" + this.short_name + "'" ;
     return assignement_value;
   } // getCoVaSeq()
 
 
-  buildQueryText = () => 
-  { 
-    var query_text  = expand(SQL_TEMPLATE.SELECT_SKIN.value, { 'db-name-value': this.name, 'db-weapon-id' : this.weapon_id});
-    konsole.log ('pet' + query_text);
-    return query_text;
-  } // buildQueryText()
-
-
-  static ExtractName( market_hash_name )
+  static ExtractName( json_sell_order )
   {
-    var name = market_hash_name;
-    if ( market_hash_name.search('|') != -1)
-    {
+    var name = Konst.NOTHING;
+   
+    var skin_name = Skin.ExtractShortName (json_sell_order);
+    var weapon_name = Weapon.ExtractName  (json_sell_order);
+    name = weapon_name + ' | ' + skin_name;
 
-      var parts = market_hash_name.split('|');
+    return name;
+  } // ExtractName()
+
+
+  static ExtractShortName ( json_sell_order )
+  {
+    assert (json_sell_order != undefined)
+    var skin_name = json_sell_order.market_hash_name;
+    assert ( skin_name != undefined, "Ce n'est pas le json_sell_order");
+
+    //                     ------ left ------   ---------- right ----------
+    // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
+    if ( skin_name.search('|') != -1)
+    {
+      var parts = skin_name.split('|');
 
       if (parts.length > 1)
       {
-        var right_part =  market_hash_name.split('|')[1];
+        var right_part =  skin_name.split('|')[1];
         right_part = right_part.trim();
-        name = right_part.split('(')[0].trim(' ');
+        skin_name = right_part.split('(')[0].trim(' ');
 
         // !!! Probléme: ' dans la valeur SQL de chaine ex: 'l'Horizon' -> 'l''Horizon'
         // !!! Solution: escape de ' rempacé par ''
-        name = name.replace ("'", "\\'");
+        skin_name = skin_name.replace ("'", "\\'");
       } 
-
     }
-    return name;
-  } // ExtractName()
+    return skin_name;
+  } // ExtractShortName ()
 
 
   static GetSkin ( name )
@@ -182,27 +188,18 @@ class Skin extends BitskinsObject
 
     var skin_obj = Skin.GetNullObject() ;
 
-    var name = Skin.ExtractName( json_sell_order.market_hash_name );
-    var from_weapon_skin_obj  = Skin.WeaponToSkin.get( this.weapon_name );
-    var from_name_skin_obj    = Skin.Instances.get( name );
+    var name                  = Skin.ExtractName( json_sell_order);
 
-    if ( from_weapon_skin_obj != undefined )
+    if ( Skin.Instances.has( name ) ) 
     {
-        skin_obj = from_weapon_skin_obj;
+        skin_obj = Skin.Instances.get(name);
         skin_obj._is_just_created = false; 
-        konsole.log (skin_obj);
-    }
-    else if ( from_name_skin_obj != undefined )
-    {
-        skin_obj = from_name_skin_obj;
-        skin_obj._is_just_created = false; 
+      //  konsole.log (JSON.stringify(skin_obj), LOG_LEVEL.CRITICAL);
     }
     else
     {
         skin_obj = new Skin ( json_sell_order );
-        
-        Skin.Instances.set( name, skin_obj );
-        Skin.WeaponToSkin.set( skin_obj.weapon_name, skin_obj  );
+        Skin.Instances.set( name, skin_obj  );
     }
     return skin_obj ;
   } // Create()
