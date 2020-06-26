@@ -4,6 +4,9 @@ const asynk     = require ('async');
 const Enum      = require ('enum');
 const expand    = require('expand-template')();
 
+if (global.rekwire == undefined)
+    global.rekwire = require ('app-root-path').require;
+
 const Konst     = rekwire ('/src/constants.js');
 const konsole   = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL = rekwire ('/src/bb_log.js').LOG_LEVEL;
@@ -24,6 +27,17 @@ const SQL_TEMPLATE = new Enum ({
     'DELETE'            : "DELETE FROM {db-table}                                                               ;"                  ,
     'ALTER_RST_AI'      : "ALTER TABLE {db-table}                                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
     'ALTER'             : "ALTER TABLE {db-table}                                   {db-alter-value}            ;"                  ,
+
+    'SELECT_SKIN'       : `SELECT id FROM bitskins_csgo.skin                        WHERE skin_set = {skin-set-value} 
+                                         AND item_state = {item-state-value} AND skin_rarity = {skin-rarity-value}  #SELECT_SKIN\n`,
+
+    'PROFIT_SELCT_ORDER': `SELECT name as {p}_name, price as {p}_price, skin as {p}_skin, market_name as {p}_market_name 
+                                    FROM skin_sell_order WHERE skin_sell_order.skin  IN ({select-subquery}) #PROFIT_SELCT_ORDER\n`,
+
+                                                                                  
+    'PROFIT_SELCT_SKIN' : `SELECT * FROM ( {select-parent-subquery-1} ) SQ_1 INNER JOIN ( {select-parent-subquery-2} ) SQ_2 
+                                                       ON ((A_price * 1.00) * 10.00) < (B_price * 1.00); #PROFIT_SELCT_SKIN\n`,
+
     'SHOW'              : "SHOW TABLES ;" });
 
 const statement2sqlTmpl = ( statement ) =>
@@ -98,6 +112,15 @@ class BB_SqlQuery
 
             else if (query_text.search("#UPDATE_STR") != -1)
                 sql_tmpl = SQL_TEMPLATE.UPDATE_STR;
+
+            else if (query_text.search("#SELECT_SKIN") != -1)
+                sql_tmpl = SQL_TEMPLATE.SELECT_SKIN;
+
+            else if (query_text.search("#PROFIT_SELCT_ORDER") != -1)
+                sql_tmpl = SQL_TEMPLATE.PROFIT_SELCT_ORDER;
+
+            else if (query_text.search("#PROFIT_SELCT_SKIN") != -1)
+                sql_tmpl = SQL_TEMPLATE.PROFIT_SELCT_SKIN;
 
             else if (query_text.search("#INSERT_NAME") != -1)
                 sql_tmpl = SQL_TEMPLATE.INSERT_NAME;

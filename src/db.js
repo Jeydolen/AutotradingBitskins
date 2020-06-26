@@ -80,32 +80,6 @@ const restoreDefaultDBState =  (db, table) =>
     executeDeleteQuery(db, table)
 
 }; // restoreDefaultDBState
-//===================================================================================================================================================                       
-const executeDeleteQuery = ( db , table , cb ) =>
-{   
-    var query_text  = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
-    var query_obj   = BB_SqlQuery.Create( query_text );
-    konsole.log(query_obj.getCommand() + "\t\t Trying DELETE in '" + table + "'", LOG_LEVEL.INFO);
-    query_obj.execute( db,query_text );
-    cb( null, db , table);
-}; // executeDeleteQuery()
-
-const executeAlterRstAiQuery = ( db , table, cb ) =>
-{   
-    var query_text  = expand(SQL_TEMPLATE.ALTER_RST_AI.value, { 'db-table': table});
-    var query_obj   = BB_SqlQuery.Create( query_text );
-    konsole.log(query_obj.getCommand() + "\t Trying ALTER_RST_AI in '" + table + "'", LOG_LEVEL.INFO);
-    query_obj.execute( db, query_text );
-    cb( null, db , table);
-}; // executeAlterRstAiQuery()
-
-const executeInsertNullQuery = ( db , table, cb ) =>
-{   
-    var query_text  = expand(SQL_TEMPLATE.INSERT_NULL.value, { 'db-table': table, 'db-name-value': 'NULL_'+ table.toUpperCase()});
-    var query_obj   = BB_SqlQuery.Create( query_text );
-    konsole.log(query_obj.getCommand() + "\t Trying INSERT_NULL in '" + table + "'\n", LOG_LEVEL.INFO);
-    query_obj.execute( db, query_text );
-}; // executeInsertNullQuery()
 
 const backupDB = () =>  
 {
@@ -113,14 +87,11 @@ const backupDB = () =>
     cmd_klass.GetSingleton().execute(file_path);
 }; // backupDB ()
 
-
-//--------------------  restoreDB  --------------------
 const restoreDB = (file_path) =>
 {
     var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.RESTORE_DB_ID );
     cmd_klass.GetSingleton().execute(file_path);
 }; // restoreDB ()
-//--------------------  restoreDB  --------------------
 
 const clearTables = () =>
 {   
@@ -133,6 +104,40 @@ const clearTables = () =>
    restoreDefaultDBState (db, "weapon");
     
 }; // clearTables()
+//=================================================================================================================================================== 
+
+const UnitTestCB =  ( err, query_select_result ) =>
+    {  
+        konsole.log ('TEST SUCCESSFULL', LOG_LEVEL.INFO)
+        var query_result = query_select_result; 
+    
+        if ( err )
+        {
+            konsole.error ('BB_OBJ.afterUpdateQueryCB() Houston on a un prbl : ' + err ); 
+        }
+        konsole.log ('TEST SUCCESSFULL' + JSON.stringify(query_select_result), LOG_LEVEL.OK)
+    }; // afterExecuteInsertNullQuery_CB()
+
+const unitTest = (db) =>
+{
+    var query_text  = 
+            expand( SQL_TEMPLATE.PROFIT_SELCT_SKIN.value, 
+            {   'select-parent-subquery-1': 
+                expand( SQL_TEMPLATE.PROFIT_SELCT_ORDER.value,
+                {   'select-subquery': 
+                    expand( SQL_TEMPLATE.SELECT_SKIN.value, { 'skin-set-value': 5, 'item-state-value': 4, 'skin-rarity-value': 3 } ) ,
+                    'p': 'A' } ) ,
+                'select-parent-subquery-2':
+                expand( SQL_TEMPLATE.PROFIT_SELCT_ORDER.value,
+                {   'select-subquery': 
+                    expand( SQL_TEMPLATE.SELECT_SKIN.value, { 'skin-set-value': 5, 'item-state-value': 4, 'skin-rarity-value': 3 } ) ,
+                    'p': 'B'} ),
+            } );
+    konsole.log( query_text );
+    var query_obj   = BB_SqlQuery.Create( query_text );
+    query_obj.executeWithCB( db, query_text,UnitTestCB );
+}
+unitTest(BB_Database.GetSingleton() );
 
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;
