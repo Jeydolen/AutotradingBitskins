@@ -1,10 +1,8 @@
-"use strict";
-
 const mysql     = require ('mysql');
 
-const konsole   = require ('./bb_log').konsole;
-const LOG_LEVEL = require ('./bb_log').LOG_LEVEL;
-const Konst     = require ('./constants');
+const konsole   = rekwire ('/src/bb_log.js').konsole;
+const LOG_LEVEL = rekwire ('/src/bb_log.js').LOG_LEVEL;
+const Konst     = rekwire ('/src/constants.js');
 
 
 const DB_NAME     = 'bitskins_csgo';
@@ -41,9 +39,21 @@ class BB_Database
     {
         konsole.log(">> ---- BB_Database constructor", LOG_LEVEL.MSG);
         if (connection_args == undefined) connection_args = CONNECTION_ARGS ;
+
+        // ----------- Michel -----------
+        const connectCB = (err) =>
+        {
+            if (err)
+            {
+                konsole.log("connectCB: " + err, LOG_LEVEL.CRITICAL);
+            }
+        }
+        // ----------- Michel -----------
+
         try 
         {
             this.connection = mysql.createConnection( connection_args, );
+            this.connection.connect( connectCB ); // ----------- Michel -----------
         }
         catch (error) 
         {

@@ -1,4 +1,3 @@
-const asynk             = require ('async');
 const assert            = require ('assert');
 const request           = require('request');
 const totp              = require('notp').totp;
@@ -6,14 +5,11 @@ const base32            = require('thirty-two');
 const fetch             = require('node-fetch');
 
 
-const BB_Database       = require ('./bb_database.js').BB_Database;
-const db                = require ('./db.js');
-const Konst             = require ('./constants.js');
-const konsole           = require ('./bb_log.js').konsole;
-const LOG_LEVEL         = require ('./bb_log.js').LOG_LEVEL ;
-
-const BB_Pop            = require ('./bb_populater.js');
-const DBPopulater       = require ('./bb_populater.js').DBPopulater;
+const BB_Database           = rekwire ('/src/bb_database.js').BB_Database;
+const db                    = rekwire ('/src/db.js');
+const Konst                 = rekwire ('/src/constants.js');
+const { konsole,LOG_LEVEL}  = rekwire ('/src/bb_log.js');
+const DBPopulater           = rekwire ('/src/bb_populater.js').DBPopulater;
 
 
 const SECRET_BITSKINS               = "ZW3LWWCSRIAVMVNR";

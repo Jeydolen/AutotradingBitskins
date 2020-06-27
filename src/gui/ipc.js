@@ -1,7 +1,8 @@
 const { ipcRenderer } = require('electron');
 const remote = require('electron').remote;
-const { createPool } = require('mysql');
-global.rekwire        = require('app-root-path').require;
+
+if (global.rekwire == undefined)
+    global.rekwire        = require('app-root-path').require;
 
 const GUI           = rekwire ('/src/gui/GUI.js').GUI;
 
@@ -16,7 +17,7 @@ document.addEventListener("keydown", function (e) {
     }
 });
     
-ipcRenderer.on( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT).value, (event, obj_arg) => 
+ipcRenderer.on( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).value, (event, obj_arg) => 
 {
     var percent_value = (obj_arg.value / obj_arg.max_value) * 100;
     setProgressBarValue( Math.trunc(percent_value) );
@@ -30,18 +31,16 @@ ipcRenderer.on( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT).value, (event, obj_
 
 const onClickPopulateButton = () =>
 {
-    ipcRenderer.send (GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT).value, null);
-    console.log('Bouton');
+    ipcRenderer.send (GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, null);
+    console.log('Bouton populate');
     var populate_button          = document.getElementById("populate-button");
     populate_button.disabled = true ;
 }
 
-const onClickStopButton = () =>
+const onClickCheckSkinButton = () =>
 {
-    ipcRenderer.send (GUI.EVENTS.get(GUI.STOP_IPC_MAIN_EVT).value, null);
-    console.log('onClickStopButton Stop');
-    var stop_button = document.getElementById("stop-button");
-    stop_button.disabled = true ;
+    ipcRenderer.send (GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT).value, null);
+    console.log('Bouton check skin');
 }
 
 function setProgressBarValue( value ) 

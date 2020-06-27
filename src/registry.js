@@ -1,11 +1,8 @@
-const assert                = require ('assert');
+const assert                    = require ('assert');
 
-const Konst                 = rekwire ('/src/constants.js');
-const konsole               = rekwire ('/src/bb_log.js').konsole;
-const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
+const Konst                     = rekwire ('/src/constants.js');
+const { konsole, LOG_LEVEL }    = rekwire ('/src/bb_log.js');
 
-
-const REGISTRY_SINGLETON = "REGISTRY_SINGLETON";
 
 class Registry
 {

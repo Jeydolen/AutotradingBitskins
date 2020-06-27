@@ -1,15 +1,15 @@
 const commander     = require ('commander');
 const { app, BrowserWindow, Menu, dialog, ipcMain } = require( 'electron' );
 const { EventDispatcher } = require('./src/event_dispatcher');
-
+const APP_ROOT_PATH            = require ('app-root-path');
 
 // https://github.com/inxilpro/node-app-root-path 
 global.rekwire = require('app-root-path').require;
 
-const  View             = rekwire('/src/gui/view.js').View;
+
+const  View             = rekwire ('/src/gui/view.js').View;
 const http_server       = rekwire ('/src/httpserver.js');
 const db                = rekwire ('/src/db.js');
-const BitskinsFetcher   = rekwire ('/src/bb_fetcher.js').BitskinsFetcher;
 const Controller        = rekwire ('/src/gui/controller.js').Controller;
 const GUI               = rekwire ('/src/gui/GUI.js').GUI;
 const Boostrap          = rekwire ('/src/boostrap.js').Boostrap;
@@ -111,7 +111,7 @@ const createMenu = () =>
             [   {   label: MENU_LABELS['run-id'],
                     click() 
                     {
-                      var event = GUI.EVENTS.get(GUI.START_POPULATE_DB_EVT);
+                      var event = GUI.EVENT.get(GUI.START_POPULATE_DB_EVT);
                       console.log('event:' + event.value.toString());
                       //View.GetSingleton().dispatch(event, null);
                       EventDispatcher.GetSingleton().dispatch(event, null);
@@ -121,7 +121,7 @@ const createMenu = () =>
                 {   label: MENU_LABELS['backup-id'],
                     click() 
                     {
-                      var event = GUI.EVENTS.get(GUI.BACKUP_DB_EVT);
+                      var event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
                       View.GetSingleton().dispatch(event, null);
                     }
                     
@@ -133,7 +133,7 @@ const createMenu = () =>
                     ( main_window, 
                       {   properties: ['saveFile'],
                           title:  MENU_LABELS['backup-as-id'],
-                          defaultPath : ".",
+                          defaultPath : APP_ROOT_PATH + '\\data\\sql',
                           filters: [ { name: 'SQL Files', extensions: ['sql'] } ]
                       }
                     ).then
@@ -144,7 +144,7 @@ const createMenu = () =>
                         if ( result.filePath != undefined )
                         {
                           var output_sql_file_path = result.filePath;
-                          var event = GUI.EVENTS.get(GUI.BACKUP_DB_EVT);
+                          var event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
                           View.GetSingleton().dispatch(event, output_sql_file_path);
 
                         } // if 
@@ -160,17 +160,17 @@ const createMenu = () =>
                     ( main_window, 
                       {   properties: ['openFile'],
                           title:  MENU_LABELS['restore-id'],
-                          defaultPath : ".",
+                          defaultPath : APP_ROOT_PATH + '\\data\\sql',
                           filters: [ { name: 'SQL Files', extensions: ['sql'] } ]
                       }
                     ).then
                     ( result => 
                       {
                         if ( result.canceled ) return;
-                        if ( result.filePath != undefined )
+                        if ( result.filePaths.length == 1 )
                         {
-                          var input_sql_file_path = result.filePath[0];
-                          var event = GUI.EVENTS.get(GUI.RESTORE_DB_EVT);
+                          var input_sql_file_path = result.filePaths[0];
+                          var event = GUI.EVENT.get(GUI.RESTORE_DB_EVT);
                           View.GetSingleton().dispatch(event, input_sql_file_path);
                         } // if 
                       }

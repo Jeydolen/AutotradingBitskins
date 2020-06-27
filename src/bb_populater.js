@@ -2,16 +2,15 @@ const assert                = require ('assert');
 
 const BB_Database           = rekwire ('/src/bb_database.js').BB_Database;
 const Konst                 = rekwire ('/src/constants.js');
-const konsole               = rekwire ('/src/bb_log.js').konsole;
-const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
+const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
 const GUI                   = rekwire ('/src/gui/GUI.js').GUI;
 
-const Skin               = rekwire ('/src/model/skin.js').Skin ;
-const SkinSet            = rekwire ('/src/model//skin_set.js').SkinSet ;
-const SkinSellOrder      = rekwire ('/src/model/skin_sell_order.js').SkinSellOrder ;
-const DumbItem           = rekwire ('/src/model/dumb_items.js').DumbItem ;
-const Weapon             = rekwire ('/src/model/weapon.js').Weapon; 
+const Skin                  = rekwire ('/src/model/skin.js').Skin ;
+const SkinSet               = rekwire ('/src/model/skin_set.js').SkinSet ;
+const SkinSellOrder         = rekwire ('/src/model/skin_sell_order.js').SkinSellOrder ;
+const DumbItem              = rekwire ('/src/model/dumb_items.js').DumbItem ;
+const Weapon                = rekwire ('/src/model/weapon.js').Weapon; 
 
 const DB_POPULATER_SINGLETON = "DB_POPULATER_SINGLETON";
 
@@ -120,7 +119,7 @@ class DBPopulater
             var done_count = this.create_in_db_done_count.get( klass ) + 1;
             this.create_in_db_done_count.set ( klass, done_count );
             var values_obj = new GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT](bb_obj.getType(), done_count, json_sell_order_count, page_index);
-            EventDispatcher.GetSingleton().dispatch( GUI.EVENTS.get(GUI.POPULATE_DB_PROGRESS_EVT), values_obj );
+            EventDispatcher.GetSingleton().dispatch( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT), values_obj );
         }; // endOfWaterfallCB()
 
 

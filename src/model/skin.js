@@ -1,14 +1,9 @@
 const assert      = require ('assert');
-const { json } = require('express');
-const expand      = require ('expand-template')();
 
-const LOG_LEVEL       = rekwire ('/src/bb_log.js').LOG_LEVEL; 
-const konsole         = rekwire ('/src/bb_log.js').konsole ;
+const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js') ;
 
-
-const BitskinsObject  = rekwire ('/src/bb_obj.js').BitskinsObject;
+const BitskinsObject  = rekwire ('/src/model/bb_obj.js').BitskinsObject;
 const Konst           = rekwire ('/src/constants.js');
-const SQL_TEMPLATE    = rekwire('/src/bb_sql_query.js').SQL_TEMPLATE;
 const Weapon          = rekwire ('/src/model/weapon.js').Weapon;
 const SkinSet         = rekwire ('/src/model/skin_set.js').SkinSet;
 

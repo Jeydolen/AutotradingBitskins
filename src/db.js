@@ -1,18 +1,11 @@
-const timestamp    = require ('time-stamp');
-const asynk        = require ('async');
-const assert       = require ('assert');
-const expand       = require ('expand-template')();
+const expand                = require ('expand-template')();
 
-const konsole      = require('./bb_log.js').konsole;
-const LOG_LEVEL    = require('./bb_log.js').LOG_LEVEL;
-const BB_Database  = require('./bb_database.js').BB_Database;
-const BB_SqlQuery  = require('./bb_sql_query.js').BB_SqlQuery;
-const SQL_TEMPLATE = require('./bb_sql_query.js').SQL_TEMPLATE;
-const rdp          = require ('./rechercheduprofit.js');
-const B_L          = require ('./business-logic.js');
-const bb_db        = require ('./bb_database.js');
-const Konst        = require('./constants.js');
-const { CommandRegistry } = require('./commands/command_registry.js');
+const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
+const BB_Database           = rekwire('/src/bb_database.js').BB_Database;
+const BB_SqlQuery           = rekwire('/src/bb_sql_query.js').BB_SqlQuery;
+const SQL_TEMPLATE          = rekwire('/src/bb_sql_query.js').SQL_TEMPLATE;
+const Konst                 = rekwire('/src/constants.js');
+const CommandRegistry       = rekwire('/src/commands/command_registry.js').CommandRegistry;
 
 
 
@@ -137,7 +130,7 @@ const unitTest = (db) =>
     var query_obj   = BB_SqlQuery.Create( query_text );
     query_obj.executeWithCB( db, query_text,UnitTestCB );
 }
-unitTest(BB_Database.GetSingleton() );
+//unitTest(BB_Database.GetSingleton() );
 
 exports.clearTables = clearTables ;
 exports.backupDB = backupDB ;

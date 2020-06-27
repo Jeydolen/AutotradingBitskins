@@ -1,8 +1,7 @@
-const ejs = require ('ejs');
-const express = require ('express')
+const ejs                   = require ('ejs');
+const express               = require ('express');
 
-const konsole   = require('./bb_log.js').konsole;
-const LOG_LEVEL = require('./bb_log.js').LOG_LEVEL;
+const { konsole, LOG_LEVEL} = rekwire('/src/bb_log.js');
 
 
 const start = (skins) => 

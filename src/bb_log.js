@@ -1,12 +1,11 @@
 const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
 const Enum      = require('enum');
 const chalk     = require ('chalk');
-const konsola   = require('konsola').konsola;
-const timestamp = require ('time-stamp');
 const readline  = require('readline-sync');
 const appRoot   = require ('app-root-path');
 
-const Konst     = require ('./constants.js'); 
+
+const Konst     = rekwire ('/src/constants.js'); 
 
 
 const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO', 'PAUSE', 'ERROR', 'CRITICAL', 'STEP' ])

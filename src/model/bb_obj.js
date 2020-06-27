@@ -1,11 +1,9 @@
-const assert      = require ('assert');
-const expand      = require ('expand-template')();
+const assert        = require ('assert');
+const expand        = require ('expand-template')();
 
-const Konst         = rekwire ('/src/constants.js') ;
-const LOG_LEVEL     = rekwire ('/src/bb_log.js').LOG_LEVEL; 
-const konsole       = rekwire ('/src/bb_log.js').konsole ;
-const BB_SqlQuery   = rekwire ('/src/bb_sql_query.js').BB_SqlQuery ;
-const SQL_TEMPLATE  = rekwire('/src/bb_sql_query.js').SQL_TEMPLATE;
+const Konst                         = rekwire ('/src/constants.js') ;
+const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js'); 
+const { BB_SqlQuery, SQL_TEMPLATE } = rekwire ('/src/bb_sql_query.js') ;
 
 
 /*$$$$$$$  /$$   /$$              /$$       /$$                      /$$$$$$  /$$                                 /$$    

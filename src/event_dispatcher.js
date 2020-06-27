@@ -15,7 +15,7 @@ class EventDispatcher
         this.is_initialized = false;
         this.event_sinks    = new Map();
 
-        GUI.EVENTS.enums.forEach( (event) =>  { this.event_sinks.set( event.key, [] ); })
+        GUI.EVENT.enums.forEach( (event) =>  { this.event_sinks.set( event.key, [] ); })
     } // constructor
 
     static GetSingleton()
@@ -33,7 +33,7 @@ class EventDispatcher
     {
 
         //console.log('Subscrobe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event);
-        assert ( GUI.EVENTS.isDefined( event ), event);
+        assert ( GUI.EVENT.isDefined( event ), event);
         if (this.event_sinks.get( event.key ).indexOf (event_sink_obj) == -1)
         {
             var registered_event_sinks = this.event_sinks.get( event.key );
@@ -47,7 +47,7 @@ class EventDispatcher
     {
         assert (event != undefined );
         assert (event.key != undefined)
-        assert ( GUI.EVENTS.isDefined( event.key ));
+        assert ( GUI.EVENT.isDefined( event.key ));
 
         for ( var i=0; i< this.event_sinks.get( event.key ).length; i++ )
         {

@@ -1,15 +1,13 @@
 // https://stackoverflow.com/questions/23339907/returning-a-value-from-callback-function-in-node-js
 const assert    = require ('assert');
-const asynk     = require ('async');
 const Enum      = require ('enum');
 const expand    = require('expand-template')();
 
 if (global.rekwire == undefined)
     global.rekwire = require ('app-root-path').require;
 
-const Konst     = rekwire ('/src/constants.js');
-const konsole   = rekwire ('/src/bb_log.js').konsole;
-const LOG_LEVEL = rekwire ('/src/bb_log.js').LOG_LEVEL;
+const Konst                     = rekwire ('/src/constants.js');
+const { konsole, LOG_LEVEL }    = rekwire ('/src/bb_log.js');
 
 
 // https://dev.mysql.com/doc/refman/5.7/en/comments.html

@@ -32,8 +32,9 @@ class View
     {
         assert (event != undefined );
         assert (event.key != undefined)
-        assert ( GUI.EVENTS.isDefined( event.key ));
+        assert ( GUI.EVENT.isDefined( event.key ));
 
+        console.log("View.js event:" + event);
         EventDispatcher.GetSingleton().dispatch(event, args);
 
         /*for ( var i=0; i< this.event_sinks.get( event.key ).length; i++ )

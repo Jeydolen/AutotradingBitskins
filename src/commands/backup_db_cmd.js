@@ -26,7 +26,7 @@ class BackupDBCmd extends Command
         if (args == null)
         {
             var now_time_stamp = timestamp('YYYY_MM_DD_HH_mm');
-            fullpath_to_sql_output_file = app_root_path + '/data/' + DB_NAME + '_' + now_time_stamp + '.sql';
+            fullpath_to_sql_output_file = app_root_path + '/data/sql/' + DB_NAME + '_' + now_time_stamp + '.sql';
         }   
         else fullpath_to_sql_output_file = args;
         console.log (args);

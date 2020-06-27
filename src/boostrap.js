@@ -1,11 +1,10 @@
+"use strict";
 const assert                = require ('assert');
 
-const Konst                 = rekwire ('/src/constants.js');
-const konsole               = rekwire ('/src/bb_log.js').konsole;
-const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL ;
 const CommandRegistry       = rekwire ('/src/commands/command_registry.js').CommandRegistry;
 
 const PopulateDBCmd         = rekwire ('/src/commands/populate_db_cmd.js').PopulateDBCmd;
+const ProfitSelectSkinCmd   = rekwire ('/src/commands/profit_select_skin_cmd.js').ProfitSelectSkinCmd;
 const BackupDBCmd           = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
 const RestoreDBCmd          = rekwire ('/src/commands/restore_db_cmd.js').RestoreDBCmd;
 
@@ -26,10 +25,11 @@ class Boostrap
     }
 
     init = () =>
-    {
+    {   console.log ("Coucou " + CMD_KONST.PROFIT_SLCT_SKIN_ID);
         CommandRegistry.GetSingleton().add( CMD_KONST.POPULATE_DB_ID, PopulateDBCmd );
         CommandRegistry.GetSingleton().add( CMD_KONST.RESTORE_DB_ID, RestoreDBCmd );
         CommandRegistry.GetSingleton().add( CMD_KONST.BACKUP_DB_ID, BackupDBCmd );
+        CommandRegistry.GetSingleton().add( CMD_KONST.PROFIT_SLCT_SKIN_ID, ProfitSelectSkinCmd );
     }
 
     static GetSingleton()

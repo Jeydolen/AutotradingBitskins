@@ -1,8 +1,18 @@
-const konsole   = require("./bb_log.js").konsole;
-const LOG_LEVEL = require("./bb_log.js").LOG_LEVEL;
+const { konsole, LOG_LEVEL } = rekwire ("/src/bb_log.js");
 
 
 // https://stackoverflow.com/questions/44740423/create-json-string-from-js-map-and-string
+const objToString = (obj) =>
+{
+    var str = '';
+    for (var p in obj) {
+        if (obj.hasOwnProperty(p)) {
+            str += p + '::' + obj[p] + '\n';
+        }
+    }
+    return str;
+}; // objToString()
+
 const mapToObj = (map) =>
 {
     var obj = {}
@@ -39,7 +49,7 @@ const pause = (delay_msec) =>
 } // pause
 
   
-
+exports.objToString = objToString;
 exports.mapToObj    = mapToObj;
 exports.mapToJSON   = mapToJSON;
 exports.mapToString = mapToString;

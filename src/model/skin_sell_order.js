@@ -1,10 +1,8 @@
 const assert            = require ('assert');
 
-const Konst             = rekwire ('/src/constants.js') ;
-const LOG_LEVEL         = rekwire ('/src/bb_log.js').LOG_LEVEL; 
-const konsole           = rekwire ('/src/bb_log.js').konsole ;
-const BitskinsObject    = rekwire ('/src/bb_obj.js').BitskinsObject;
-const Skin              = rekwire ('/src/model/skin.js').Skin;
+const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js') ;
+const BitskinsObject         = rekwire ('/src/model/bb_obj.js').BitskinsObject;
+const Skin                   = rekwire ('/src/model/skin.js').Skin;
 
 
 
