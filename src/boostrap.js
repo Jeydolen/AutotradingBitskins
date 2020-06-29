@@ -1,13 +1,10 @@
-"use strict";
 const assert                = require ('assert');
 
 const CommandRegistry       = rekwire ('/src/commands/command_registry.js').CommandRegistry;
-
 const PopulateDBCmd         = rekwire ('/src/commands/populate_db_cmd.js').PopulateDBCmd;
 const ProfitSelectSkinCmd   = rekwire ('/src/commands/profit_select_skin_cmd.js').ProfitSelectSkinCmd;
 const BackupDBCmd           = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
 const RestoreDBCmd          = rekwire ('/src/commands/restore_db_cmd.js').RestoreDBCmd;
-
 const CMD_KONST             = rekwire ('/src/commands/command_constants.js').CMD_KONST;
 
 

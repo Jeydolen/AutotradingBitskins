@@ -1,9 +1,6 @@
 const Enum      = require('enum');
 const expand    = require ('expand-template')();
 
-if (global.rekwire == undefined)
-    global.rekwire = require('app-root-path').require;
-
 const objToString = rekwire ('/src/utility.js').objToString;
 
 class GUI
@@ -35,18 +32,6 @@ class GUI
             this.page = page;
         }
     }; // PopulateDBEventObj klass
-
-    static CheckProfitableSkinEventObj = class
-    {
-       constructor (db, value, max_value, page)
-        {
-            this.db = db; 
-            this.value = value; 
-            this.max_value = max_value; 
-            this.page = page;
-        }
-    }; // PopulateDBEventObj klass
-    
 
     static EVT_ARGS  = { POPULATE_DB_PROGRESS_EVT : GUI.PopulateDBEventObj };
 } // GUI klass

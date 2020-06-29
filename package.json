@@ -5,7 +5,6 @@
   "main": "app.js",
   "scripts": {
     "test": "cls && node app.js --update",
-
     "admin": "set FORCE_COLOR=1 && cls && electron . -a"
   },
   "keywords": [
@@ -34,6 +33,7 @@
     "enum": "^3.0.4",
     "expand-template": "^2.0.3",
     "express": "^4.17.1",
+    "jsonexport": "^3.0.1",
     "mixin-interface": "^4.9.3",
     "mixin-interface-api": "^0.1.32",
     "mysql": "^2.18.1",

@@ -4,8 +4,9 @@ const { EventDispatcher } = require('./src/event_dispatcher');
 const APP_ROOT_PATH            = require ('app-root-path');
 
 // https://github.com/inxilpro/node-app-root-path 
+// Permet d'enregistrer au niveau de global rekwire (pck ipcMain)
 global.rekwire = require('app-root-path').require;
-
+if      ( !global[rekwire] )       global[rekwire] = rekwire;
 
 const  View             = rekwire ('/src/gui/view.js').View;
 const http_server       = rekwire ('/src/httpserver.js');
@@ -94,7 +95,7 @@ const createWindow = () =>
   })
   main_window.loadFile( './src/gui/index.html' );
 
-  //main_window.webContents.openDevTools();
+  main_window.webContents.openDevTools();
 
   Controller.GetSingleton( main_window );
   //console.log ("Bienvenue dans l'appel de  GetSingleton  de controller.js (app.js)");

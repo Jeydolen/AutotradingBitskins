@@ -13,7 +13,18 @@ class CMD_KONST
     static BACKUP_DB_ID         = "BACKUP_DB_ID";
     static PROFIT_SLCT_SKIN_ID  = "PROFIT_SLCT_SKIN_ID";
 
+    static CheckProfitableSkinCmdObj = class
+    {
+       constructor (skin_set_value, item_state_value, skin_rarity_value)
+        {
+            this.skin_set_value     = skin_set_value; 
+            this.item_state_value   = item_state_value; 
+            this.skin_rarity_value  = skin_rarity_value;
+        }
+    }; // CheckProfitableSkinCmdObj klass
+    
     static ID = new Enum ([ CMD_KONST.POPULATE_DB_ID, CMD_KONST.RESTORE_DB_ID, CMD_KONST.BACKUP_DB_ID, CMD_KONST.PROFIT_SLCT_SKIN_ID ]);
+    static CMD_ARGS  = { PROFIT_SLCT_SKIN_ID : CMD_KONST.CheckProfitableSkinCmdObj };
     
 }// CMD_KONST class
 

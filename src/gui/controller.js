@@ -41,7 +41,7 @@ class Controller
             //console.log ('Test controller.js')
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.PROFIT_SLCT_SKIN_ID );
             console.log ('controller.js cmd_klass' + cmd_klass.name);
-            cmd_klass.GetSingleton().execute(null);
+            cmd_klass.GetSingleton().execute(arg);
         });
         
         // Appel depuis le menu de electron
