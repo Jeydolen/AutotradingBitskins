@@ -2,6 +2,7 @@ const { ipcRenderer } = require('electron');
 const remote = require('electron').remote;
 
 
+
 // Permet d'enregistrer au niveau de window rekwire (pck ipcRenderer)
 global.rekwire = require('app-root-path').require;
 if (! window.rekwire)       window[rekwire] = rekwire;
@@ -32,7 +33,7 @@ ipcRenderer.on( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).value, (event, obj_a
     page_label.innerHTML = obj_arg.page;
 });
 
-const onClickPopulateButton = () =>
+const onPopulate = () =>
 {
     ipcRenderer.send (GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, null);
     console.log('Bouton populate');
@@ -40,12 +41,11 @@ const onClickPopulateButton = () =>
     populate_button.disabled = true ;
 }
 
-const onClickCheckSkinButton = () =>
+const onCheckSkin = () =>
 {
     var values_obj = new CMD_KONST.CMD_ARGS[CMD_KONST.PROFIT_SLCT_SKIN_ID]( 5,4,4 );
 
     ipcRenderer.send (GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT).value, values_obj);
-    alert('Bouton check skin');
     console.log('Bouton check skin');
 }
 

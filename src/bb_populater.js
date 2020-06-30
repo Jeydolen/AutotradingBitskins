@@ -5,14 +5,13 @@ const Konst                 = rekwire ('/src/constants.js');
 const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
 const GUI                   = rekwire ('/src/gui/GUI.js').GUI;
+const Singleton             = rekwire ('/src/singleton.js').Singleton;
 
 const Skin                  = rekwire ('/src/model/skin.js').Skin ;
 const SkinSet               = rekwire ('/src/model/skin_set.js').SkinSet ;
 const SkinSellOrder         = rekwire ('/src/model/skin_sell_order.js').SkinSellOrder ;
 const DumbItem              = rekwire ('/src/model/dumb_items.js').DumbItem ;
 const Weapon                = rekwire ('/src/model/weapon.js').Weapon; 
-
-const DB_POPULATER_SINGLETON = "DB_POPULATER_SINGLETON";
 
 /*$$$$$$$  /$$$$$$$  /$$$$$$$                               /$$             /$$                        
 | $$__  $$| $$__  $$| $$__  $$                             | $$            | $$                        
@@ -26,36 +25,23 @@ const DB_POPULATER_SINGLETON = "DB_POPULATER_SINGLETON";
                                        | $$                                                            
                                        |_*/      
 
-class DBPopulater
+class DBPopulater extends Singleton
 {
     static Instances = new Map();
     static Singleton = DBPopulater.GetSingleton();
 
-    constructor (name)
+    constructor (args)
     {
+        super (args)
         assert ( DBPopulater.Instances.size <1) ; // Singleton Design Pattern
-        this.name = name;
+        this.name = args;
         this.result = Konst.NOTHING;
         this.create_in_db_done_count = new Map();
         this.next_cb = Konst.NOTHING;
     } // constructor
 
-
-    static GetSingleton()
-    {
-        if (DBPopulater.Singleton == undefined)
-        {
-            DBPopulater.Singleton = new DBPopulater( DB_POPULATER_SINGLETON ) ;
-            DBPopulater.Instances.set ( DB_POPULATER_SINGLETON, DBPopulater.Singleton );    
-        }
-        return DBPopulater.Singleton;
-    } // GetSingleton()
-
     getName         () { return this.name ; }
     getType         () { return this.constructor.name; }
-
-    
-
 
     populateWaterfall ( json_obj, page_index, populate_finished_cb ) 
     { 
@@ -198,7 +184,6 @@ class DBPopulater
         
 
         populateDBWithWeapon(); // Waterfall start
-        //populateDBWithKlassInstances(Weapon); // Waterfall start
     } // populateWaterfall() 
 
 } // DBPopulater class

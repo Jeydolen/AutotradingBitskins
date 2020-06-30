@@ -3,6 +3,7 @@ const Enum      = require('enum');
 const chalk     = require ('chalk');
 const readline  = require('readline-sync');
 const appRoot   = require ('app-root-path');
+const { app }   = require('electron');
 
 
 const Konst     = rekwire ('/src/constants.js'); 
@@ -72,11 +73,17 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
 
         else if (log_level == LOG_LEVEL.STEP )
         {
-            console.log(chalk.hex(COLORS.CYAN.value)(arg_msg));
-            if (readline.keyInYN("Do you want to stop ?")) 
-                process.exit(0);
-        }
-            
+            if ( process.type == undefined)
+            {
+                console.log(chalk.hex(COLORS.CYAN.value)(arg_msg));
+                if (readline.keyInYN("Do you want to stop ?")) 
+                    process.exit(0);
+            }     
+            else if (process.type == "browser")
+            {
+                EventDispatcher.GetSingleton().dispatch( GUI.EVENT.get( GUI.ASK_YN_EVT ), values_obj );
+            }
+        }     
 
         else if (log_level == LOG_LEVEL.PAUSE)
             console.log(chalk.hex(COLORS.OCHRE.value)(arg_msg));
