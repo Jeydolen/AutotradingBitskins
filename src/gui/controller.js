@@ -43,6 +43,13 @@ class Controller
             console.log ('controller.js cmd_klass' + cmd_klass.name);
             cmd_klass.GetSingleton().execute(arg);
         });
+
+        ipcMain.on( GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, function (event, arg) 
+        {
+            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SHOW_DEV_TOOLS_ID );
+            console.log ('controller.js cmd_klass' + cmd_klass.name);
+            cmd_klass.GetSingleton().execute(arg);
+        });
         
         // Appel depuis le menu de electron
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT) );

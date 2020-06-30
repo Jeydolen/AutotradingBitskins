@@ -1,4 +1,5 @@
 const assert                = require ('assert');
+const { ShowDevToolsCmd } = require('./commands/show_dev_tools_cmd');
 
 const CommandRegistry       = rekwire ('/src/commands/command_registry.js').CommandRegistry;
 const Singleton             = rekwire ('/src/singleton.js').Singleton;
@@ -26,6 +27,7 @@ class Boostrap extends Singleton
         CommandRegistry.GetSingleton().add( CMD_KONST.RESTORE_DB_ID, RestoreDBCmd );
         CommandRegistry.GetSingleton().add( CMD_KONST.BACKUP_DB_ID, BackupDBCmd );
         CommandRegistry.GetSingleton().add( CMD_KONST.PROFIT_SLCT_SKIN_ID, ProfitSelectSkinCmd );
+        CommandRegistry.GetSingleton().add( CMD_KONST.SHOW_DEV_TOOLS_ID, ShowDevToolsCmd );
     }
 }
 exports.Boostrap = Boostrap;

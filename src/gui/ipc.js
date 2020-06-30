@@ -1,7 +1,4 @@
 const { ipcRenderer } = require('electron');
-const remote = require('electron').remote;
-
-
 
 // Permet d'enregistrer au niveau de window rekwire (pck ipcRenderer)
 global.rekwire = require('app-root-path').require;
@@ -15,7 +12,7 @@ document.addEventListener("keydown", function (e) {
 
     // F12
     if (e.which === 123) {
-        remote.getCurrentWindow().toggleDevTools();
+        ipcRenderer.send (GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, null);
     } else if (e.which === 116) {
         location.reload();
     }

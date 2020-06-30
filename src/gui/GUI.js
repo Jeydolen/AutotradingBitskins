@@ -11,6 +11,7 @@ class GUI
     static BACKUP_DB_EVT                = "BACKUP_DB_EVT";
     static RESTORE_DB_EVT               = "RESTORE_DB_EVT";
     static PROFIT_SLCT_SKIN_EVT         = "PROFIT_SLCT_SKIN_EVT";
+    static SHOW_DEV_TOOLS_EVT           = "SHOW_DEV_TOOLS_EVT";
 
     static EVENT                    = new Enum (
     {   UNKNOWN_EVT                 : 'unknown-evt', 
@@ -18,7 +19,8 @@ class GUI
         START_POPULATE_DB_EVT       : 'start-populate-db',
         PROFIT_SLCT_SKIN_EVT        : 'profit-select-skin',
         BACKUP_DB_EVT               : 'backup-db',
-        RESTORE_DB_EVT              : 'restore-db'
+        RESTORE_DB_EVT              : 'restore-db',
+        SHOW_DEV_TOOLS_EVT          : 'show-dev-tools'
     } );
    
 

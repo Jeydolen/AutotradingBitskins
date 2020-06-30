@@ -15,6 +15,7 @@ const Controller        = rekwire ('/src/gui/controller.js').Controller;
 const GUI               = rekwire ('/src/gui/GUI.js').GUI;
 const Boostrap          = rekwire ('/src/boostrap.js').Boostrap;
 const CommandRegistry   = rekwire ('/src/commands/command_registry.js').CommandRegistry;
+const ShowDevToolsCmd   = rekwire ('/src/commands/show_dev_tools_cmd.js').ShowDevToolsCmd;
 const CMD_KONST         = rekwire ('/src/commands/command_constants.js').CMD_KONST;
 
 
@@ -95,7 +96,7 @@ const createWindow = () =>
   })
   main_window.loadFile( './src/gui/index.html' );
 
-  main_window.webContents.openDevTools();
+  ShowDevToolsCmd.SetMainWindow( main_window );
 
   Controller.GetSingleton( main_window );
   //console.log ("Bienvenue dans l'appel de  GetSingleton  de controller.js (app.js)");

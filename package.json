@@ -5,7 +5,7 @@
   "main": "app.js",
   "scripts": {
     "test": "cls && node app.js --update",
-    "admin": "set FORCE_COLOR = 1 && cls && electron . -a"
+    "admin": "set FORCE_COLOR=1 && cls && electron . -a"
   },
   "keywords": [
     "bitskins",

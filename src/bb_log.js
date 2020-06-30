@@ -3,7 +3,7 @@ const Enum      = require('enum');
 const chalk     = require ('chalk');
 const readline  = require('readline-sync');
 const appRoot   = require ('app-root-path');
-const { app }   = require('electron');
+const { app, dialog }   = require('electron');
 
 
 const Konst     = rekwire ('/src/constants.js'); 
@@ -34,6 +34,7 @@ const init_log_sinks = () =>
 
 class konsole
 {
+
     static log(msg, log_level)
     {
         MxI.$Log.write(msg, log_level);
@@ -81,7 +82,20 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
             }     
             else if (process.type == "browser")
             {
-                EventDispatcher.GetSingleton().dispatch( GUI.EVENT.get( GUI.ASK_YN_EVT ), values_obj );
+                const options = 
+                {
+                    buttons: ['Yes', 'No'],
+                    defaultId: 0,
+                    type : "question",
+                    //title: 'Warning Step',
+                    message: 'Do you want to stop ?'
+                };
+
+                var response = dialog.showMessageBoxSync(options)
+                
+                    console.log (response);
+                    if (response == 0)
+                        app.exit(0);
             }
         }     
 

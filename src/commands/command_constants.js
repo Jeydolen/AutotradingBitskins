@@ -12,6 +12,7 @@ class CMD_KONST
     static RESTORE_DB_ID        = "RESTORE_DB_ID";
     static BACKUP_DB_ID         = "BACKUP_DB_ID";
     static PROFIT_SLCT_SKIN_ID  = "PROFIT_SLCT_SKIN_ID";
+    static SHOW_DEV_TOOLS_ID    = "SHOW_DEV_TOOLS_ID";
 
     static CheckProfitableSkinCmdObj = class
     {
@@ -23,7 +24,8 @@ class CMD_KONST
         }
     }; // CheckProfitableSkinCmdObj klass
     
-    static ID = new Enum ([ CMD_KONST.POPULATE_DB_ID, CMD_KONST.RESTORE_DB_ID, CMD_KONST.BACKUP_DB_ID, CMD_KONST.PROFIT_SLCT_SKIN_ID ]);
+    static ID = new Enum ([ CMD_KONST.POPULATE_DB_ID, CMD_KONST.RESTORE_DB_ID, CMD_KONST.BACKUP_DB_ID, 
+                            CMD_KONST.PROFIT_SLCT_SKIN_ID, CMD_KONST.SHOW_DEV_TOOLS_ID ]);
     static CMD_ARGS  = { PROFIT_SLCT_SKIN_ID : CMD_KONST.CheckProfitableSkinCmdObj };
     
 }// CMD_KONST class
