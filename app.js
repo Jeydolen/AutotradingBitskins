@@ -1,5 +1,5 @@
 const commander     = require ('commander');
-const { app, BrowserWindow, Menu, dialog, ipcMain } = require( 'electron' );
+const { app, BrowserWindow, Menu, dialog, ipcMain, session } = require( 'electron' );
 const { EventDispatcher } = require('./src/event_dispatcher');
 const APP_ROOT_PATH            = require ('app-root-path');
 
@@ -28,6 +28,17 @@ const MENU_LABELS =
   'restore-id'        :    'Restore DB from...',
   'quit-id'           :    'Quitter'
 }; // MENU_LABELS
+
+/*
+session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+  callback({
+    responseHeaders: {
+      ...details.responseHeaders,
+      'Content-Security-Policy': ['default-src \'none\'']
+    }
+  })
+})
+*/
 
 var main_window;
 
@@ -92,7 +103,7 @@ const createWindow = () =>
   ({
     width: 1200,
     height: 800,
-    webPreferences: { nodeIntegration: true }
+    webPreferences: { nodeIntegration: true, enableRemoteModule: true }
   })
   main_window.loadFile( './src/gui/index.html' );
 
