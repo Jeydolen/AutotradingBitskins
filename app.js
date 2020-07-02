@@ -2,13 +2,14 @@ const commander     = require ('commander');
 const { app, BrowserWindow, Menu, dialog, ipcMain, session } = require( 'electron' );
 const { EventDispatcher } = require('./src/event_dispatcher');
 const APP_ROOT_PATH            = require ('app-root-path');
+const { konsole } = require('./src/bb_log');
 
 // https://github.com/inxilpro/node-app-root-path 
 // Permet d'enregistrer au niveau de global rekwire (pck ipcMain)
 global.rekwire = require('app-root-path').require;
 if      ( !global[rekwire] )       global[rekwire] = rekwire;
 
-const  View             = rekwire ('/src/gui/view.js').View;
+const BB_ServiceBroker     = rekwire ('/src/microservices/bb_service_broker.js').BB_ServiceBroker;
 const http_server       = rekwire ('/src/httpserver.js');
 const db                = rekwire ('/src/db.js');
 const Controller        = rekwire ('/src/gui/controller.js').Controller;
@@ -29,17 +30,6 @@ const MENU_LABELS =
   'quit-id'           :    'Quitter'
 }; // MENU_LABELS
 
-/*
-session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
-  callback({
-    responseHeaders: {
-      ...details.responseHeaders,
-      'Content-Security-Policy': ['default-src \'none\'']
-    }
-  })
-})
-*/
-
 var main_window;
 
 //====================================================================================================================
@@ -54,7 +44,8 @@ const ParseCommandLineArgs = (args) =>
   .version('0.1.0')
   .option ('-u, --update', 'Update database')
   .option ('-c, --clear', 'Clear database')
-  .option ('-s, --server', 'Launch http server')
+  .option ('-h, --http', 'Launch http server')
+  .option ("-m, --moleculer", "Launch Moleculer API Gateway (port 3000)")
   .option ('-b, --backup', 'Backup database')
   .option ('-r, --restore [sql_file]', 'Restore database')
   .option ('-a, --admin', 'Access to electron admin dashboard')
@@ -66,12 +57,17 @@ const ParseCommandLineArgs = (args) =>
   console.log (process.argv)
 
 
-  if (commander.server) 
+  if (commander.http) 
   {
     var skin_map = Skin.Instances;
     var skin_values = skin_map.values();
     
     http_server.start(skin_map);
+  }
+
+  if (commander.moleculer) 
+  {
+    BB_ServiceBroker.GetSingleton().start();
   }
 
   if (commander.update)                              
@@ -126,7 +122,6 @@ const createMenu = () =>
                     {
                       var event = GUI.EVENT.get(GUI.START_POPULATE_DB_EVT);
                       console.log('event:' + event.value.toString());
-                      //View.GetSingleton().dispatch(event, null);
                       EventDispatcher.GetSingleton().dispatch(event, null);
                     }
                     
@@ -135,7 +130,7 @@ const createMenu = () =>
                     click() 
                     {
                       var event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
-                      View.GetSingleton().dispatch(event, null);
+                      EventDispatcher.GetSingleton().dispatch(event, null);
                     }
                     
                 },
@@ -158,7 +153,7 @@ const createMenu = () =>
                         {
                           var output_sql_file_path = result.filePath;
                           var event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
-                          View.GetSingleton().dispatch(event, output_sql_file_path);
+                          EventDispatcher.GetSingleton().dispatch(event, output_sql_file_path);
 
                         } // if 
                       }
@@ -201,7 +196,6 @@ const createMenu = () =>
     Menu.setApplicationMenu( menu ); 
 }; // createMenu();
 
-//app.whenReady().then( createWindow ).then( createMenu );
-
+konsole.InitLogSinks();
 Boostrap.GetSingleton().init();
 ParseCommandLineArgs()

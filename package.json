@@ -5,9 +5,10 @@
   "main": "app.js",
   "scripts": {
     "test": "cls && node app.js --update",
-    "cli":  "cls && node ./src/microservices/cli_client_ms.js",
-    "admin": "set FORCE_COLOR=1 && cls && electron . -a"
-
+    "cli": "cls && node ./src/microservices/cli_client_ms.js",
+    "admin": "set FORCE_COLOR=1 && cls && electron . -a",
+    "clims": "cls && node ./src/microservices/cli_server_ms.js",
+    "moleculer": "cls && node app.js --moleculer"
   },
   "keywords": [
     "bitskins",
@@ -39,10 +40,13 @@
     "mixin-interface": "^4.9.3",
     "mixin-interface-api": "^0.1.32",
     "moleculer": "^0.14.8",
+    "moleculer-repl": "^0.6.4",
+    "moleculer-web": "^0.9.1",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.0",
     "notp": "^2.0.3",
     "path": "^0.12.7",
+    "pino": "^6.3.2",
     "readline-sync": "^1.4.10",
     "request": "^2.88.2",
     "thirty-two": "^1.0.2",

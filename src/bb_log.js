@@ -4,6 +4,7 @@ const chalk     = require ('chalk');
 const readline  = require('readline-sync');
 const appRoot   = require ('app-root-path');
 const { app, dialog }   = require('electron');
+const { Singleton } = require('./singleton');
 
 
 const Konst     = rekwire ('/src/constants.js'); 
@@ -15,25 +16,42 @@ const COLORS = new Enum ( {'PURPLE': '#DA6DE6', 'CYAN': '#0BC6A7', 'OCHRE': '#D6
 
 var is_initialized = false;
 
-
-const init_log_sinks = () =>
+//============ 'konsole' class ============
+class konsole extends Singleton
 {
-    if (is_initialized) return;
+    constructor  (args)
+    {
+        super(args)
+    }
 
-    var color_logger = new ColorConsole();
-    MxI.$Log.addSink(color_logger);
-    
-    konsole.log("init_log_sinks(): data_path: " + appRoot);
-    //var file_logger = new FileLogger( data_path + "/log_"+ timestamp('YYYY_MM_DD_HH_mm') + '.txt');
-    //MxI.$Log.addSink(file_logger);
-    konsole.log("Sinks succefuly inintialised", LOG_LEVEL.MSG);
+    static SetBroker (broker_arg)  
+    { 
+        if (broker_arg != undefined && broker_arg != null)
+        {
+            var moleculer_logger = new MoleculerConsole(broker_arg);
+            MxI.$Log.addSink(moleculer_logger);
+            console.log ("COUCOU !!!!!!!!!" + broker_arg)
+        }
+    } // SetBroker
 
-    is_initialized = true;
-} // init_log_sinks()
+    static InitLogSinks () 
+    {
+        if (is_initialized) return;
 
+        var color_logger = new ColorConsole();
+        MxI.$Log.addSink(color_logger);
+        
+ 
+        //konsole.log("init_log_sinks(): data_path: " + appRoot);
+        konsole.log("Sinks succefuly inintialised", LOG_LEVEL.MSG);
 
-class konsole
-{
+        is_initialized = true;
+    } // InitLogSinks()
+
+    log(msg, log_level)
+    {
+        konsole.log(msg, log_level);
+    }
 
     static log(msg, log_level)
     {
@@ -45,6 +63,9 @@ class konsole
         konsole.log( msg, LOG_LEVEL.ERROR);
     } // error()
 } // konsole class
+//============ 'konsole' class ============
+var child = konsole.GetSingleton();
+
 
 //============ 'ColorConsole' implementation class ============
 class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$ILogSink) 
@@ -127,7 +148,7 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
     } // $ILogSink.log()
 } // 'ColorConsole' class
   MxI.$setClass(ColorConsole).$asImplementationOf(MxI.$ILogSink);
-  exports.ColorConsole = ColorConsole;
+//============ 'ColorConsole' implementation class ============
 
 
 //============ 'FileLogger' implementation class ============
@@ -153,10 +174,37 @@ class FileLogger extends MxI.$Implementation(MxI.$FileLogSink).$with(MxI.$ILogSi
 
     } // $ILogSink.log()
 } // 'FileLogger' class
-  MxI.$setClass(FileLogger).$asImplementationOf(MxI.$ILogSink);
+MxI.$setClass(FileLogger).$asImplementationOf(MxI.$ILogSink);
+//============ 'FileLogger' implementation class ============
+
+
+//============ 'MoleculerConsole' implementation class ============
+class MoleculerConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$ILogSink) 
+{
+    constructor(args) 
+    {
+        super(args);
+        this.broker = args;
+    } // 'MoleculerConsole' constructor
+    
+    
+    // Fallback implementation of 'MoleculerConsole' service
+
+    log(arg_msg, log_level)
+    {
+        arg_msg = "### " + arg_msg;
+        if ( this.broker != undefined )
+            this.broker.logger.log("Log message via Broker logger");
+        console.log("Salut toi aussi");
+    } // $ILogSink.log()
+} // 'MoleculerConsole' class
+  MxI.$setClass(MoleculerConsole).$asImplementationOf(MxI.$ILogSink);
+//============ 'MoleculerConsole' implementation class ============
+
+
+  exports.ColorConsole = ColorConsole;
   exports.FileLogger = FileLogger;
-
-  init_log_sinks();
-
+  exports.MoleculerConsole = MoleculerConsole;
   exports.konsole = konsole;
+  exports.child = child;
   exports.LOG_LEVEL = LOG_LEVEL ;
