@@ -1,32 +1,21 @@
-const assert = require('assert');
-global.rekwire        = require('app-root-path').require;
+const assert            = require('assert');
+const { Singleton }     = require('./singleton');
+global.rekwire          = require('app-root-path').require;
 
 const GUI = rekwire ('/src/gui/GUI.js').GUI;
 
-const EVENT_DISPATCHER_SINGLETON = "EVENT_DISPATCHER_SINGLETON";
-
-class EventDispatcher
+class EventDispatcher extends Singleton
 {
-    static Instances = new Map();
-    static Singleton = EventDispatcher.GetSingleton();
+    static Singleton = null;
 
-    constructor ()
+    constructor ( args )
     {
+        super ( args )
         this.is_initialized = false;
         this.event_sinks    = new Map();
 
         GUI.EVENT.enums.forEach( (event) =>  { this.event_sinks.set( event.key, [] ); })
     } // constructor
-
-    static GetSingleton()
-    {
-        if (EventDispatcher.Singleton == null || EventDispatcher.Singleton == undefined )
-        {
-            EventDispatcher.Singleton = new EventDispatcher() ;
-            EventDispatcher.Instances.set ( EVENT_DISPATCHER_SINGLETON, EventDispatcher.Singleton );
-        }
-        return EventDispatcher.Singleton;
-    } // GetSingleton()
 
 
     subscribe ( event_sink_obj, event ) 

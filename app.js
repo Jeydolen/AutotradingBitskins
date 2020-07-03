@@ -3,6 +3,7 @@ const { app, BrowserWindow, Menu, dialog, ipcMain, session } = require( 'electro
 const { EventDispatcher } = require('./src/event_dispatcher');
 const APP_ROOT_PATH            = require ('app-root-path');
 const { konsole } = require('./src/bb_log');
+const { Session } = require('./src/session');
 
 // https://github.com/inxilpro/node-app-root-path 
 // Permet d'enregistrer au niveau de global rekwire (pck ipcMain)
@@ -30,7 +31,7 @@ const MENU_LABELS =
   'quit-id'           :    'Quitter'
 }; // MENU_LABELS
 
-var main_window;
+var main_window = null;
 
 //====================================================================================================================
 //=================================================  main de app.js  =================================================
@@ -103,9 +104,12 @@ const createWindow = () =>
   })
   main_window.loadFile( './src/gui/index.html' );
 
-  ShowDevToolsCmd.SetMainWindow( main_window );
+  console.log("BEFORE main_window " + main_window);
 
-  Controller.GetSingleton( main_window );
+  ShowDevToolsCmd.SetMainWindow( main_window );
+  Session.GetSingleton().setAppVar( Session.MainWindow, main_window );
+  //Controller.GetSingleton      ( main_window );
+  
   //console.log ("Bienvenue dans l'appel de  GetSingleton  de controller.js (app.js)");
 }; // createWindow()
 
@@ -198,4 +202,5 @@ const createMenu = () =>
 
 konsole.InitLogSinks();
 Boostrap.GetSingleton().init();
+Controller.GetSingleton( null );
 ParseCommandLineArgs()

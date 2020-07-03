@@ -1,6 +1,3 @@
-const { konsole, LOG_LEVEL } = rekwire ("/src/bb_log.js");
-
-
 // https://stackoverflow.com/questions/44740423/create-json-string-from-js-map-and-string
 const objToString = (obj) =>
 {
@@ -41,7 +38,7 @@ const pause = (delay_msec) =>
     const cb = () => 
     {
         // your code to run after the timeout
-        konsole.log("utility.pause("  + delay_msec/1000 + " sec ) finished", LOG_LEVEL.PAUSE);
+        console.log("utility.pause("  + delay_msec/1000 + " sec ) finished");
     }
     
     // stop for sometime if needed

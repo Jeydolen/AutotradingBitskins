@@ -2,8 +2,7 @@
 const  ServiceBroker            = require("moleculer").ServiceBroker;
 const  ApiService               = require("moleculer-web");
 const  APP_ROOT_PATH            = require ('app-root-path');
-const { path }                  = require("app-root-path");
-const { konsole }               = require("../bb_log");
+const { Session } = require("../session");
 
 // https://github.com/inxilpro/node-app-root-path 
 // Permet d'enregistrer au niveau de global rekwire (pck autre process)
@@ -68,7 +67,7 @@ class BB_ServiceBroker extends Singleton
     start (args)
     {
         this.broker.start()//.then( () => this.broker.repl() );
-        konsole.SetBroker( this.broker );
+        Session.GetSingleton().setAppVar( Session.Broker, this.broker );
     }
 } // ServiceBroker class
 

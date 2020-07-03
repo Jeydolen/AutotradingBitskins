@@ -1,13 +1,15 @@
 const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
 const Enum      = require('enum');
 const chalk     = require ('chalk');
+const assert    = require ('assert');
 const readline  = require('readline-sync');
 const appRoot   = require ('app-root-path');
 const { app, dialog }   = require('electron');
-const { Singleton } = require('./singleton');
 
-
-const Konst     = rekwire ('/src/constants.js'); 
+const GUI           = rekwire ('/src/gui/GUI.js').GUI;
+const Singleton     = rekwire ('/src/singleton.js').Singleton;
+const Session       = rekwire ('/src/session.js').Session;
+const Konst         = rekwire ('/src/constants.js'); 
 
 
 const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO', 'PAUSE', 'ERROR', 'CRITICAL', 'STEP' ])
@@ -19,20 +21,12 @@ var is_initialized = false;
 //============ 'konsole' class ============
 class konsole extends Singleton
 {
-    constructor  (args)
-    {
-        super(args)
-    }
+    static Singleton = konsole.GetSingleton();
 
-    static SetBroker (broker_arg)  
-    { 
-        if (broker_arg != undefined && broker_arg != null)
-        {
-            var moleculer_logger = new MoleculerConsole(broker_arg);
-            MxI.$Log.addSink(moleculer_logger);
-            console.log ("COUCOU !!!!!!!!!" + broker_arg)
-        }
-    } // SetBroker
+    constructor(args)
+    {
+        super(args);
+    }
 
     static InitLogSinks () 
     {
@@ -45,13 +39,10 @@ class konsole extends Singleton
         //konsole.log("init_log_sinks(): data_path: " + appRoot);
         konsole.log("Sinks succefuly inintialised", LOG_LEVEL.MSG);
 
-        is_initialized = true;
-    } // InitLogSinks()
+        Session.GetSingleton().subscribe( konsole.Singleton, GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT) );
 
-    log(msg, log_level)
-    {
-        konsole.log(msg, log_level);
-    }
+        is_initialized = true;
+    } // initLogSinks()
 
     static log(msg, log_level)
     {
@@ -62,9 +53,28 @@ class konsole extends Singleton
     {
         konsole.log( msg, LOG_LEVEL.ERROR);
     } // error()
+
+    inform ( event, args )
+    {
+        assert ( GUI.EVENT.isDefined( event ));
+
+        //console.log ('controller.js inform event: ' + event);
+        if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT).key)
+        {
+            var app_var_name = args;
+            console.log ("APPVar '" + app_var_name + "'changed");
+            if ( app_var_name = Session.Broker )
+            {
+                var broker_value = args;
+                var moleculer_logger = new MoleculerConsole( broker_value );
+                MxI.$Log.addSink(moleculer_logger);
+            }
+        }
+
+        else return Konst.RC.KO;
+    } // inform
 } // konsole class
 //============ 'konsole' class ============
-var child = konsole.GetSingleton();
 
 
 //============ 'ColorConsole' implementation class ============
@@ -184,7 +194,7 @@ class MoleculerConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(Mx
     constructor(args) 
     {
         super(args);
-        this.broker = args;
+        this.broker = null;
     } // 'MoleculerConsole' constructor
     
     
@@ -193,7 +203,7 @@ class MoleculerConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(Mx
     log(arg_msg, log_level)
     {
         arg_msg = "### " + arg_msg;
-        if ( this.broker != undefined )
+        if ( this.broker != null )
             this.broker.logger.log("Log message via Broker logger");
         console.log("Salut toi aussi");
     } // $ILogSink.log()
@@ -206,5 +216,5 @@ class MoleculerConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(Mx
   exports.FileLogger = FileLogger;
   exports.MoleculerConsole = MoleculerConsole;
   exports.konsole = konsole;
-  exports.child = child;
+  //exports.child = child;
   exports.LOG_LEVEL = LOG_LEVEL ;

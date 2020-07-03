@@ -1,7 +1,8 @@
 const assert                    = require ('assert');
 
-const Konst                     = rekwire ('/src/constants.js');
-const { konsole, LOG_LEVEL }    = rekwire ('/src/bb_log.js');
+global.rekwire = require('app-root-path').require;
+    if      ( !global[rekwire] )       global[rekwire] = rekwire;
+
 
 // Abstract class cf. https://www.codeheroes.fr/2017/11/08/js-classes-abstraites-et-interfaces/
 class Singleton 
