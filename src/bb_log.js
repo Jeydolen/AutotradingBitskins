@@ -194,7 +194,7 @@ class MoleculerConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(Mx
     constructor(args) 
     {
         super(args);
-        this.broker = null;
+        this.broker = args;
     } // 'MoleculerConsole' constructor
     
     

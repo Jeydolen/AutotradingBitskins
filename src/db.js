@@ -1,13 +1,41 @@
 const expand                = require ('expand-template')();
+const app_root_path         = require('app-root-path');
+const path                  = require('path');
+const timestamp             = require('time-stamp');
 
 const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
+const { DB_NAME }           = rekwire ('/src/bb_database.js');
 const BB_Database           = rekwire('/src/bb_database.js').BB_Database;
 const BB_SqlQuery           = rekwire('/src/bb_sql_query.js').BB_SqlQuery;
 const SQL_TEMPLATE          = rekwire('/src/bb_sql_query.js').SQL_TEMPLATE;
 const Konst                 = rekwire('/src/constants.js');
 const CommandRegistry       = rekwire('/src/commands/command_registry.js').CommandRegistry;
 
+const mkDBFullPath = (args) =>
+{
+    var folder_path = app_root_path + '/data/sql';
+    var fullpath_to_sql_file = Konst.NOTHING;
 
+    if (args == null || args == undefined)
+    {
+        var now_time_stamp = timestamp('YYYY_MM_DD_HH_mm');
+        fullpath_to_sql_file = folder_path + "/" + DB_NAME + '_' + now_time_stamp + '.sql';
+    }   
+    else
+    {
+        if (path.basename(args) == args)
+        {
+            var file_name = args;
+            if (! file_name.endsWith('.sql'))   file_name += '.sql';
+            fullpath_to_sql_file = folder_path + "/" + file_name;
+        }
+        else 
+        {
+            fullpath_to_sql_file = args;
+        }
+    }  
+    return   fullpath_to_sql_file;
+} // mkDBFullPath
 
 //===================================================================================================================================================
 const restoreDefaultDBState =  (db, table) =>
@@ -132,7 +160,8 @@ const unitTest = (db) =>
 }
 //unitTest(BB_Database.GetSingleton() );
 
-exports.clearTables = clearTables ;
-exports.backupDB = backupDB ;
-exports.restoreDB = restoreDB ;
-exports.restoreDefaultDBState = restoreDefaultDBState;
+exports.clearTables             = clearTables ;
+exports.restoreDefaultDBState   = restoreDefaultDBState;
+exports.backupDB        = backupDB ;
+exports.restoreDB       = restoreDB ;
+exports.mkDBFullPath    = mkDBFullPath ;

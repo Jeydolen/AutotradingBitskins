@@ -1,6 +1,7 @@
 
 const  ServiceBroker            = require("moleculer").ServiceBroker;
 const  ApiService               = require("moleculer-web");
+const  fs                       = require("fs");
 const  APP_ROOT_PATH            = require ('app-root-path');
 const { Session } = require("../session");
 
@@ -24,7 +25,7 @@ class BB_ServiceBroker extends Singleton
         this.broker = new ServiceBroker
         ({
             metrics: true,
-            logger: false,
+            logger:  true,
             logFormatter: "short"
         });
 
@@ -35,6 +36,9 @@ class BB_ServiceBroker extends Singleton
             mixins: [ApiService],
             settings: 
             {
+                path: '/',
+                whitelist: ["**"],
+                assets: { folder: APP_ROOT_PATH + '/src/microservices/assets/'},
                 routes: 
                 [
                     { path: "/api" }
@@ -42,25 +46,14 @@ class BB_ServiceBroker extends Singleton
             },
             actions: 
             {
-                rest: 
+                help(args)
                 {
-                    metrics: 
-                    {
-                        params: ({ req, res }) => 
-                        {
-                            return {
-                                http: 
-                                {
-                                    method: req.method,
-                                    url: req.url,
-                                    statusCode: res.statusCode
-                                }};
-                        }
-                    }
+                    var msg = 'Je suis ton pere !'
+                    return msg;
                 }
             }
         });
-        this.broker.loadService( APP_ROOT_PATH + "/src/microservices/db.service.js");
+        this.broker.loadServices( APP_ROOT_PATH + "/src/microservices/api/", "*.service.js");
     } // Constructor
     
 

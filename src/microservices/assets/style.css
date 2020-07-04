@@ -1,0 +1,57 @@
+#progress-bar 
+{
+    width: 100%;
+    background-color: rgb(73, 67, 67);
+}
+
+#type-label
+{
+    color: rgb(73, 233, 158);
+}
+
+#populate-button
+{
+    background-color: rgb(46, 122, 46);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    margin: auto;
+    display:block;
+    font-family: 'Lucida Console'; 
+    font-size: 20px;
+}
+
+#stop-button
+{
+    background-color: rgba(202, 32, 46, 0.733);
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    margin: auto;
+    display:block;
+    font-family: 'Lucida Console'; 
+    font-size: 20px;
+}
+
+#progress-label 
+{
+    color: #d1d1d1;
+    font-family: 'Lucida Console'; 
+    font-size: 20px;
+    margin-bottom: 8px;
+    margin-top: 1.5%;
+    width: 100%;
+}
+
+  
+#progress-bar-value 
+{
+    width: 1%;
+    height: 30px;
+    background-color: rgb(33, 97, 11);
+    text-align: center; /* To center it horizontally (if you want) */
+    line-height: 30px; /* To center it vertically */
+    color: white;
+}

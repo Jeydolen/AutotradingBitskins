@@ -19,7 +19,7 @@ class Singleton
     static GetSingleton()
     {
         var klass = this;
-        console.log ("klass: " + klass.name);
+        //console.log ("klass: " + klass.name);
         if (klass.Singleton == null || klass.Singleton == undefined )
         {
             var name = klass.name.toUpperCase() + "_SINGLETON";

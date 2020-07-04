@@ -17,8 +17,8 @@ class RestoreDBCmd extends Command
 
     execute ( args )
     {
-        var file_path = args;
-        var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' < ' + file_path);
+        var fullpath_to_sql_input_file = mkDBFullPath(args);
+        var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' < ' + fullpath_to_sql_input_file);
         konsole.log('Restore succesfuly completed', LOG_LEVEL.OK)
     }
 }
