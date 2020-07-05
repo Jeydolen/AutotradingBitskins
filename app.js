@@ -103,10 +103,10 @@ const createWindow = () =>
     webPreferences: { nodeIntegration: true, enableRemoteModule: true }
   })
   main_window.loadFile( './src/gui/index.html' );
+  main_window.webContents.openDevTools();
 
   console.log("BEFORE main_window " + main_window);
 
-  ShowDevToolsCmd.SetMainWindow( main_window );
   Session.GetSingleton().setAppVar( Session.MainWindow, main_window );
   //Controller.GetSingleton      ( main_window );
   
@@ -183,7 +183,7 @@ const createMenu = () =>
                         {
                           var input_sql_file_path = result.filePaths[0];
                           var event = GUI.EVENT.get(GUI.RESTORE_DB_EVT);
-                          View.GetSingleton().dispatch(event, input_sql_file_path);
+                          EventDispatcher.GetSingleton().dispatch(event, input_sql_file_path);
                         } // if 
                       }
                     )     

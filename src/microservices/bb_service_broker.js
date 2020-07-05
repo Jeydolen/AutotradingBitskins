@@ -36,21 +36,17 @@ class BB_ServiceBroker extends Singleton
             mixins: [ApiService],
             settings: 
             {
+
                 path: '/',
-                whitelist: ["**"],
                 assets: { folder: APP_ROOT_PATH + '/src/microservices/assets/'},
                 routes: 
-                [
-                    { path: "/api" }
-                ]
+                [{ 
+                    aliases: { "help": "api.help" },
+                    path: "/api"
+                }]
             },
             actions: 
             {
-                help(args)
-                {
-                    var msg = 'Je suis ton pere !'
-                    return msg;
-                }
             }
         });
         this.broker.loadServices( APP_ROOT_PATH + "/src/microservices/api/", "*.service.js");

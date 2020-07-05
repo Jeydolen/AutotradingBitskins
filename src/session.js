@@ -21,20 +21,16 @@ class Session extends Singleton
         this.AppVars.set( Session.MainWindow, null );
 
         this.subscribers = new Map();
-        this.subscribers.set(  GUI.EVENT[GUI.APP_VAR_CHANGED_EVT], [] );
+        this.subscribers.set(  GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT), [] );
     } // constructor
 
     subscribe( subscriber_obj, event_arg )
     {
-        //console.log("Session: object '" + subscriber_obj.name + "' subscribed to '" + event_arg + "'");
         if (this.subscribers.has(event_arg ))
         {
-            //console.log("Session.subscribe '1'");
             var index_of = this.subscribers.get( event_arg).indexOf(subscriber_obj);
-            //console.log("index_of " + index_of);
             if ( this.subscribers.get( event_arg).indexOf(subscriber_obj) == -1 )
             {
-                //console.log("Session.subscribe '2'");
                 this.subscribers.get( event_arg ).push( subscriber_obj );
             }
         }

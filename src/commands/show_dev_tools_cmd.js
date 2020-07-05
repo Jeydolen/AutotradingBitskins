@@ -1,28 +1,48 @@
+const assert = require ('assert')
+
 const Konst                 = rekwire ('/src/constants.js');
 const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
 const Command               = rekwire ('/src/commands/command.js').Command;
-
+const Session               = rekwire ('/src/session.js').Session;
+const GUI                   = rekwire ('/src/gui/GUI.js').GUI;
 
 class ShowDevToolsCmd extends Command
 {
-    static MainWindow = null;
-
+    static Singleton = this.GetSingleton();
     constructor( name ) 
     {
         super (name); 
         this.name = name;
-    }
+        this.main_window = null;
+        konsole.log ("CONSTRUCTOR RRRRRRRRRRRRRR", LOG_LEVEL.ERROR)
+        Session.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT) );
+    } // constructor
 
-    static SetMainWindow( main_window)
+
+    inform ( event, name_arg )
     {
-        if (main_window != null && main_window != undefined )
-            ShowDevToolsCmd.MainWindow = main_window;
-    }
+        assert ( GUI.EVENT.isDefined( event ));
+
+        konsole.log ("YOOOOO222O", LOG_LEVEL.ERROR)
+        if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT))
+        {
+            var app_var_name = name_arg;
+            console.log ("APPVar '" + app_var_name + "'changed");
+            if ( app_var_name = Session.MainWindow )
+            {
+                this.main_window = Session.GetSingleton().getAppVar(app_var_name);
+            }
+        }
+
+        else return Konst.RC.KO;
+    } // inform
+  
     
     execute ( args )
     {
-        if (ShowDevToolsCmd.MainWindow != null && ShowDevToolsCmd.MainWindow != undefined )
-            ShowDevToolsCmd.MainWindow.webContents.openDevTools();
+        konsole.log ("YOOOOOO + this.main_window" + this.main_window, LOG_LEVEL.ERROR)
+        if ( this.main_window != null && this.main_window != undefined )
+            this.main_window.webContents.openDevTools();
     } // execute()
 } // ShowDevToolsCmd class 
 exports.ShowDevToolsCmd = ShowDevToolsCmd;

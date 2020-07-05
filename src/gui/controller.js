@@ -1,8 +1,5 @@
 const assert                = require ('assert');
-const { ipcMain }           = require( 'electron' );
 
-
-const BitskinsFetcher       = rekwire ( '/src/bb_fetcher.js').BitskinsFetcher;
 const Singleton             = rekwire ('/src/singleton.js').Singleton;
 const Konst                 = rekwire ('/src/constants.js');
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
@@ -19,46 +16,21 @@ class Controller extends Singleton
     constructor (args )
     {
         super (args)
-        //console.log ("Bienvenue dans controller.js");
         this.main_window = null;
         this.subscribeToEvents();
     } // constructor
 
     subscribeToEvents ()
     {   // Appel depuis dans le html
-
-        if (ipcMain != undefined)
-        {  
-            ipcMain.on( GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, function (event, arg) 
-            {
-                //console.log ('Test controller.js')
-                var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
-                console.log ('controller.js cmd_klass' + cmd_klass.name);
-                cmd_klass.GetSingleton().execute(null);
-            });
-
-            ipcMain.on( GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT).value, function (event, arg) 
-            {
-                //console.log ('Test controller.js')
-                var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.PROFIT_SLCT_SKIN_ID );
-                console.log ('controller.js cmd_klass' + cmd_klass.name);
-                cmd_klass.GetSingleton().execute(arg);
-            });
-
-            ipcMain.on( GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, function (event, arg) 
-            {
-                var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SHOW_DEV_TOOLS_ID );
-                console.log ('controller.js cmd_klass' + cmd_klass.name);
-                cmd_klass.GetSingleton().execute(arg);
-            });
-        }
         // Appel depuis le menu de electron
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT) );
+        EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT) );
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.BACKUP_DB_EVT) );
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.RESTORE_DB_EVT) );
+        EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT) );
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.START_POPULATE_DB_EVT) );
 
-        Session.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT) );
+        Session.GetSingleton().subscribe        ( this, GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT) );
     } // subscribeToEvents ()
 
 
@@ -66,48 +38,54 @@ class Controller extends Singleton
     {
         assert ( GUI.EVENT.isDefined( event ));
 
-        //console.log ('controller.js inform event: ' + event);
+        console.log ('controller.js inform event: ' + event.key);
         
-        if (event == GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).key )
+        if (event == GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT) )
         {
+            console.log ("Main_window : " + this.main_window);
             if ( this.main_window != null )
                 this.main_window.webContents.send( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).value, args );
         }
             
+        else if (event == GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT) )
+        {
+            console.log ("Main_window : " + this.main_window);
+            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SHOW_DEV_TOOLS_ID );
+            cmd_klass.GetSingleton().execute(args); 
+        }
 
-        else if (event == GUI.EVENT.get(GUI.BACKUP_DB_EVT).key )
+        else if (event == GUI.EVENT.get(GUI.BACKUP_DB_EVT) )
         {
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.BACKUP_DB_ID );
             cmd_klass.GetSingleton().execute(args);
         }
             
-        else if (event == GUI.EVENT.get(GUI.RESTORE_DB_EVT).key )
+        else if (event == GUI.EVENT.get(GUI.RESTORE_DB_EVT) )
         {
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.RESTORE_DB_ID );
             cmd_klass.GetSingleton().execute(args);
         }
 
-        else if (event == GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).key)
+        else if (event == GUI.EVENT.get(GUI.START_POPULATE_DB_EVT))
         {
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
             cmd_klass.GetSingleton().execute(null);
         }
 
-        else if (event == GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT).key)
+        else if (event == GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT))
         {
             console.log ("Salut depuis controller.js")
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.PROFIT_SLCT_SKIN_ID );
-            cmd_klass.GetSingleton().execute(null);
+            cmd_klass.GetSingleton().execute(args);
         }
 
-        else if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT).key)
+        else if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT)  )
         {
             var app_var_name = args;
             console.log ("APPVar '" + app_var_name + "'changed");
             if ( app_var_name = Session.MainWindow )
                 this.main_window = Session.GetSingleton().getAppVar(app_var_name);
         }
-
         else return Konst.RC.KO;
     } // inform
 } // Controller

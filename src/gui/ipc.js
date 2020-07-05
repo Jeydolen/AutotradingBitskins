@@ -7,13 +7,19 @@ if (! window.rekwire)       window[rekwire] = rekwire;
 const CMD_KONST     = rekwire('/src/commands/command_constants.js').CMD_KONST;
 const GUI           = rekwire ('/src/gui/GUI.js').GUI;
 
-document.addEventListener("keydown", function (e) {
+document.addEventListener("keydown", function (e) 
+{
     console.log(e.which);
 
     // F12
-    if (e.which === 123) {
+    if (e.which === 123) 
+    {
+        // 1st arg must be a string (also for ipc.On) => event.key
         ipcRenderer.send (GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, null);
-    } else if (e.which === 116) {
+    } 
+    // F5
+    else if (e.which === 116) 
+    {
         location.reload();
     }
 });

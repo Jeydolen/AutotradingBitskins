@@ -1,7 +1,7 @@
 const assert                    = require ('assert');
 
-global.rekwire = require('app-root-path').require;
-    if      ( !global[rekwire] )       global[rekwire] = rekwire;
+if (global.rekwire == undefined)
+    global.rekwire = require ('app-root-path').require;
 
 
 // Abstract class cf. https://www.codeheroes.fr/2017/11/08/js-classes-abstraites-et-interfaces/

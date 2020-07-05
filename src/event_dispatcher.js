@@ -1,8 +1,13 @@
 const assert            = require('assert');
-const { Singleton }     = require('./singleton');
-global.rekwire          = require('app-root-path').require;
+const { ipcMain }       = require( 'electron' );
 
-const GUI = rekwire ('/src/gui/GUI.js').GUI;
+if (global.rekwire == undefined)
+    global.rekwire = require ('app-root-path').require;
+
+const Singleton = rekwire ('/src/singleton.js').Singleton;
+const GUI       = rekwire ('/src/gui/GUI.js').GUI;
+const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
+const obj2string = rekwire ('/src/utility.js').objToString;
 
 class EventDispatcher extends Singleton
 {
@@ -13,40 +18,75 @@ class EventDispatcher extends Singleton
         super ( args )
         this.is_initialized = false;
         this.event_sinks    = new Map();
+        //this.subscribers = new Map();
+        this.init();
 
-        GUI.EVENT.enums.forEach( (event) =>  { this.event_sinks.set( event.key, [] ); })
+        GUI.EVENT.enums.forEach( (event) =>  { this.event_sinks.set( event, [] ); console.log ( obj2string(event)) })
     } // constructor
 
+    init ()
+    {
+        console.log ('Salut toi !!!!!!!!xXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXXXXXXXXXXXXXx')
+        if (ipcMain != undefined)
+        {  
+            ipcMain.on( GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, function (event, arg) 
+            { EventDispatcher.GetSingleton().dispatch ( GUI.EVENT[GUI.START_POPULATE_DB_EVT], arg); });
+
+            ipcMain.on( GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT).value, function (event, arg) 
+            { EventDispatcher.GetSingleton().dispatch ( GUI.EVENT[GUI.PROFIT_SLCT_SKIN_EVT], arg); });
+
+            ipcMain.on( GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, function (event, arg) 
+            { EventDispatcher.GetSingleton().dispatch ( GUI.EVENT[GUI.SHOW_DEV_TOOLS_EVT], arg); });
+        }
+        else
+            konsole.log ("C'est pas electron", LOG_LEVEL.INFO);
+    }
 
     subscribe ( event_sink_obj, event ) 
     {
 
-        //console.log('Subscrobe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event);
+        konsole.log('Subscribe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
         assert ( GUI.EVENT.isDefined( event ), event);
-        if (this.event_sinks.get( event.key ).indexOf (event_sink_obj) == -1)
+        if (this.event_sinks.get( event ).indexOf (event_sink_obj) == -1)
         {
-            var registered_event_sinks = this.event_sinks.get( event.key );
-            this.event_sinks.get( event.key ).push( event_sink_obj );
-            registered_event_sinks = this.event_sinks.get( event.key );
+            var registered_event_sinks = this.event_sinks.get( event );
+            this.event_sinks.get( event ).push( event_sink_obj );
+            registered_event_sinks = this.event_sinks.get( event );
         }
     } // Subscribe()
 
 
+    /*
+   // Duplicata de Session.js a factoriser
+   subscribe( subscriber_obj, event_arg )
+    {
+        if (this.subscribers.has(event_arg ))
+        {
+            var index_of = this.subscribers.get( event_arg).indexOf(subscriber_obj);
+            if ( this.subscribers.get( event_arg).indexOf(subscriber_obj) == -1 )
+            {
+                this.subscribers.get( event_arg ).push( subscriber_obj );
+            }
+        }
+    } // subscribe
+
+    */
     dispatch ( event, args ) 
     {
         assert (event != undefined );
         assert (event.key != undefined)
         assert ( GUI.EVENT.isDefined( event.key ));
+        console.log ('Before yo' + event.key)
 
-        for ( var i=0; i< this.event_sinks.get( event.key ).length; i++ )
+        for ( var i=0; i< this.event_sinks.get( event ).length; i++ )
         {
-            //console.log('Yo');
-            var event_sink_obj = this.event_sinks.get( event.key )[i];
+            console.log('Yo' + event.key);
+            var event_sink_obj = this.event_sinks.get( event )[i];
 
             if (event_sink_obj != undefined) 
             { 
-                //console.log('Yolo');
-                event_sink_obj.inform( event.key, args );
+                console.log('Yolo event_sink_obj ' + event_sink_obj.name);
+                event_sink_obj.inform( event, args );
             }
    
         }

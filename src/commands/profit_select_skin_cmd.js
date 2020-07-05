@@ -1,5 +1,6 @@
 const expand                 = require ('expand-template')();
 const fs                     = require ('fs');
+const assert                 = require ('assert');
 const APP_ROOT_PATH          = require ('app-root-path');       
 const jsonexport             = require('jsonexport');
  
@@ -23,7 +24,7 @@ class ProfitSelectSkinCmd extends Command
     // CMD_KONST.CheckProfitableSkinCmdObj classo
     execute ( args )
     {
-        console.log (JSON.stringify(args))
+        assert (args != null && args != undefined, JSON.stringify(args));
 
         const mkFilepath = ( file_name, ext ) =>
         {

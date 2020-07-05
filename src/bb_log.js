@@ -1,9 +1,9 @@
-const MxI       = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
-const Enum      = require('enum');
-const chalk     = require ('chalk');
-const assert    = require ('assert');
-const readline  = require('readline-sync');
-const appRoot   = require ('app-root-path');
+const MxI               = require('mixin-interface-api/src/mixin_interface_api.js').MxI; 
+const Enum              = require('enum');
+const chalk             = require ('chalk');
+const assert            = require ('assert');
+const readline          = require('readline-sync');
+const appRoot           = require ('app-root-path');
 const { app, dialog }   = require('electron');
 
 const GUI           = rekwire ('/src/gui/GUI.js').GUI;

@@ -1,6 +1,6 @@
 const assert                = require ('assert');
-const { ShowDevToolsCmd } = require('./commands/show_dev_tools_cmd');
 
+const ShowDevToolsCmd       = rekwire('/src/commands/show_dev_tools_cmd').ShowDevToolsCmd;
 const CommandRegistry       = rekwire ('/src/commands/command_registry.js').CommandRegistry;
 const Singleton             = rekwire ('/src/singleton.js').Singleton;
 const PopulateDBCmd         = rekwire ('/src/commands/populate_db_cmd.js').PopulateDBCmd;
@@ -11,18 +11,15 @@ const CMD_KONST             = rekwire ('/src/commands/command_constants.js').CMD
 
 class Boostrap extends Singleton
 {
-    
-    static Instances = new Map();
     static Singleton = Boostrap.GetSingleton();
     
     constructor (args)
     {
         super ( args );
-        assert ( Boostrap.Instances.size <1) ; // Singleton Design Pattern
     }
 
     init = () =>
-    {   console.log ("Coucou " + CMD_KONST.PROFIT_SLCT_SKIN_ID);
+    {
         CommandRegistry.GetSingleton().add( CMD_KONST.POPULATE_DB_ID, PopulateDBCmd );
         CommandRegistry.GetSingleton().add( CMD_KONST.RESTORE_DB_ID, RestoreDBCmd );
         CommandRegistry.GetSingleton().add( CMD_KONST.BACKUP_DB_ID, BackupDBCmd );
