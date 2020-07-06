@@ -38,18 +38,18 @@ class Controller extends Singleton
     {
         assert ( GUI.EVENT.isDefined( event ));
 
-        console.log ('controller.js inform event: ' + event.key);
+        //console.log ('controller.js inform event: ' + event.key);
         
         if (event == GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT) )
         {
-            console.log ("Main_window : " + this.main_window);
+            //console.log ("Main_window : " + this.main_window);
             if ( this.main_window != null )
                 this.main_window.webContents.send( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).value, args );
         }
             
         else if (event == GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT) )
         {
-            console.log ("Main_window : " + this.main_window);
+            //console.log ("Main_window : " + this.main_window);
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SHOW_DEV_TOOLS_ID );
             cmd_klass.GetSingleton().execute(args); 
         }
@@ -74,7 +74,7 @@ class Controller extends Singleton
 
         else if (event == GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT))
         {
-            console.log ("Salut depuis controller.js")
+            //console.log ("Salut depuis controller.js")
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.PROFIT_SLCT_SKIN_ID );
             cmd_klass.GetSingleton().execute(args);
         }
@@ -82,7 +82,7 @@ class Controller extends Singleton
         else if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT)  )
         {
             var app_var_name = args;
-            console.log ("APPVar '" + app_var_name + "'changed");
+            //console.log ("APPVar '" + app_var_name + "'changed");
             if ( app_var_name = Session.MainWindow )
                 this.main_window = Session.GetSingleton().getAppVar(app_var_name);
         }

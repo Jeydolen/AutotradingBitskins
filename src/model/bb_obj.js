@@ -37,8 +37,8 @@ class BitskinsObject
   getName             ()      { return this.name ;                } // getName()
   getRecordId         ()      { return this._record_id;           } // getRecordId()
 
-  //            optionnel
-  getCoVaSeq(json_sell_order) { return  Konst.NOTHING;            } // Column - value - sequence
+  //            optionnel (les 2)
+  getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
 
   buildQueryText = () => 
   { 

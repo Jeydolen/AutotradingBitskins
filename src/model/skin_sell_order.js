@@ -1,5 +1,6 @@
 const assert            = require ('assert');
 
+const Session                = rekwire ('/src/session.js').Session;
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js') ;
 const BitskinsObject         = rekwire ('/src/model/bb_obj.js').BitskinsObject;
 const Skin                   = rekwire ('/src/model/skin.js').Skin;
@@ -46,15 +47,19 @@ class SkinSellOrder extends BitskinsObject
             this.recommanded_price  = json_sell_order.suggested_price;  
             this.skin_name          = Skin.ExtractName( json_sell_order);
             this.skin_id            = Skin.GetSkin( this.skin_name).getRecordId();
+            this.hasStatTrak        = Skin.Get_hasStatTrak (json_sell_order);
         }  
     } // constructor
 
     //            optionnel
     getCoVaSeq( json_sell_order )
     { 
-        var co_va_seq = "`market_name` = '" + this.market_name + "', `item_state` = " + this.state  
-                      + ", `price` = " + this.price + ", `recommanded_price` = " + this.recommanded_price + ", `skin` = " + this.skin_id;
-        return co_va_seq;
+        var assignement_value = "`market_name` = '" + this.market_name + "', `item_state` = " + this.state  + ", `price` = " 
+                        + this.price + ", `recommanded_price` = " + this.recommanded_price + ", `skin` = " + this.skin_id ;
+        if ( Session.GetSingleton().getAppVar (Session.IsProd) )  
+            assignement_value += ", `has_StatTrak` = " + this.hasStatTrak;
+
+        return assignement_value;
     }
 
     computeStateID (value) 

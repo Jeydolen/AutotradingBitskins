@@ -1,7 +1,7 @@
 const assert      = require ('assert');
 
+const Session                = rekwire ('/src/session.js').Session;
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js') ;
-
 const BitskinsObject  = rekwire ('/src/model/bb_obj.js').BitskinsObject;
 const Konst           = rekwire ('/src/constants.js');
 const Weapon          = rekwire ('/src/model/weapon.js').Weapon;
@@ -60,23 +60,31 @@ class Skin extends BitskinsObject
       this.weapon_name        = Weapon.ExtractName( json_sell_order );
       this.weapon_obj         = Weapon.GetWeapon (this.weapon_name);
       this.weapon_id          = this.weapon_obj.getRecordId();
-      this.item_rarity    = this.computeRarityID(json_sell_order.item_rarity);
-      this.table          = 'skin';
-
+      this.item_rarity        = this.computeRarityID(json_sell_order.item_rarity);
+      this.table              = 'skin';
+      this.hasStatTrak        = Skin.Get_hasStatTrak(json_sell_order)
       assert ( this.weapon_obj   != Weapon.NULL );
 
-      var tags = json_sell_order['tags'];
-
-      if (tags != undefined)
-      {
-        var quality = tags['quality'];
-        if (quality != undefined)
-            this.hasStatTrak = (quality.search("StatTrak") != -1);
-      }    
-      else
-        this.hasStatTrak = false;      
+         
     } // if (arg == NULL_SKIN)
   } // constructor()
+
+  static Get_hasStatTrak ( json_sell_order)
+  {
+    var tags = json_sell_order['tags'];
+    var hasStatTrak = null;
+
+    if (tags != undefined)
+    {
+      var quality = tags['quality'];
+      if (quality != undefined)
+          hasStatTrak = (quality.search("StatTrak") != -1);
+    }    
+    else
+      hasStatTrak = false;   
+    
+    return hasStatTrak ? 1:0;
+  } // Get_hasStatTrak
 
   //             requis
   getCoVaSeq ( json_sell_order ) 
@@ -87,9 +95,12 @@ class Skin extends BitskinsObject
     var skinset_obj       = SkinSet.GetSkinSet (skinset_name);
     assert (skinset_obj != SkinSet.NULL);
 
-    var assignement_value = "`image_url` = '" + this.image_url + "', `has_StatTrak` = " + this.hasStatTrak
-                          + ", `skin_rarity` = " + this.item_rarity + ", skin_set = " + skinset_obj.getRecordId() 
+    var assignement_value = "`image_url` = '" + this.image_url + "', `skin_rarity` = " + this.item_rarity 
+                          + ", skin_set = " + skinset_obj.getRecordId() 
                           + ", weapon = " + this.weapon_id  + ", `short_name` = '" + this.short_name + "'" ;
+                        
+    if ( Session.GetSingleton().getAppVar (Session.IsProd) == false)  
+      assignement_value += ", `has_StatTrak` = " + this.hasStatTrak;
     return assignement_value;
   } // getCoVaSeq()
 

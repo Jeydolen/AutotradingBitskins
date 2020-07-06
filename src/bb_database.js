@@ -1,11 +1,13 @@
 const mysql     = require ('mysql');
 
 const konsole   = rekwire ('/src/bb_log.js').konsole;
+const Session   = rekwire ('/src/session.js').Session;
 const LOG_LEVEL = rekwire ('/src/bb_log.js').LOG_LEVEL;
 const Konst     = rekwire ('/src/constants.js');
 
 
-const DB_NAME     = 'bitskins_csgo';
+//const DB_NAME     = 'bitskins_csgo';
+var DB_NAME       = Session.GetSingleton().getAppVar(Session.DB_Name);
 const ADMIN_NAME  = "rdp_admin";
 const ADMIN_PWD   = 'UZ14xdQ7E';
 

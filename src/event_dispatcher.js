@@ -55,37 +55,22 @@ class EventDispatcher extends Singleton
         }
     } // Subscribe()
 
-
-    /*
-   // Duplicata de Session.js a factoriser
-   subscribe( subscriber_obj, event_arg )
-    {
-        if (this.subscribers.has(event_arg ))
-        {
-            var index_of = this.subscribers.get( event_arg).indexOf(subscriber_obj);
-            if ( this.subscribers.get( event_arg).indexOf(subscriber_obj) == -1 )
-            {
-                this.subscribers.get( event_arg ).push( subscriber_obj );
-            }
-        }
-    } // subscribe
-
-    */
+    
     dispatch ( event, args ) 
     {
         assert (event != undefined );
         assert (event.key != undefined)
         assert ( GUI.EVENT.isDefined( event.key ));
-        console.log ('Before yo' + event.key)
+        //console.log ('Before yo' + event.key)
 
         for ( var i=0; i< this.event_sinks.get( event ).length; i++ )
         {
-            console.log('Yo' + event.key);
+            //console.log('Yo' + event.key);
             var event_sink_obj = this.event_sinks.get( event )[i];
 
             if (event_sink_obj != undefined) 
             { 
-                console.log('Yolo event_sink_obj ' + event_sink_obj.name);
+                //console.log('Yolo event_sink_obj ' + event_sink_obj.name);
                 event_sink_obj.inform( event, args );
             }
    

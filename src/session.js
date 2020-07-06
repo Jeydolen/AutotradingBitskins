@@ -1,29 +1,46 @@
-
-
 // Permet d'enregistrer au niveau de global rekwire (pck ipcMain)
-global.rekwire = require('app-root-path').require;
-if      ( !global[rekwire] )       global[rekwire] = rekwire;
-
-const GUI       = rekwire('/src/gui/GUI.js').GUI;
-const Singleton = rekwire("/src/singleton.js").Singleton;
+if (global.rekwire == undefined)
+    global.rekwire = require ('app-root-path').require;
+    
+const Config                    = rekwire('/src/config.js').Config;
+const GUI                       = rekwire('/src/gui/GUI.js').GUI;
+const Singleton                 = rekwire("/src/singleton.js").Singleton;
 
 
 class Session extends Singleton
 {
     static Broker     = "broker";
     static MainWindow = "main-window";
+    static DB_Name    = "db-name";
+    static IsProd     = null;
 
     constructor (args)
     {
         super (args)
         this.AppVars = new Map();
-        this.AppVars.set( Session.Broker, null );
-        this.AppVars.set( Session.MainWindow, null );
-
         this.subscribers = new Map();
-        this.subscribers.set(  GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT), [] );
+
+        this.init();
+        
     } // constructor
 
+    init ()
+    {
+        this.AppVars.set( Session.Broker, null );
+        this.AppVars.set( Session.MainWindow, null );
+        
+        this.AppVars.set( Session.IsProd,  Config.GetSingleton().getAppVar(Config.IsProd) );
+
+        var db_name = "bitskins_csgo_dev"; 
+        if (Session.IsProd)
+            db_name = "bitskins_csgo_prod";
+
+        console.log ('Base de donnée selectionée : ' + db_name);
+        this.AppVars.set( Session.DB_Name, db_name );
+
+        this.subscribers.set(  GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT), [] );
+
+    }
     subscribe( subscriber_obj, event_arg )
     {
         if (this.subscribers.has(event_arg ))

@@ -6,6 +6,9 @@ const readline          = require('readline-sync');
 const appRoot           = require ('app-root-path');
 const { app, dialog }   = require('electron');
 
+if (global.rekwire == undefined)
+    global.rekwire = require ('app-root-path').require;
+
 const GUI           = rekwire ('/src/gui/GUI.js').GUI;
 const Singleton     = rekwire ('/src/singleton.js').Singleton;
 const Session       = rekwire ('/src/session.js').Session;
@@ -216,5 +219,4 @@ class MoleculerConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(Mx
   exports.FileLogger = FileLogger;
   exports.MoleculerConsole = MoleculerConsole;
   exports.konsole = konsole;
-  //exports.child = child;
   exports.LOG_LEVEL = LOG_LEVEL ;
