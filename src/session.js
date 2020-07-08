@@ -4,6 +4,7 @@ if (global.rekwire == undefined)
     
 const Config                    = rekwire('/src/config.js').Config;
 const GUI                       = rekwire('/src/gui/GUI.js').GUI;
+const obj2string                = rekwire ('/src/utility.js').objToString;
 const Singleton                 = rekwire("/src/singleton.js").Singleton;
 
 
@@ -32,10 +33,10 @@ class Session extends Singleton
         this.AppVars.set( Session.IsProd,  Config.GetSingleton().getAppVar(Config.IsProd) );
 
         var db_name = "bitskins_csgo_dev"; 
-        if (Session.IsProd)
+        if ( this.getAppVar(Session.IsProd) == 'true' )
             db_name = "bitskins_csgo_prod";
 
-        console.log ('Base de donnée selectionée : ' + db_name);
+        console.log ('Base de donnée selectionée : ' + db_name + ', ' + this.getAppVar(Session.IsProd) );
         this.AppVars.set( Session.DB_Name, db_name );
 
         this.subscribers.set(  GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT), [] );

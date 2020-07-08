@@ -5,15 +5,22 @@
         <meta charset="utf-8">
         <link rel="stylesheet" href="./style.css">
         <script src="./ipc.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+        
         <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy/style-src -->
-        <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline'; style-src-elem 'self'; style-src 'unsafe-inline'">
+        <!-- <meta http-equiv="Content-Security-Policy" content="default-src 'unsafe-inline'; style-src-elem 'self'; style-src 'unsafe-inline'"> -->
     
     
     </head>	
     
-    <body style="background-color: #1C1C1C;" onload="setProgressBarValue(0);">
+    <body onload="setProgressBarValue(0);">
     
-    
+        <button id='menu-button' type="button" onclick="popupMenu()"></button>
+        <div id="app">
+            {{ message }}
+          </div>
+          <script src="./vue_ux.js"></script>
+          
         <div id='progress-label'>Traitement des <span id='type-label'>item</span> dans la page: <span id='page-label'>0</span> </div>
         <div id="progress-bar">
             <div id="progress-bar-value"></div>

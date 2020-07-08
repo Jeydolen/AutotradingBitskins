@@ -51,7 +51,8 @@
     "readline-sync": "^1.4.10",
     "request": "^2.88.2",
     "thirty-two": "^1.0.2",
-    "time-stamp": "^2.2.0"
+    "time-stamp": "^2.2.0",
+    "vue": "^2.6.11"
   },
   "devDependencies": {}
 }

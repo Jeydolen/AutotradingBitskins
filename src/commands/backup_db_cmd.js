@@ -11,7 +11,7 @@ const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL;
 const Command               = rekwire ('/src/commands/command.js').Command;
 const BitskinsFetcher       = rekwire ('/src/bb_fetcher.js').BitskinsFetcher;
 
-
+// https://www.geek-directeur-technique.com/2017/07/17/utilisation-de-mysqldump
 class BackupDBCmd extends Command
 {
     constructor( name ) 
@@ -24,7 +24,7 @@ class BackupDBCmd extends Command
     { 
         var fullpath_to_sql_output_file = mkDBFullPath(args);
         console.log (fullpath_to_sql_output_file);
-        var child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' > ' + fullpath_to_sql_output_file);
+        var child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' –skip-lock-tables –single-transaction' + ' > ' + fullpath_to_sql_output_file);
         konsole.log('Backup succesfuly completed', LOG_LEVEL.OK)  
     } // execute
 }

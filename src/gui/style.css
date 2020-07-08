@@ -1,12 +1,45 @@
+:root
+{
+ --main-bg-color: rgb(73, 67, 67);
+}
+
+
 #progress-bar 
 {
     width: 100%;
-    background-color: rgb(73, 67, 67);
+    background-color: var (--main-bg-color);
 }
 
 #type-label
 {
     color: rgb(73, 233, 158);
+}
+
+#menu-button
+{
+    background: url('./assets/menu_white.png');
+    z-index: -1;
+    /*opacity: 0.1;*/
+   width: 45px;
+   height: 45px;
+   top: 0;
+   left: 0;
+   right: 0;
+   bottom: 0;
+   position: absolute;
+    content: "";
+    display: inline-block;
+}
+
+#app
+{
+    color: rgb(255,255,255);
+}
+
+#body
+{
+    background-color: rgb(28, 28, 28);
+    
 }
 
 #populate-button

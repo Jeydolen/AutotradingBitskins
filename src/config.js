@@ -31,6 +31,7 @@ class Config extends Singleton
         this.AppVars.set( Config.PageIndexStart, page_index_start);
 
         var is_prod = config_setting.db.is_prod;
+        console.log ("Is prod ? :" + is_prod);
         this.AppVars.set( Config.IsProd, is_prod);
     }
 
