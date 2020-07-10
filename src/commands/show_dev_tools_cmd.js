@@ -42,7 +42,7 @@ class ShowDevToolsCmd extends Command
     {
         konsole.log ("YOOOOOO + this.main_window" + this.main_window, LOG_LEVEL.ERROR)
         if ( this.main_window != null && this.main_window != undefined )
-            this.main_window.webContents.openDevTools();
+            this.main_window.webContents.toggleDevTools();
     } // execute()
 } // ShowDevToolsCmd class 
 exports.ShowDevToolsCmd = ShowDevToolsCmd;

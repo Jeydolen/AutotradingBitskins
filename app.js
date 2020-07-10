@@ -103,7 +103,7 @@ const createWindow = () =>
     webPreferences: { nodeIntegration: true, enableRemoteModule: true }
   })
   main_window.loadFile( './src/gui/index.html' );
-  main_window.webContents.openDevTools();
+  //main_window.webContents.openDevTools();
 
   console.log("BEFORE main_window " + main_window);
 

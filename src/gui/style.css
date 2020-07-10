@@ -1,12 +1,30 @@
 :root
 {
- --main-bg-color: rgb(73, 67, 67);
+ --main-bg-color: #494343;
+}
+
+@font-face 
+{
+    font-family: 'Ubuntu';
+    src: url('./assets/Ubuntu-Regular.ttf');
+}
+
+#app
+{
+    background-color: (var(--main-bg-color));
+    height: 100%;
+    width:100%;
+    font-family: 'Ubuntu';
+}
+#toolbar
+{
+    width: 100%;
 }
 
 #menu-button 
 {
-    width: 45px;
-    height: 45px;
+    width: 40px;
+    height: 40px;
     display: block;
     position: relative;
     content: "";
@@ -15,44 +33,44 @@
     border: 0;
     padding: 0;
     margin: 0;
-    background: url('./assets/menu_white.png');
+    background: url('./assets/menu_bar_white_40px.png');
 }
 
+#container
+{
+    overflow: hidden; 
+    position: relative;
+    top: 3px; 
+    width: auto;
+}
+
+#menu
+{
+    background-color: rgb(47, 44, 44);
+    padding: 0.75%;
+    vertical-align: top;
+    display: inline-block;
+    color: white;
+    font-size: 17px;
+    font-family: 'Ubuntu';
+}
+
+#content
+{
+    display: inline-block;
+    top: 65px;   
+    padding: 1.75%;
+}
 
 #progress-bar 
 {
-    width: 100%;
+    width: auto;
     background-color: rgb(112, 104, 104);
 }
 
 #type-label
 {
     color: rgb(73, 233, 158);
-}
-
-
-
-#app
-{
-    overflow: hidden;
-    z-index: 2;
-}
-
-#menu
-{
-    top: 65px;
-    display: inline;
-    background-color: (var(--main-bg-color));
-    color: white;
-}
-
-#body
-{
-    overflow: hidden;
-    top: 65px;
-    z-index: 1;
-    background-color: rgb(28, 28, 28);
-    
 }
 
 #populate-button
@@ -64,7 +82,6 @@
     text-align: center;
     margin: auto;
     display:block;
-    font-family: 'Lucida Console'; 
     font-size: 20px;
 }
 
@@ -83,8 +100,7 @@
 
 #progress-label 
 {
-    color: #d1d1d1;
-    font-family: 'Lucida Console'; 
+    color: white;
     font-size: 20px;
     margin-bottom: 8px;
     margin-top: 1.5%;
