@@ -4,12 +4,9 @@ const path                  = require('path');
 const exec                  = require('child_process').exec;
 
 const { DB_NAME, ADMIN_NAME, ADMIN_PWD} = rekwire ('/src/bb_database.js');
-const Konst                 = rekwire ('/src/constants.js');
 const mkDBFullPath          = rekwire ('/src/db.js').mkDBFullPath;
-const konsole               = rekwire ('/src/bb_log.js').konsole;
-const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL;
+const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
 const Command               = rekwire ('/src/commands/command.js').Command;
-const BitskinsFetcher       = rekwire ('/src/bb_fetcher.js').BitskinsFetcher;
 
 // https://www.geek-directeur-technique.com/2017/07/17/utilisation-de-mysqldump
 class BackupDBCmd extends Command
@@ -23,9 +20,18 @@ class BackupDBCmd extends Command
     execute ( args )
     { 
         var fullpath_to_sql_output_file = mkDBFullPath(args);
-        console.log (fullpath_to_sql_output_file);
-        var child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' –skip-lock-tables –single-transaction' + ' > ' + fullpath_to_sql_output_file);
-        konsole.log('Backup succesfuly completed', LOG_LEVEL.OK)  
+        var child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' > ' + fullpath_to_sql_output_file);
+        
+
+       child.on('exit', function (code) {
+        if (code == 0)
+            konsole.log('Backup succesfuly completed', LOG_LEVEL.OK)  
+        else
+            konsole.error('Backup failed code: ' + code)
+
+      });
+      
+
     } // execute
 }
 

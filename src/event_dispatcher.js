@@ -26,7 +26,7 @@ class EventDispatcher extends Singleton
 
     init ()
     {
-        console.log ('Salut toi !!!!!!!!xXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXXXXXXXXXXXXXx')
+        konsole.log ('Salut toi !!!!!!!!xXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXXXXXXXXXXXXXx', LOG_LEVEL.OK)
         if (ipcMain != undefined)
         {  
             ipcMain.on( GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, function (event, arg) 

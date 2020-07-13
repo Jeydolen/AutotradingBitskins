@@ -1,8 +1,8 @@
-
+<!DOCTYPE html>
 <html>
     <head>
         <title>Panel d'Administration BitskinsBroker</title>
-        <meta charset="utf-8">
+        <meta charset="UTF-8">
         <link rel="stylesheet" href="./style.css">
         <script src="./ipc.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
@@ -13,29 +13,19 @@
     
     </head>	
     
-    <body bgcolor='#494343' onload="setProgressBarValue(0);">
+    <body bgcolor='#2E2E2E' style='height: 100%' onload="setProgressBarValue(0);">
       
       <div id='app'>
         <div id="toolbar">
-          <button id='menu-button' v-on:click='toggleMenu'></button>
+          <button id='menu-tool' v-on:click='toggleMenu'></button>
         </div>
 
         <div id="container">
-          <div id="menu" v-if='menu_displayed' v-bind:style="{ width: getWidth('menu') }">
-                  <div>Books</div>
-                  <div>Clothing</div>
-                  <div>Electronics</div>               
-          </div><!-- menu -->
+            <div id="menu" v-show='menu_displayed' v-bind:style="{ width: getWidth('menu') }">
+              <vertical-menu></vertical-menu>            
+            </div><!-- menu -->
 
-          <div id='content' v-bind:style="{ width: getWidth('content') }">
-            <div id='progress-label'>Traitement des <span id='type-label'>item</span> dans la page: <span id='page-label'>0</span> </div>
-            <div id="progress-bar">
-                <div id="progress-bar-value"></div>
-            </div>
-            <button id='populate-button' type="button" onclick="onPopulate()">Start Populate!</button>
-            <button id='profitable-skin-button' type="button" onclick="onCheckSkin()">Check if profitable skins are available!</button>
-
-          </div><!-- content -->
+            <component v-bind:is="currentComponent"></component>
 
         </div><!-- container -->
 

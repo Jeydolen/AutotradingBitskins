@@ -1,6 +1,7 @@
 const assert                = require ('assert');
 
 const Singleton             = rekwire ('/src/singleton.js').Singleton;
+const {konsole, LOG_LEVEL}  = rekwire ('/src/bb_log.js')
 const Konst                 = rekwire ('/src/constants.js');
 const EventDispatcher       = rekwire ('/src/event_dispatcher.js').EventDispatcher;
 const GUI                   = rekwire ('/src/gui/GUI.js').GUI;
@@ -69,6 +70,7 @@ class Controller extends Singleton
         else if (event == GUI.EVENT.get(GUI.START_POPULATE_DB_EVT))
         {
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
+            konsole.log (cmd_klass.name, LOG_LEVEL.OK)
             cmd_klass.GetSingleton().execute(null);
         }
 

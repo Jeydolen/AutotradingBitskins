@@ -20,8 +20,24 @@ class RestoreDBCmd extends Command
     execute ( args )
     {
         var fullpath_to_sql_input_file = mkDBFullPath(args);
-        var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' < ' + fullpath_to_sql_input_file);
-        konsole.log('Restore succesfuly completed', LOG_LEVEL.OK)
+        var child = exec(' mysql -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD + ' ' +  DB_NAME + ' < ' + fullpath_to_sql_input_file );
+
+        /*
+        child.stdout.on('data', function (data) {
+            console.log('stdout: ' + data);
+          });
+        child.stderr.on('data', function (data) {
+            console.log('stderr: ' + data);
+          });
+        */
+        child.on('exit', function (code) {
+            if (code == 0)
+                konsole.log('Restore succesfuly completed' , LOG_LEVEL.OK)
+            else
+                konsole.error('Restore failed code: ' + code)
+
+          });
+        
     }
 }
 exports.RestoreDBCmd = RestoreDBCmd;

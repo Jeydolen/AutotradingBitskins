@@ -4,7 +4,8 @@ const totp              = require('notp').totp;
 const base32            = require('thirty-two');
 const fetch             = require('node-fetch');
 
-
+const Config                = rekwire('/src/config.js').Config;
+const Singleton             = rekwire("/src/singleton.js").Singleton;
 const BB_Database           = rekwire ('/src/bb_database.js').BB_Database;
 const db                    = rekwire ('/src/db.js');
 const Konst                 = rekwire ('/src/constants.js');
@@ -16,10 +17,6 @@ const SECRET_BITSKINS               = "YHY3Y2DMUOCIGROQ";
 const API_KEY                       = "3c75df64-c4c1-4066-8e65-34de828dd08e";
 const BITSKINS_FETCHER_SINGLETON    = "BITSKINS_FETCHER_SINGLETON";
 
-//______________________________________________________________________
-const PAGE_INDEX_START = 1; //----------------------------------------
-//______________________________________________________________________
-
 /*
  /$$$$$$$  /$$   /$$              /$$       /$$                     /$$$$$$$$          /$$               /$$                          
 | $$__  $$|__/  | $$             | $$      |__/                    | $$_____/         | $$              | $$                          
@@ -30,33 +27,20 @@ const PAGE_INDEX_START = 1; //----------------------------------------
 | $$$$$$$/| $$  |  $$$$//$$$$$$$/| $$ \  $$| $$| $$  | $$ /$$$$$$$/| $$   |  $$$$$$$  |  $$$$/|  $$$$$$$| $$  | $$|  $$$$$$$| $$      
 |_______/ |__/   \___/ |_______/ |__/  \__/|__/|__/  |__/|_______/ |__/    \_______/   \___/   \_______/|__/  |__/ \_______/|_*/      
                                                                                                                                 
-class BitskinsFetcher
+class BitskinsFetcher extends Singleton
 
 {
-    static Instances = new Map();
-    static result   = null;
-    static Singleton = BitskinsFetcher.GetSingleton();
+    static Singleton = null;
     
-    constructor (name)
+    constructor (args)
     {
-        assert ( BitskinsFetcher.Instances.size <1) ; // Singleton Design Pattern
-        this.name                   = name;
+        super (args);
+        this.name                   = args;
         this.exitFetchItems         = false;
         this._is_last_page          = false;
-        this._page_index            = PAGE_INDEX_START;
+        this._page_index            = 1 ;
         this._is_populate_finished  = false;
     } // constructor
-
-
-    static GetSingleton()
-    {
-        if (BitskinsFetcher.Singleton == undefined)
-        {
-            BitskinsFetcher.Singleton = new BitskinsFetcher( BITSKINS_FETCHER_SINGLETON ) ;
-            BitskinsFetcher.Instances.set ( BITSKINS_FETCHER_SINGLETON, BitskinsFetcher.Singleton );    
-        }
-        return BitskinsFetcher.Singleton;
-    } // GetSingleton()
 
     getName () {return this.name ;}
     setIsPopulateFinished (value) {this._is_populate_finished  = value ; }
@@ -174,8 +158,12 @@ class BitskinsFetcher
         return this.constructor.name;
     }
 
-    async populateDB () 
+    async populateDB ( page_index ) 
     {
+        console.log(page_index)
+        assert (typeof page_index == 'number')
+        if (page_index != undefined )
+            this.page_index = page_index     
         db.clearTables();
 
         var exit_condition = ( BitskinsFetcher.Singleton.getIsLastPage() );
@@ -183,8 +171,8 @@ class BitskinsFetcher
         const populate = () =>
         {
             assert (! this._is_last_page);
-            this.fetchItems( this._page_index, this.parseOnReady_CB, populate );    
-            konsole.log ("Boucle du populate: " + this._page_index, LOG_LEVEL.OK);
+            this.fetchItems( page_index, this.parseOnReady_CB, populate );    
+            konsole.log ("Boucle du populate: " + page_index, LOG_LEVEL.OK);
         }
 
         populate();

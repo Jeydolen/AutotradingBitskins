@@ -1,3 +1,5 @@
+const { Config } = require("../config");
+
 const Konst                 = rekwire ('/src/constants.js');
 const konsole               = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL;
@@ -15,7 +17,9 @@ class PopulateDBCmd extends Command
 
     execute ( args )
     {
-        BitskinsFetcher.GetSingleton().populateDB();
+        var config_obj = Config.GetSingleton();
+        var start_page_index = config_obj.getAppVar(Config.PageIndexStart);
+        BitskinsFetcher.GetSingleton().populateDB(start_page_index);
     }
 }
 exports.PopulateDBCmd = PopulateDBCmd;

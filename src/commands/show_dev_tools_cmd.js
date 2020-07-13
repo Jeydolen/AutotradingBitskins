@@ -27,7 +27,7 @@ class ShowDevToolsCmd extends Command
         if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT))
         {
             var app_var_name = name_arg;
-            console.log ("APPVar '" + app_var_name + "'changed");
+            konsole.log ("APPVar '" + app_var_name + "'changed", LOG_LEVEL.MSG);
             if ( app_var_name = Session.MainWindow )
             {
                 this.main_window = Session.GetSingleton().getAppVar(app_var_name);

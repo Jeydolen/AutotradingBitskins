@@ -25,9 +25,9 @@ class Command
     static GetSingleton()
     {
         var klass = this;
-        console.log ("klass: " + klass.name);
-
-        console.log ("Bienvenue dans GetSingleton  de Command.js");
+        //console.log ("klass: " + klass.name);
+        //console.log ("Bienvenue dans GetSingleton  de Command.js");3
+        
         if (klass.Singleton == null || klass.Singleton == undefined )
         {
             var name = klass.name.toUpperCase() + "_SINGLETON";

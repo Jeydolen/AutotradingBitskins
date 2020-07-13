@@ -103,7 +103,7 @@ const createWindow = () =>
     webPreferences: { nodeIntegration: true, enableRemoteModule: true }
   })
   main_window.loadFile( './src/gui/index.html' );
-  //main_window.webContents.openDevTools();
+  main_window.webContents.openDevTools();
 
   console.log("BEFORE main_window " + main_window);
 
@@ -152,7 +152,7 @@ const createMenu = () =>
                     ( result => 
                       {
                         if ( result.canceled ) return;
-                        console.log (JSON.stringify(result));
+                        //console.log (JSON.stringify(result));
                         if ( result.filePath != undefined )
                         {
                           var output_sql_file_path = result.filePath;
