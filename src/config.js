@@ -1,6 +1,7 @@
 const fs            = require ('fs');
 const APP_ROOT_PATH = require ('app-root-path');
 const ini           = require ('multi-ini');
+const assert        = require ('assert')
 
 
 // Permet d'enregistrer au niveau de global rekwire (pck ipcMain)
@@ -23,8 +24,8 @@ class Config extends Singleton
     {
         super (args);
         this.AppVars = new Map();
-        this.AppVars.set( Config.IsProd, true);
-        this.AppVars.set( Config.PageIndexStart, 1);
+        this._setAppVar( Config.IsProd, true);
+        this._setAppVar( Config.PageIndexStart, 1);
         this.init();
     } // constructor
 
@@ -34,15 +35,26 @@ class Config extends Singleton
 
         var page_index_start = Number(config_setting.db.page_index_start);
         console.log(page_index_start + ' ' +  typeof page_index_start)
-        this.AppVars.set( Config.PageIndexStart, page_index_start);
+        this._setAppVar( Config.PageIndexStart, page_index_start);
 
         var is_prod = config_setting.db.is_prod;
         console.log ("Is prod ? :" + is_prod);
-        this.AppVars.set( Config.IsProd, is_prod);
+        this._setAppVar( Config.IsProd, is_prod);
+    }
+
+    _setAppVar (name_arg, value_arg)
+    {
+        assert (typeof name_arg == 'string' && name_arg != undefined && name_arg != null && name_arg != '');
+        assert (value_arg != undefined && value_arg != null && value_arg != '');
+
+        if (name_arg == Config.PageIndexStart )
+            Number(value_arg);
+        this.AppVars.set(  name_arg, value_arg);
     }
 
     getAppVar( name_arg )
     {
+        assert (typeof name_arg == 'string' && name_arg != undefined && name_arg != null && name_arg != '')
         console.log("name_arg " + name_arg);
         if (this.AppVars.has(name_arg ))
         {

@@ -7,6 +7,7 @@ const PopulateDBCmd         = rekwire ('/src/commands/populate_db_cmd.js').Popul
 const ProfitSelectSkinCmd   = rekwire ('/src/commands/profit_select_skin_cmd.js').ProfitSelectSkinCmd;
 const BackupDBCmd           = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
 const RestoreDBCmd          = rekwire ('/src/commands/restore_db_cmd.js').RestoreDBCmd;
+const SubmitValueCmd        = rekwire ('/src/commands/submit_value_cmd.js').SubmitValueCmd;
 const CMD_KONST             = rekwire ('/src/commands/command_constants.js').CMD_KONST;
 
 class Boostrap extends Singleton
@@ -20,6 +21,7 @@ class Boostrap extends Singleton
 
     init = () =>
     {
+        CommandRegistry.GetSingleton().add( CMD_KONST.SUBMIT_VALUE_ID, SubmitValueCmd);
         CommandRegistry.GetSingleton().add( CMD_KONST.POPULATE_DB_ID, PopulateDBCmd );
         CommandRegistry.GetSingleton().add( CMD_KONST.RESTORE_DB_ID, RestoreDBCmd );
         CommandRegistry.GetSingleton().add( CMD_KONST.BACKUP_DB_ID, BackupDBCmd );

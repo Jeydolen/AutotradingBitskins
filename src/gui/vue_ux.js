@@ -2,6 +2,7 @@
 global.rekwire = require('app-root-path').require;
 if (! window.rekwire)       window[rekwire] = rekwire;
 
+const Config = rekwire ('/src/config.js').Config;
 // https://fr.vuejs.org/v2/guide/index.html
 
 var home_panel    = Vue.component
@@ -25,13 +26,16 @@ var config_panel    = Vue.component
   {
     data: function ()
     { return {
-      start_page_index: 63
+      start_page_index: Config.GetSingleton().getAppVar(Config.PageIndexStart)
       }
     },
-    template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')}">
-                <label for='page-index'> Page index: </label>       
-                <input id='input_page_index' type='text' name='page-index' :value='start_page_index'>
-              </div>`
+    template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')} "  >
+                <form onsubmit='onSubmit()'>
+                <label for='` + Config.PageIndexStart + `'> Page index: </label>       
+                <input id='` + Config.PageIndexStart + `' onfocus='onFocus("` + Config.PageIndexStart + `")' class='input-value' type='text' name= '` 
+                             + Config.PageIndexStart + `' :value='start_page_index'>
+                </form>
+              </div>` // ---------------------^^^^^^^^^^^-----------------------------------------------
   }
 ); // config_panel
 
@@ -52,7 +56,7 @@ var app = new Vue
     data: 
     {
       menu_displayed: false,
-      currentComponent : home_panel,
+      currentComponent : config_panel,
       width : { 'menu': '0.5%', 'panel': '98%' }
     },
 

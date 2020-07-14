@@ -160,10 +160,10 @@ class BitskinsFetcher extends Singleton
 
     async populateDB ( page_index ) 
     {
-        console.log(page_index)
-        assert (typeof page_index == 'number')
+        console.log('Page_index :' + page_index)
+        assert ( ! isNaN(page_index) )
         if (page_index != undefined )
-            this.page_index = page_index     
+            this._page_index = page_index     
         db.clearTables();
 
         var exit_condition = ( BitskinsFetcher.Singleton.getIsLastPage() );
@@ -172,7 +172,7 @@ class BitskinsFetcher extends Singleton
         {
             assert (! this._is_last_page);
             this.fetchItems( page_index, this.parseOnReady_CB, populate );    
-            konsole.log ("Boucle du populate: " + page_index, LOG_LEVEL.OK);
+            konsole.log ("Boucle du populate: " + this._page_index, LOG_LEVEL.OK);
         }
 
         populate();

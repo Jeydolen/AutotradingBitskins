@@ -30,7 +30,7 @@ class Controller extends Singleton
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.RESTORE_DB_EVT) );
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT) );
         EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.START_POPULATE_DB_EVT) );
-
+        EventDispatcher.GetSingleton().subscribe( this, GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT) );
         Session.GetSingleton().subscribe        ( this, GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT) );
     } // subscribeToEvents ()
 
@@ -78,6 +78,12 @@ class Controller extends Singleton
         {
             //console.log ("Salut depuis controller.js")
             var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.PROFIT_SLCT_SKIN_ID );
+            cmd_klass.GetSingleton().execute(args);
+        }
+
+        else if (event == GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT))
+        {
+            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SUBMIT_VALUE_ID );
             cmd_klass.GetSingleton().execute(args);
         }
 

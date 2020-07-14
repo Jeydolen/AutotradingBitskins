@@ -15,7 +15,7 @@ class EventDispatcher extends Singleton
 
     constructor ( args )
     {
-        super ( args )
+        super ( args );
         this.is_initialized = false;
         this.event_sinks    = new Map();
         //this.subscribers = new Map();
@@ -37,6 +37,9 @@ class EventDispatcher extends Singleton
 
             ipcMain.on( GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, function (event, arg) 
             { EventDispatcher.GetSingleton().dispatch ( GUI.EVENT[GUI.SHOW_DEV_TOOLS_EVT], arg); });
+
+            ipcMain.on( GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT).value, function (event, arg) 
+            { EventDispatcher.GetSingleton().dispatch ( GUI.EVENT[GUI.SUBMIT_VALUE_EVT], arg); });
         }
         else
             konsole.log ("C'est pas electron", LOG_LEVEL.INFO);

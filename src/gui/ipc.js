@@ -6,13 +6,12 @@ if (! window.rekwire)       window[rekwire] = rekwire;
 
 const CMD_KONST     = rekwire('/src/commands/command_constants.js').CMD_KONST;
 const GUI           = rekwire ('/src/gui/GUI.js').GUI;
+const { menu_item, input_text, KeyCode, DomClass} = rekwire ('/src/gui/dom_const.js');
 
 document.addEventListener("keydown", function (e) 
 {
     console.log(e.which);
-
-    // F12
-    if (e.which === 123) 
+    if ( e.which === 123 ) 
     {
         // 1st arg must be a string (also for ipc.On) => event.key
         ipcRenderer.send (GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, null);
@@ -52,10 +51,36 @@ const onCheckSkin = () =>
     console.log('Bouton check skin');
 }
 
-function setProgressBarValue( value ) 
+const setProgressBarValue = ( value ) => 
 {
     if (value > 100) value = 100;
     var pbar_value          = document.getElementById("progress-bar-value");
-    pbar_value.style.width = value + "%";
-    pbar_value.innerHTML = value + "%";  
+    if ( pbar_value != null)
+    {
+        pbar_value.style.width = value + "%";
+        pbar_value.innerHTML = value + "%";  
+    }
+
 } // setProgressBarValue()
+
+
+var focused_entity = null;
+const onFocus = (entity_arg) =>
+{
+    focused_entity = entity_arg
+    console.log (focused_entity);
+}
+
+const onSubmit = () =>
+{
+    var value = document.getElementById(focused_entity).value
+    ipcRenderer.send (GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT).value, new GUI.SubmitValueEventObj ( focused_entity, value ) );
+    console.log('Coucou')
+}
+
+const getPageIndexStart = () =>
+{
+    console.log ('getPageIndexStart')
+    return Config.GetSingleton().getAppVar(Config.PageIndexStart);
+
+}

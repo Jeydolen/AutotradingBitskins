@@ -13,6 +13,7 @@ class GUI
     static PROFIT_SLCT_SKIN_EVT         = "PROFIT_SLCT_SKIN_EVT";
     static SHOW_DEV_TOOLS_EVT           = "SHOW_DEV_TOOLS_EVT";
     static APP_VAR_CHANGED_EVT          = "APP_VAR_CHANGED_EVT";
+    static SUBMIT_VALUE_EVT             = "SUBMIT_VALUE_EVT";
 
     static EVENT                    = new Enum (
     {   UNKNOWN_EVT                 : 'unknown-evt', 
@@ -22,7 +23,8 @@ class GUI
         BACKUP_DB_EVT               : 'backup-db',
         RESTORE_DB_EVT              : 'restore-db',
         SHOW_DEV_TOOLS_EVT          : 'show-dev-tools',
-        APP_VAR_CHANGED_EVT         : 'app-var-changed'
+        APP_VAR_CHANGED_EVT         : 'app-var-changed',
+        SUBMIT_VALUE_EVT            : 'submit-value-evt'
     } );
    
 
@@ -37,7 +39,16 @@ class GUI
         }
     }; // PopulateDBEventObj klass
 
-    static EVT_ARGS  = { POPULATE_DB_PROGRESS_EVT : GUI.PopulateDBEventObj };
+    static SubmitValueEventObj = class
+    {
+       constructor ( entity_name, entity_value )
+        {
+            this.entity_name = entity_name; 
+            this.entity_value = entity_value; 
+        }
+    }; // SubmitValueEventObj klass
+
+    static EVT_ARGS  = { POPULATE_DB_PROGRESS_EVT : GUI.PopulateDBEventObj, SUBMIT_VALUE_EVT : GUI.SubmitValueEventObj };
 } // GUI klass
 
 
