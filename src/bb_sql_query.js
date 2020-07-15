@@ -15,7 +15,7 @@ const { konsole, LOG_LEVEL }    = rekwire ('/src/bb_log.js');
 const SQL_TEMPLATE = new Enum ({    
 //   statement          :           template sql
     'NOTHING'           : "",
-    'INSERT_NULL'       : "INSERT INTO `{db-table}`   (`name`)                      VALUES ('{db-name-value}')  ;     #INSERT_NULL" ,
+    'INSERT_NULL'       : "INSERT INTO `{db-table}`   (`name`, `id`)                VALUES ('{db-name-value}',0);     #INSERT_NULL" ,
     'INSERT_NAME'       : "INSERT INTO `{db-table}`   (`name`)                      VALUES ('{db-name-value}')  ;     #INSERT_NAME" , 
     'INSERT'            : "INSERT INTO `{db-table}` ({db-fields})                   VALUES ({db-field-values})  ;"                  ,
     'UPDATE_STR'        : "UPDATE {db-table} SET `{db-field}` = '{db-field-value}'  WHERE  name = '{db-name-value}' ;   #UPDATE_STR",

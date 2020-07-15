@@ -21,12 +21,12 @@ class EventDispatcher extends Singleton
         //this.subscribers = new Map();
         this.init();
 
-        GUI.EVENT.enums.forEach( (event) =>  { this.event_sinks.set( event, [] ); console.log ( obj2string(event)) })
+        GUI.EVENT.enums.forEach( (event) =>  { this.event_sinks.set( event, [] ); })
     } // constructor
 
     init ()
     {
-        konsole.log ('Salut toi !!!!!!!!xXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXXXXXXXXXXXXXx', LOG_LEVEL.OK)
+        //konsole.log ('Salut toi !!!!!!!!xXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXXXXXXXXXXXXXx', LOG_LEVEL.OK)
         if (ipcMain != undefined)
         {  
             ipcMain.on( GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, function (event, arg) 
@@ -48,7 +48,7 @@ class EventDispatcher extends Singleton
     subscribe ( event_sink_obj, event ) 
     {
 
-        konsole.log('Subscribe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
+        //konsole.log('Subscribe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
         assert ( GUI.EVENT.isDefined( event ), event);
         if (this.event_sinks.get( event ).indexOf (event_sink_obj) == -1)
         {

@@ -42,6 +42,7 @@ class Config extends Singleton
         this._setAppVar( Config.IsProd, is_prod);
     }
 
+    // Attention 2 process 'browser' (Node) et 'renderer' ( Chromium) bien savoir dans lequel on est
     _setAppVar (name_arg, value_arg)
     {
         assert (typeof name_arg == 'string' && name_arg != undefined && name_arg != null && name_arg != '');

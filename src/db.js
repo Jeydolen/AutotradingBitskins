@@ -38,6 +38,8 @@ const mkDBFullPath = (args) =>
 } // mkDBFullPath
 
 //===================================================================================================================================================
+// https://stackoverflow.com/questions/1142472/how-to-force-mysql-to-take-0-as-a-valid-auto-increment-value
+// SET GLOBAL sql_mode='NO_AUTO_VALUE_ON_ZERO'
 const restoreDefaultDBState =  (db, table) =>
 {
     const executeDeleteQuery = () =>

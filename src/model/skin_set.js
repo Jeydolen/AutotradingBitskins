@@ -4,7 +4,7 @@ const BitskinsObject         = rekwire ('/src/model/bb_obj.js').BitskinsObject;
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js') ;
 
 
-const NULL_SKINSET              = "NULL_SKINSET" ;
+const NULL_SKIN_SET             = "NULL_SKIN_SET" ;
 const NULL_STICKER_CAPSULE      = "NULL_STICKER_CAPSULE";
 
  /*$$$$$$  /$$       /$$            /$$$$$$              /$$    
@@ -24,7 +24,7 @@ class SkinSet extends BitskinsObject
     constructor(arg) 
     {
         super (arg);
-        if (arg == NULL_SKINSET)
+        if (arg == NULL_SKIN_SET)
             this.name = arg ; 
         else
             this.name = SkinSet.ExtractName(arg);
@@ -39,7 +39,7 @@ class SkinSet extends BitskinsObject
         var name = input_item.tags.itemset;
         if (name == undefined)
         {
-            name = NULL_SKINSET;
+            name = NULL_SKIN_SET;
             if (input_item.tags.stickercapsule != undefined)
                 name = NULL_STICKER_CAPSULE;
         }
@@ -53,7 +53,7 @@ class SkinSet extends BitskinsObject
     static GetNullObject() 
     {
         if (SkinSet.NULL   == undefined)
-            SkinSet.NULL   = new SkinSet( NULL_SKINSET );
+            SkinSet.NULL   = new SkinSet( NULL_SKIN_SET );
         return SkinSet.NULL;
     } // GetNullObject() 
 

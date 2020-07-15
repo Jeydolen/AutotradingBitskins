@@ -1,8 +1,5 @@
-// Permet d'enregistrer au niveau de window rekwire (pck ipcRenderer)
-global.rekwire = require('app-root-path').require;
-if (! window.rekwire)       window[rekwire] = rekwire;
+// Vue_ux ne fonctionne PAS sans ipc.js (tout les requires dedans + fonctions (require de ipc fait depuis le .html) )
 
-const Config = rekwire ('/src/config.js').Config;
 // https://fr.vuejs.org/v2/guide/index.html
 
 var home_panel    = Vue.component
@@ -14,11 +11,12 @@ var home_panel    = Vue.component
                   <div id="progress-bar">
                       <div id="progress-bar-value"></div>
                   </div>
-                <button id='populate-button' type="button" onclick="onPopulate()">Start Populate!</button>
+                <button id='populate-button' type="button" onclick="onPopulate(); return false">Start Populate!</button>
                 <button id='profitable-skin-button' type="button" onclick="onCheckSkin()">Check if profitable skins are available!</button>
               </div>`
   }
-); // home_panel
+); // 'home_panel' Vue component
+
 
 var config_panel    = Vue.component
 (
@@ -26,28 +24,31 @@ var config_panel    = Vue.component
   {
     data: function ()
     { return {
-      start_page_index: Config.GetSingleton().getAppVar(Config.PageIndexStart)
+      //start_page_index: Config.GetSingleton().getAppVar(Config.PageIndexStart)
+        start_page_index: Session.GetSingleton().getAppVar(Session.PageIndexStart)
       }
     },
     template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')} "  >
-                <form onsubmit='onSubmit()'>
-                <label for='` + Config.PageIndexStart + `'> Page index: </label>       
-                <input id='` + Config.PageIndexStart + `' onfocus='onFocus("` + Config.PageIndexStart + `")' class='input-value' type='text' name= '` 
-                             + Config.PageIndexStart + `' :value='start_page_index'>
+                <form onsubmit='onSubmit(); return false'>
+                <label for='` + Session.PageIndexStart + `'> Page index: </label>       
+                <input id='`  + Session.PageIndexStart + `' onfocus='onFocus("` + Session.PageIndexStart + `")' class='input-value' type='number' name= '` 
+                              + Session.PageIndexStart + `' v-model.number='start_page_index'>
                 </form>
-              </div>` // ---------------------^^^^^^^^^^^-----------------------------------------------
+              </div>`
   }
-); // config_panel
+); // 'config_panel' Vue component
+
 
 var vertical_menu = Vue.component
 ( 'vertical-menu',
   { 
-    template: `<nav class="menu-bar">
-                  <div class="menu_item"  v-on:click="$root.swapPanel('home')"> Accueil </div>
-                  <div class="menu_item"  v-on:click="$root.swapPanel('config')"> Config  </div>
+    template: `<nav :class="$root.menu_bar" v-on:click.prevent>
+                  <div id='home-menu-item' class="home"  v-on:click="$root.swapPanel('home')"> Accueil </div>
+                  <div id='config-menu-item'class="config"  v-on:click="$root.swapPanel('config')"> Config  </div>
               </nav>`
   }
-);
+); // 'vertical_menu' Vue component
+
 
 var app = new Vue
 (
@@ -56,7 +57,8 @@ var app = new Vue
     data: 
     {
       menu_displayed: false,
-      currentComponent : config_panel,
+      menu_bar: 'home-menu-item',
+      currentComponent : home_panel,
       width : { 'menu': '0.5%', 'panel': '98%' }
     },
 
@@ -83,6 +85,12 @@ var app = new Vue
       swapPanel: function (panel_name)
       {
         this.currentComponent = panel_name == 'home' ? home_panel : config_panel;
+
+        var previous_menu_item = this.menu_bar;
+        this.menu_bar = panel_name + '-menu-item';
+
+        document.getElementById(previous_menu_item).style = 'background-color: #2E2E2E;';
+        document.getElementById(panel_name + '-menu-item').style = 'background-color: rgb(161, 161, 161); color: black';
       },
 
       getWidth: function (id_arg)
@@ -97,6 +105,5 @@ var app = new Vue
       'home-panel'    : home_panel,
       'config-panel'  : config_panel
     }
-
   }
-);
+); // app 'Vue View'

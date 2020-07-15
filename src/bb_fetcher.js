@@ -4,8 +4,8 @@ const totp              = require('notp').totp;
 const base32            = require('thirty-two');
 const fetch             = require('node-fetch');
 
-const Config                = rekwire('/src/config.js').Config;
 const Singleton             = rekwire("/src/singleton.js").Singleton;
+const Session               = rekwire("/src/session.js").Session;
 const BB_Database           = rekwire ('/src/bb_database.js').BB_Database;
 const db                    = rekwire ('/src/db.js');
 const Konst                 = rekwire ('/src/constants.js');
@@ -38,7 +38,7 @@ class BitskinsFetcher extends Singleton
         this.name                   = args;
         this.exitFetchItems         = false;
         this._is_last_page          = false;
-        this._page_index            = 1 ;
+        this._page_index            = Session.GetSingleton().getAppVar(Session.PageIndexStart) ;
         this._is_populate_finished  = false;
     } // constructor
 
@@ -160,7 +160,7 @@ class BitskinsFetcher extends Singleton
 
     async populateDB ( page_index ) 
     {
-        console.log('Page_index :' + page_index)
+        console.log('PopulateDB (bb_fetcher) Page_index :' + page_index)
         assert ( ! isNaN(page_index) )
         if (page_index != undefined )
             this._page_index = page_index     
@@ -171,7 +171,7 @@ class BitskinsFetcher extends Singleton
         const populate = () =>
         {
             assert (! this._is_last_page);
-            this.fetchItems( page_index, this.parseOnReady_CB, populate );    
+            this.fetchItems( this._page_index, this.parseOnReady_CB, populate );    
             konsole.log ("Boucle du populate: " + this._page_index, LOG_LEVEL.OK);
         }
 

@@ -1,5 +1,4 @@
-const { Config } = require("../config");
-
+const Session               = rekwire ('/src/session.js').Session;
 const Konst                 = rekwire ('/src/constants.js');
 const konsole               = rekwire ('/src/bb_log.js').konsole;
 const LOG_LEVEL             = rekwire ('/src/bb_log.js').LOG_LEVEL;
@@ -17,8 +16,9 @@ class PopulateDBCmd extends Command
 
     execute ( args )
     {
-        var config_obj = Config.GetSingleton();
-        var start_page_index = config_obj.getAppVar(Config.PageIndexStart);
+        var session_obj = Session.GetSingleton();
+        var start_page_index = session_obj.getAppVar( Session.PageIndexStart );
+        konsole.log ("Proutprout" + start_page_index, LOG_LEVEL.OK);
         BitskinsFetcher.GetSingleton().populateDB(start_page_index);
     }
 }

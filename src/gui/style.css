@@ -19,7 +19,7 @@ body
 }
 
  
-.menu_item
+nav
 {
     color: white; 
     text-decoration: none;
@@ -29,11 +29,13 @@ body
     font-weight: 500;
 }
 
-.menu_item:hover
+#home-menu-item:hover, #config-menu-item:hover
 {
     color: rgb(37, 35, 35);
     background-color: rgb(161, 161, 161);
+    cursor: pointer;
 }
+
 
 #app
 {
@@ -107,6 +109,12 @@ body
     margin: auto;
     display:block;
     font-size: 20px;
+}
+
+#populate-button:disabled
+{
+    background-color: rgb(100, 100, 100);
+    color: black;
 }
 
 #stop-button

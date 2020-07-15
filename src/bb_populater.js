@@ -92,7 +92,7 @@ class DBPopulater extends Singleton
             assert (done_count <= json_sell_order_count, "Done count :" + done_count + " Json count: " + json_sell_order_count + " klass: " + klass.name);
 
             konsole.log ( bb_obj.getType() + " name: '" + bb_obj.getName() + "' count: " 
-                        + done_count + " page: " + page_index + typeof page_index, LOG_LEVEL.OK
+                        + done_count + " page: " + page_index, LOG_LEVEL.OK
                         );
             
             if ( done_count >= json_sell_order_count - 1 )

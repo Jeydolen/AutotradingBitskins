@@ -1,4 +1,5 @@
 const { ipcRenderer } = require('electron');
+const assert          = require ('assert');
 
 // Permet d'enregistrer au niveau de window rekwire (pck ipcRenderer)
 global.rekwire = require('app-root-path').require;
@@ -7,6 +8,7 @@ if (! window.rekwire)       window[rekwire] = rekwire;
 const CMD_KONST     = rekwire('/src/commands/command_constants.js').CMD_KONST;
 const GUI           = rekwire ('/src/gui/GUI.js').GUI;
 const { menu_item, input_text, KeyCode, DomClass} = rekwire ('/src/gui/dom_const.js');
+const Session       = rekwire ('/src/session.js').Session;
 
 document.addEventListener("keydown", function (e) 
 {
@@ -74,13 +76,7 @@ const onFocus = (entity_arg) =>
 const onSubmit = () =>
 {
     var value = document.getElementById(focused_entity).value
+       
     ipcRenderer.send (GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT).value, new GUI.SubmitValueEventObj ( focused_entity, value ) );
     console.log('Coucou')
-}
-
-const getPageIndexStart = () =>
-{
-    console.log ('getPageIndexStart')
-    return Config.GetSingleton().getAppVar(Config.PageIndexStart);
-
 }

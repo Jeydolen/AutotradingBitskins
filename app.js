@@ -105,12 +105,8 @@ const createWindow = () =>
   main_window.loadFile( './src/gui/index.html' );
   main_window.webContents.openDevTools();
 
-  console.log("BEFORE main_window " + main_window);
-
   Session.GetSingleton().setAppVar( Session.MainWindow, main_window );
-  //Controller.GetSingleton      ( main_window );
   
-  //console.log ("Bienvenue dans l'appel de  GetSingleton  de controller.js (app.js)");
 }; // createWindow()
 
 
@@ -125,7 +121,7 @@ const createMenu = () =>
                     click() 
                     {
                       var event = GUI.EVENT.get(GUI.START_POPULATE_DB_EVT);
-                      console.log('event:' + event.value.toString());
+                      //console.log('event:' + event.value.toString());
                       EventDispatcher.GetSingleton().dispatch(event, null);
                     }
                     
