@@ -31,7 +31,7 @@ nav
 
 #home-menu-item:hover, #config-menu-item:hover
 {
-    color: rgb(37, 35, 35);
+    color: rgb(255, 249, 249);
     background-color: rgb(161, 161, 161);
     cursor: pointer;
 }

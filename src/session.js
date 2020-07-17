@@ -32,7 +32,7 @@ class Session extends Singleton
     {
         this.AppVars.set( Session.Broker, null );
         this.AppVars.set( Session.MainWindow, null );
-        this.AppVars.set( Session.PageIndexStart,   Config.GetSingleton().getAppVar(Config.PageIndexStart));
+        this.AppVars.set( Session.PageIndexStart,   Config.GetSingleton().getAppVar(Config.PageIndexStart) );
         this.AppVars.set( Session.IsProd,           Config.GetSingleton().getAppVar(Config.IsProd) );
 
         var db_name = "bitskins_csgo_dev"; 

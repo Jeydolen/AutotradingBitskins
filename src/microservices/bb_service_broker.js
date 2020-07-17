@@ -26,7 +26,7 @@ class BB_ServiceBroker extends Singleton
         ({
             metrics: true,
             logger:  true,
-            logFormatter: "short"
+            logFormatter: "short",
         });
 
         // Create a service
@@ -36,12 +36,9 @@ class BB_ServiceBroker extends Singleton
             mixins: [ApiService],
             settings: 
             {
-
-                path: '/',
                 assets: { folder: APP_ROOT_PATH + '/src/microservices/assets/'},
                 routes: 
                 [{ 
-                    aliases: { "help": "api.help" },
                     path: "/api"
                 }]
             },

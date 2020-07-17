@@ -1,4 +1,5 @@
 const commander     = require ('commander');
+const fetch         = require ('node-fetch');
 const { app, BrowserWindow, Menu, dialog, ipcMain, session } = require( 'electron' );
 const { EventDispatcher } = require('./src/event_dispatcher');
 const APP_ROOT_PATH            = require ('app-root-path');
@@ -79,6 +80,7 @@ const ParseCommandLineArgs = (args) =>
 
   if (commander.admin)
   {
+    BB_ServiceBroker.GetSingleton().start();
     app.whenReady().then( createWindow ).then( createMenu );
   }
   
@@ -120,11 +122,9 @@ const createMenu = () =>
             [   {   label: MENU_LABELS['run-id'],
                     click() 
                     {
-                      var event = GUI.EVENT.get(GUI.START_POPULATE_DB_EVT);
-                      //console.log('event:' + event.value.toString());
-                      EventDispatcher.GetSingleton().dispatch(event, null);
+                      fetch('http://localhost:3000/api/db/populate')
+                      .then ( (res) => 0 )
                     }
-                    
                 },
                 {   label: MENU_LABELS['backup-id'],
                     click() 

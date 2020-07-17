@@ -2,12 +2,13 @@ const assert            = require('assert');
 const { ipcMain }       = require( 'electron' );
 
 if (global.rekwire == undefined)
-    global.rekwire = require ('app-root-path').require;
+    global.rekwire  = require ('app-root-path').require;
 
-const Singleton = rekwire ('/src/singleton.js').Singleton;
-const GUI       = rekwire ('/src/gui/GUI.js').GUI;
+const Singleton     = rekwire ('/src/singleton.js').Singleton;
+const GUI           = rekwire ('/src/gui/GUI.js').GUI;
 const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
-const obj2string = rekwire ('/src/utility.js').objToString;
+const obj2string    = rekwire ('/src/utility.js').objToString;
+const mapToObj      = rekwire ('/src/utility.js').mapToObj;
 
 class EventDispatcher extends Singleton
 {
@@ -50,11 +51,12 @@ class EventDispatcher extends Singleton
 
         //konsole.log('Subscribe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
         assert ( GUI.EVENT.isDefined( event ), event);
-        if (this.event_sinks.get( event ).indexOf (event_sink_obj) == -1)
+
+        var evt_sink_get = this.event_sinks.get( event );
+        if ( evt_sink_get.indexOf (event_sink_obj) == -1 )
         {
-            var registered_event_sinks = this.event_sinks.get( event );
-            this.event_sinks.get( event ).push( event_sink_obj );
-            registered_event_sinks = this.event_sinks.get( event );
+           //konsole.log('T la : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
+            evt_sink_get.push( event_sink_obj );
         }
     } // Subscribe()
 
@@ -64,9 +66,17 @@ class EventDispatcher extends Singleton
         assert (event != undefined );
         assert (event.key != undefined)
         assert ( GUI.EVENT.isDefined( event.key ));
-        //console.log ('Before yo' + event.key)
+        assert (this.event_sinks != null, this.event_sinks)
+        var evt_sink_get = this.event_sinks.get( event.key )
 
-        for ( var i=0; i< this.event_sinks.get( event ).length; i++ )
+        if ( evt_sink_get == null || evt_sink_get == undefined)
+        {
+            konsole.error ( 'Event dispatcher ' + evt_sink_get + JSON.stringify(event.value) + JSON.stringify(this.event_sinks)  )
+            return 0;
+        }
+           
+
+        for ( var i=0; i< evt_sink_get.length; i++ )
         {
             //console.log('Yo' + event.key);
             var event_sink_obj = this.event_sinks.get( event )[i];

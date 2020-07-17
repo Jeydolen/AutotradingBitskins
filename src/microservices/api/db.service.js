@@ -1,5 +1,5 @@
-const GUI               = rekwire ('/src/gui/gui.js').GUI;
-const EventDispatcher   = rekwire ('/src/event_dispatcher.js').EventDispatcher;
+const PopulateDBCmd = rekwire ('/src/commands/populate_db_cmd.js').PopulateDBCmd;
+const BackupDBCmd = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
 
 module.exports =
 {
@@ -15,18 +15,15 @@ module.exports =
     { 
         populate (args) 
         {
-            var event = GUI.EVENT.get(GUI.START_POPULATE_DB_EVT);
-            console.log('event:' + event.value.toString());
-            EventDispatcher.GetSingleton().dispatch(event, null);
-            return 1;
+            PopulateDBCmd.GetSingleton().execute(args);
+            return 'Lancement populate';
         }, 
         backup (args) 
         {
             var file_name = args.params.file
-            console.log(file_name);
-            var event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
-            EventDispatcher.GetSingleton().dispatch(event, file_name);
-            return 1;
+            console.log('Backup : ' + file_name);
+            BackupDBCmd.GetSingleton().execute(file_name);
+            return 'Lancement backup';
         } 
     }
 };

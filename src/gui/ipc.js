@@ -1,5 +1,6 @@
-const { ipcRenderer } = require('electron');
-const assert          = require ('assert');
+const { ipcRenderer }   = require('electron');
+const assert            = require ('assert');
+const fetch             = require('node-fetch');
 
 // Permet d'enregistrer au niveau de window rekwire (pck ipcRenderer)
 global.rekwire = require('app-root-path').require;
@@ -39,10 +40,23 @@ ipcRenderer.on( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).value, (event, obj_a
 
 const onPopulate = () =>
 {
+    /*
     ipcRenderer.send (GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, null);
     console.log('Bouton populate');
     var populate_button          = document.getElementById("populate-button");
     populate_button.disabled = true ;
+    */
+   
+   fetch('http://localhost:3000/api/db/populate')
+   .then ( (res) => 
+   {
+    console.log('Bouton populate');
+    var populate_button          = document.getElementById("populate-button");
+    populate_button.disabled = true ;
+   } )
+   .catch ( (err) => { console.error( 'Pas bon populate (ipc):' + err)} )
+   
+
 }
 
 const onCheckSkin = () =>
