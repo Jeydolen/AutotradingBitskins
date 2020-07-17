@@ -6,6 +6,10 @@ var home_panel    = Vue.component
 (
   'home-panel',
   {
+    data: function ()
+    { return {
+      }
+    },
     template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')}">          
                 <div id='progress-label'>Traitement des <span id='type-label'>item</span> dans la page: <span id='page-label'>0</span> </div>
                   <div id="progress-bar">
@@ -24,8 +28,7 @@ var config_panel    = Vue.component
   {
     data: function ()
     { return {
-      //start_page_index: Config.GetSingleton().getAppVar(Config.PageIndexStart)
-        start_page_index: Session.GetSingleton().getAppVar(Session.PageIndexStart)
+        start_page_index: 1 
       }
     },
     template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')} "  >
@@ -43,8 +46,15 @@ var db_panel    = Vue.component
 (
   'db-panel',
   {
+    data: function ()
+    { return {
+
+      }
+    },
     template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')} "  >
-                <a href='http://localhost:3000/api/db/populate'> Populate ! </a>
+                <button id='populate-button' type="button" onclick="onDbButton('populate'); return false">Start Populate! (fetch)</button> <br>
+                <button id='backup-button'   type="button" onclick="onGUIButton('backup_as'); return false">Backup As...</button><br>
+                <button id='restore-button'  type="button" onclick="onPopulate('restore'); return false">Start restore!</button><br>
               </div>`
   }
 ); // 'db_panel' Vue component
@@ -52,10 +62,10 @@ var db_panel    = Vue.component
 var vertical_menu = Vue.component
 ( 'vertical-menu',
   { 
-    template: `<nav :class="$root.menu_bar" v-on:click.prevent>
-                  <div id='home-menu-item' class="home"     v-on:click="$root.setPanel('home')">    Accueil </div>
-                  <div id='config-menu-item'class="config"  v-on:click="$root.setPanel('config')">  Config  </div>
-                  <div id='db-menu-item' class="db"         v-on:click="$root.setPanel('db')">      DB      </div>
+    template: `<nav class="menu-bar" v-on:click.prevent>
+                  <div id='home-menu-item'    :class="$root.menu_item_class.home"     v-on:click="$root.setPanel('home')">    Accueil </div>
+                  <div id='config-menu-item'  :class="$root.menu_item_class.config"   v-on:click="$root.setPanel('config')">  Config  </div>
+                  <div id='db-menu-item'      :class="$root.menu_item_class.db"       v-on:click="$root.setPanel('db')">      DB      </div>
                   
               </nav>`
   }
@@ -69,9 +79,9 @@ var app = new Vue
     data: 
     {
       menu_displayed: false,
-      menu_bar: 'home-menu-item',
-      currentComponent : home_panel,
-      width : { 'menu': '0.5%', 'panel': '98%' }
+      currentComponent : db_panel,
+      width : { 'menu': '0.5%', 'panel': '98%' },
+      menu_item_class: { 'home': 'home-active', 'config': 'config', 'db': 'db'}
     },
 
     methods:
@@ -96,25 +106,22 @@ var app = new Vue
 
       setPanel: function (panel_name)
       {
-        this.currentComponent = panel_name == 
-        'home'    ? home_panel    : 
-        'config'  ? config_panel  :
-        'db'      ? db_panel      : home_panel;
 
-        console.log (panel_name);
-        var previous_menu_item = this.menu_bar;
-        this.menu_bar = panel_name + '-menu-item';
+        this.setActiveMenuItemClass (panel_name)
+        if      (panel_name == 'home'  ) this.currentComponent = home_panel;
+        else if (panel_name == 'config') this.currentComponent = config_panel;
+        else if (panel_name == 'db'    ) this.currentComponent = db_panel;
+        else this.currentComponent = home_panel;
 
-        var menu_items = ['home-menu-item', 'config-menu-item', 'db-menu-item'];
-        menu_items.map( menu_item =>
-            document.getElementById(menu_item).style = 'background-color: #2E2E2E; color: white' );
-        /*
-        document.getElementById('home-menu-item').style = 'background-color: #2E2E2E; color: white';
-        document.getElementById('config-menu-item').style = 'background-color: #2E2E2E; color: white';
-        document.getElementById('db-menu-item').style = 'background-color: #2E2E2E; color: white';
-        */
+      },
 
-        document.getElementById(panel_name + '-menu-item').style = 'background-color: rgb(161, 161, 161); color: black';
+      setActiveMenuItemClass: function (panel_name)
+      {
+        this.menu_item_class.home = 'home';
+        this.menu_item_class.config = 'config';
+        this.menu_item_class.db = 'db';
+
+        this.menu_item_class[panel_name] = panel_name + '-active';
       },
 
       getWidth: function (id_arg)

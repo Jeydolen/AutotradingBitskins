@@ -13,7 +13,7 @@
     
     </head>	
     
-    <body bgcolor='#2E2E2E' style='height: 100%' onload="setProgressBarValue(0);">
+    <body style='height: 100%' onload="setProgressBarValue(0);">
       
       <div id='app'>
         <div id="toolbar">
@@ -24,8 +24,10 @@
             <div id="menu" v-show='menu_displayed' v-bind:style="{ width: getWidth('menu') }">
               <vertical-menu></vertical-menu>            
             </div><!-- menu -->
-
-            <component v-bind:is="currentComponent"></component>
+            <keep-alive> 
+              <component v-bind:is="currentComponent"></component> 
+            </keep-alive>
+            
 
         </div><!-- container -->
 

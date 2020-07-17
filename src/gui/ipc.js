@@ -17,7 +17,8 @@ document.addEventListener("keydown", function (e)
     if ( e.which === 123 ) 
     {
         // 1st arg must be a string (also for ipc.On) => event.key
-        ipcRenderer.send (GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, null);
+        //ipcRenderer.send (GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT).value, null);
+        onGUIButton('show_dev_tools');
     } 
     // F5
     else if (e.which === 116) 
@@ -40,13 +41,6 @@ ipcRenderer.on( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).value, (event, obj_a
 
 const onPopulate = () =>
 {
-    /*
-    ipcRenderer.send (GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, null);
-    console.log('Bouton populate');
-    var populate_button          = document.getElementById("populate-button");
-    populate_button.disabled = true ;
-    */
-   
    fetch('http://localhost:3000/api/db/populate')
    .then ( (res) => 
    {
@@ -55,8 +49,35 @@ const onPopulate = () =>
     populate_button.disabled = true ;
    } )
    .catch ( (err) => { console.error( 'Pas bon populate (ipc):' + err)} )
-   
+}
 
+const onDbButton = ( action_name, args ) =>
+{
+    assert (action_name != null && action_name != undefined)
+    assert ( typeof action_name == 'string' && action_name != '' )
+
+    fetch('http://localhost:3000/api/db/' + action_name )
+    .then ( (res) => 
+    {
+     console.log('Bouton ' + action_name);
+     var action_button          = document.getElementById(action_name + "-button");
+     if ( action_button != null && action_button != undefined)
+     action_button.disabled = true ;
+    } )
+    .catch ( (err) => { console.error( 'Pas bon ' + action_name + err)} )
+}
+
+const onGUIButton = ( action_name, args) =>
+{
+    assert (action_name != null && action_name != undefined)
+    assert ( typeof action_name == 'string' && action_name != '' )
+
+    fetch('http://localhost:3000/api/gui/' + action_name )
+    .then ( (res) => 
+    {
+     console.log('Action: ' + action_name);
+    } )
+    .catch ( (err) => { console.error( 'Pas bon ' + action_name + err)} )
 }
 
 const onCheckSkin = () =>

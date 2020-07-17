@@ -67,7 +67,7 @@ class EventDispatcher extends Singleton
         assert (event.key != undefined)
         assert ( GUI.EVENT.isDefined( event.key ));
         assert (this.event_sinks != null, this.event_sinks)
-        var evt_sink_get = this.event_sinks.get( event.key )
+        var evt_sink_get = this.event_sinks.get( event )
 
         if ( evt_sink_get == null || evt_sink_get == undefined)
         {
