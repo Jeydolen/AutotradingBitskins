@@ -3,7 +3,6 @@ const  ServiceBroker            = require("moleculer").ServiceBroker;
 const  ApiService               = require("moleculer-web");
 const  fs                       = require("fs");
 const  APP_ROOT_PATH            = require ('app-root-path');
-const { Session } = require("../session");
 
 // https://github.com/inxilpro/node-app-root-path 
 // Permet d'enregistrer au niveau de global rekwire (pck autre process)
@@ -14,7 +13,7 @@ const { Singleton }     = rekwire("/src/singleton.js");
 
 
 //https://medium.com/moleculer/moleculer-a-modern-microservices-framework-for-nodejs-bc4065e6b7ba
-class BB_ServiceBroker extends Singleton
+class GuiServiceBroker extends Singleton
 {
 
     static Singleton = null;
@@ -26,14 +25,14 @@ class BB_ServiceBroker extends Singleton
         ({
             metrics: true,
             logger:  true,
-            port: 51374,
+            port:    6001,
             logFormatter: "short",
         });
 
         // Create a service
         this.broker.createService
         ({
-            name: "api",
+            name: "ui",
             mixins: [ApiService],
             settings: 
             {

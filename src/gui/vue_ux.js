@@ -15,7 +15,7 @@ var home_panel    = Vue.component
                   <div id="progress-bar">
                       <div id="progress-bar-value"></div>
                   </div>
-                <button id='populate-button' type="button" onclick="onPopulate(); return false">Start Populate!</button>
+                <button id='populate-button' type="button" onclick="onServiceCall('db', 'populate'); return false;">Start Populate!</button>
                 <button id='profitable-skin-button' type="button" onclick="onCheckSkin()">Check if profitable skins are available!</button>
               </div>`
   }
@@ -52,9 +52,9 @@ var db_panel    = Vue.component
       }
     },
     template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')} "  >
-                <button id='populate-button' type="button" onclick="onDbButton('populate'); return false">Start Populate! (fetch)</button> <br>
-                <button id='backup-button'   type="button" onclick="onGUIButton('backup_as'); return false">Backup As...</button><br>
-                <button id='restore-button'  type="button" onclick="onPopulate('restore'); return false">Start restore!</button><br>
+                <button id='populate-button' type="button" onclick="onServiceCall('db', 'populate'); return false">Start Populate! (fetch)</button> <br>
+                <button id='backup-button'   type="button" onclick="onServiceCall('db', 'backup'); return false">Backup As...</button><br>
+                <button id='restore-button'  type="button" onclick="onServiceCall('db', 'restore'); return false">Start restore!</button><br>
               </div>`
   }
 ); // 'db_panel' Vue component

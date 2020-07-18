@@ -1,11 +1,9 @@
 const { dialog }    = require( 'electron' );
 const APP_ROOT_PATH = require ('app-root-path');
 
-const Session       = rekwire ('/src/session.js').Session;
+const Session           = rekwire ('/src/session.js').Session;
 const PopulateDBCmd = rekwire ('/src/commands/populate_db_cmd.js').PopulateDBCmd;
-const BackupDBCmd   = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
-const RestoreDBCmd  = rekwire ('/src/commands/restore_db_cmd.js').RestoreDBCmd;
-
+const BackupDBCmd = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
 
 module.exports =
 {
@@ -23,9 +21,15 @@ module.exports =
         {
             PopulateDBCmd.GetSingleton().execute(args);
             return 'Lancement populate';
-        }, // populate()
-
-        backup ( args )
+        }, 
+        backup (args) 
+        {
+            var file_name = args.params.file
+            console.log('Backup : ' + file_name);
+            BackupDBCmd.GetSingleton().execute(file_name);
+            return 'Lancement backup';
+        },
+        backup_as ( args )
         {
             var main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
 
@@ -48,30 +52,6 @@ module.exports =
                 } // if 
             }
             ).catch( err => { console.log( err) });              
-        }, //backup()
-
-        restore ( args )
-        {
-            var main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
-
-            dialog.showOpenDialog
-            ( main_window, 
-              {   properties: ['openFile'],
-                  title:  MENU_LABELS['restore-id'],
-                  defaultPath : APP_ROOT_PATH + '\\data\\sql',
-                  filters: [ { name: 'SQL Files', extensions: ['sql'] } ]
-              }
-            ).then
-            ( result => 
-              {
-                if ( result.canceled ) return;
-                if ( result.filePaths.length == 1 )
-                {
-                  var input_sql_file_path = result.filePaths[0];
-                  RestoreDBCmd.GetSingleton().execute ( input_sql_file_path );
-                } // if 
-              }
-            )
-        } // restor
-    } // actions
-}; // 'db' service
+        }
+    }
+};
