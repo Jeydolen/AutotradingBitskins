@@ -46,20 +46,20 @@ button:disabled
     color: black;
 }
 
-.home, .config, .db
+.home, .config, .db, .query
 {
     background-color: #252323;
     padding: 3px 0px 3px 7px;
 }
 
-.home-active, .config-active, .db-active
+.home-active, .config-active, .db-active, .query-active
 {
     background-color: rgb(53, 141, 53);
     padding: 3px 0px 3px 7px;
 
 }
 
-#home-menu-item:hover, #config-menu-item:hover, #db-menu-item:hover
+#home-menu-item:hover, #config-menu-item:hover, #db-menu-item:hover, #query-menu-item:hover
 {
     color: rgb(255, 249, 249);
     background-color: rgb(161, 161, 161);

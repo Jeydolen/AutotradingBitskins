@@ -25,7 +25,6 @@ DROP SCHEMA IF EXISTS `bitskins_csgo_dev` ;
 -- Schema bitskins_csgo_dev
 -- -----------------------------------------------------
 CREATE SCHEMA IF NOT EXISTS `bitskins_csgo_dev` ;
-USE `bitskins_csgo_prod` ;
 
 -- -----------------------------------------------------
 -- Table `bitskins_csgo_prod`.`skin_state`

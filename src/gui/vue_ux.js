@@ -2,6 +2,9 @@
 
 // https://fr.vuejs.org/v2/guide/index.html
 
+var microservice_stella_url = 'http://localhost:3000/api'
+
+
 var home_panel    = Vue.component
 (
   'home-panel',
@@ -16,7 +19,6 @@ var home_panel    = Vue.component
                       <div id="progress-bar-value"></div>
                   </div>
                 <button id='populate-button' type="button" onclick="onServiceCall('db', 'populate'); return false;">Start Populate!</button>
-                <button id='profitable-skin-button' type="button" onclick="onCheckSkin()">Check if profitable skins are available!</button>
               </div>`
   }
 ); // 'home_panel' Vue component
@@ -26,16 +28,25 @@ var config_panel    = Vue.component
 (
   'config-panel',
   {
+    /*
+    props: 
+    [
+      'start_page_index', 'skin_set_param', 'skin_state_param', 'skin_rarity_param'
+    ],
+    */
     data: function ()
     { return {
-        start_page_index: 1 
+        start_page_index: ipcGetAppVar(microservice_stella_url + '/session?name=PageIndexStart')
       }
     },
     template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')} "  >
                 <form onsubmit='onSubmit(); return false'>
-                <label for='` + Session.PageIndexStart + `'> Page index: </label>       
-                <input id='`  + Session.PageIndexStart + `' onfocus='onFocus("` + Session.PageIndexStart + `")' class='input-value' type='number' name= '` 
-                              + Session.PageIndexStart + `' v-model.number='start_page_index'>
+                  <table> 
+                    <tr>
+                        <td> <label for='PageIndexStart'> Page index: </label>  </td>
+                        <td> <input id='PageIndexStart' onfocus='onFocus("PageIndexStart")' class='input-value' type='number' name= 'PageIndexStart' v-model.number='start_page_index'>  </td>
+                    </tr>
+                  </table>
                 </form>
               </div>`
   }
@@ -59,6 +70,44 @@ var db_panel    = Vue.component
   }
 ); // 'db_panel' Vue component
 
+var query_panel    = Vue.component
+(
+  'query-panel',
+  {
+    data: function ()
+    { return {
+        skin_set_param  : 1,
+        skin_state_param: 1,
+        skin_rarity_param: 1
+      }
+    },
+    // https://stackoverflow.com/questions/42694457/getting-form-data-on-submit
+    template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')} "  >
+                <form onSubmit="onFormSubmit('panel'); return false;">
+                <table> 
+                  <tr>
+                    <td> <label for='SkinSetParam'> Skin Set: </label> </td>
+                    <td> <input id='SkinSetParam' onfocus='onFocus("SkinSetParam")' class='input-value' type='number' name= 'SkinSetParam' v-model.number='skin_set_param'> </td> 
+                  </tr>
+
+                  <tr>
+                    <td> <label for='SkinStateParam'> Skin state: </label> </td>
+                    <td> <input id='PageIndexStart' onfocus='onFocus("SkinStateParam")' class='input-value' type='number' name= 'SkinStateParam' v-model.number='skin_state_param'> </td>
+                  </tr>
+
+                  <tr>
+                    <td>  <label for='SkinRarityParam'> Skin rarity: </label> </td>
+                    <td>  <input id='SkinRarityParam' onfocus='onFocus("SkinRarityParam")' class='input-value' type='number' name= 'SkinRarityParam' v-model.number='skin_rarity_param'> </td>
+                  </tr>
+
+                  <button id='profitable-skin-button' type="submit" >Check if profitable skins are available!</button>
+
+                </table>
+                </form>
+              </div>`
+  }
+); // 'config_panel' Vue component
+
 var vertical_menu = Vue.component
 ( 'vertical-menu',
   { 
@@ -66,6 +115,7 @@ var vertical_menu = Vue.component
                   <div id='home-menu-item'    :class="$root.menu_item_class.home"     v-on:click="$root.setPanel('home')">    Accueil </div>
                   <div id='config-menu-item'  :class="$root.menu_item_class.config"   v-on:click="$root.setPanel('config')">  Config  </div>
                   <div id='db-menu-item'      :class="$root.menu_item_class.db"       v-on:click="$root.setPanel('db')">      DB      </div>
+                  <div id='query-menu-item'   :class="$root.menu_item_class.query"    v-on:click="$root.setPanel('query')">   Query   </div>
                   
               </nav>`
   }
@@ -111,6 +161,7 @@ var app = new Vue
         if      (panel_name == 'home'  ) this.currentComponent = home_panel;
         else if (panel_name == 'config') this.currentComponent = config_panel;
         else if (panel_name == 'db'    ) this.currentComponent = db_panel;
+        else if (panel_name == 'query' ) this.currentComponent = query_panel;
         else this.currentComponent = home_panel;
 
       },
@@ -120,6 +171,7 @@ var app = new Vue
         this.menu_item_class.home = 'home';
         this.menu_item_class.config = 'config';
         this.menu_item_class.db = 'db';
+        this.menu_item_class.query = 'query'
 
         this.menu_item_class[panel_name] = panel_name + '-active';
       },
@@ -135,7 +187,8 @@ var app = new Vue
       'vertical-menu' : vertical_menu,
       'db-panel'      : db_panel,
       'home-panel'    : home_panel,
-      'config-panel'  : config_panel
+      'config-panel'  : config_panel,
+      'query-panel'  : query_panel
     }
   }
 ); // app 'Vue View'

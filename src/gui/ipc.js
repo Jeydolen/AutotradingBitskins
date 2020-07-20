@@ -56,18 +56,17 @@ const onServiceCall = ( service_name, action_name, args ) =>
     .catch ( (err) => { console.error( 'Pas bon service/action name :' + service_name + '.' + action_name + ' ' +  err)} )
 }
 
-const onGUIButton = ( action_name, args) =>
-{
-    assert (action_name != null && action_name != undefined)
-    assert ( typeof action_name == 'string' && action_name != '' )
 
-    fetch('http://localhost:3000/api/gui/' + action_name )
-    .then ( (res) => 
-    {
-     console.log('Action: ' + action_name);
-    } )
-    .catch ( (err) => { console.error( 'Pas bon ' + action_name + err)} )
-}
+const ipcGetAppVar = async url => {
+    try {
+      const response = await fetch(url);
+      const json = await response.json();
+      console.log(json);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
 
 const onCheckSkin = () =>
 {
@@ -100,7 +99,17 @@ const onFocus = (entity_arg) =>
 const onSubmit = () =>
 {
     var value = document.getElementById(focused_entity).value
-       
-    ipcRenderer.send (GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT).value, new GUI.SubmitValueEventObj ( focused_entity, value ) );
     console.log('Coucou')
+    ipcRenderer.send (GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT).value, new GUI.SubmitValueEventObj ( focused_entity, value ) );
+}
+
+const onFormSubmit = ( form_name ) =>
+{
+    var msg = "prout";
+    fetch('http://localhost:3000/api/session/log?msg=' + msg)
+    .then ( (res) => 
+    {
+        console.log('Call onFormSubmit');
+    } )
+    .catch ( (err) => { console.error( 'Pas bon onFormSubmit :' +  err)} )
 }

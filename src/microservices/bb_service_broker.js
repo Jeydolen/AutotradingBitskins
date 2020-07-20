@@ -26,7 +26,6 @@ class BB_ServiceBroker extends Singleton
         ({
             metrics: true,
             logger:  true,
-            port: 51374,
             logFormatter: "short",
         });
 

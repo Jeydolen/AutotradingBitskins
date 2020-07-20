@@ -97,8 +97,6 @@ class BitskinsFetcher extends Singleton
         }
         return Konst.NOTHING;
     } // fetchItems()
-
-
     
     ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
 

@@ -57,7 +57,7 @@ module.exports =
             dialog.showOpenDialog
             ( main_window, 
               {   properties: ['openFile'],
-                  title:  MENU_LABELS['restore-id'],
+                  title:  'restore',
                   defaultPath : APP_ROOT_PATH + '\\data\\sql',
                   filters: [ { name: 'SQL Files', extensions: ['sql'] } ]
               }
@@ -72,6 +72,13 @@ module.exports =
                 } // if 
               }
             )
-        } // restor
+        }, // restore
+
+        query ( ctx ) 
+        {
+            //var app_var_value = Session.GetSingleton().getAppVar(ctx.params);
+            console.log("params " + JSON.stringify(ctx.params));
+            return 'Query';
+        }
     } // actions
 }; // 'db' service
