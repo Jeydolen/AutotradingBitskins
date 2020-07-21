@@ -36,6 +36,7 @@
     "enum": "^3.0.4",
     "expand-template": "^2.0.3",
     "express": "^4.17.1",
+    "jquery": "^3.5.1",
     "jsonexport": "^3.0.1",
     "mixin-interface": "^4.9.3",
     "mixin-interface-api": "^0.1.32",

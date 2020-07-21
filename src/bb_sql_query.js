@@ -26,7 +26,7 @@ const SQL_TEMPLATE = new Enum ({
     'ALTER_RST_AI'      : "ALTER TABLE {db-table}                                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
     'ALTER'             : "ALTER TABLE {db-table}                                   {db-alter-value}            ;"                  ,
 
-    'SELECT_SKIN'       : `SELECT id FROM bitskins_csgo.skin                        WHERE skin_set = {skin-set-value} 
+    'SELECT_SKIN'       : `SELECT id FROM {database}.skin                           WHERE skin_set = {skin-set-value} 
                                          AND item_state = {item-state-value} AND skin_rarity = {skin-rarity-value}  #SELECT_SKIN\n`,
 
     'PROFIT_SELCT_ORDER': `SELECT name as {p}_name, price as {p}_price, skin as {p}_skin, market_name as {p}_market_name 

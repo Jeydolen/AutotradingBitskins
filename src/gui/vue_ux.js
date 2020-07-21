@@ -2,7 +2,7 @@
 
 // https://fr.vuejs.org/v2/guide/index.html
 
-var microservice_stella_url = 'http://localhost:3000/api'
+var microservice_stella_url = 'http://localhost:51374/stella'
 
 
 var home_panel    = Vue.component
@@ -83,21 +83,21 @@ var query_panel    = Vue.component
     },
     // https://stackoverflow.com/questions/42694457/getting-form-data-on-submit
     template:`<div id='panel' v-bind:style="{ width: $parent.getWidth('panel')} "  >
-                <form onSubmit="onFormSubmit('panel'); return false;">
+                <form id='query-panel-form' onSubmit="onFormSubmit('query-panel-form'); return false">
                 <table> 
                   <tr>
-                    <td> <label for='SkinSetParam'> Skin Set: </label> </td>
-                    <td> <input id='SkinSetParam' onfocus='onFocus("SkinSetParam")' class='input-value' type='number' name= 'SkinSetParam' v-model.number='skin_set_param'> </td> 
+                    <td> <label for='skin_set_value'> Skin Set: </label> </td>
+                    <td> <input id='skin_set_value' onfocus='onFocus("skin_set_value")' class='input-value' type='number' name= 'skin_set_value' v-model.number='skin_set_param'> </td> 
                   </tr>
 
                   <tr>
-                    <td> <label for='SkinStateParam'> Skin state: </label> </td>
-                    <td> <input id='PageIndexStart' onfocus='onFocus("SkinStateParam")' class='input-value' type='number' name= 'SkinStateParam' v-model.number='skin_state_param'> </td>
+                    <td> <label for='skin_state_value'> Skin state: </label> </td>
+                    <td> <input id='PageIndexStart' onfocus='onFocus("skin_state_value")' class='input-value' type='number' name= 'skin_state_value' v-model.number='skin_state_param'> </td>
                   </tr>
 
                   <tr>
-                    <td>  <label for='SkinRarityParam'> Skin rarity: </label> </td>
-                    <td>  <input id='SkinRarityParam' onfocus='onFocus("SkinRarityParam")' class='input-value' type='number' name= 'SkinRarityParam' v-model.number='skin_rarity_param'> </td>
+                    <td>  <label for='skin_rarity_value'> Skin rarity: </label> </td>
+                    <td>  <input id='skin_rarity_value' onfocus='onFocus("skin_rarity_value")' class='input-value' type='number' name= 'skin_rarity_value' v-model.number='skin_rarity_param'> </td>
                   </tr>
 
                   <button id='profitable-skin-button' type="submit" >Check if profitable skins are available!</button>

@@ -47,7 +47,7 @@ const ParseCommandLineArgs = (args) =>
   .option ('-u, --update', 'Update database')
   .option ('-c, --clear', 'Clear database')
   .option ('-h, --http', 'Launch http server')
-  .option ("-m, --moleculer", "Launch Moleculer API Gateway (port 3000)")
+  .option ("-m, --moleculer", "Launch Moleculer API Gateway (port 51374)")
   .option ('-b, --backup', 'Backup database')
   .option ('-r, --restore [sql_file]', 'Restore database')
   .option ('-a, --admin', 'Access to electron admin dashboard')
@@ -122,7 +122,7 @@ const createMenu = () =>
             [   {   label: MENU_LABELS['run-id'],
                     click() 
                     {
-                      fetch('http://localhost:3000/api/db/populate')
+                      fetch('http://localhost:51374/stella/db/populate')
                       .then ( (res) => 0 )
                     }
                 },

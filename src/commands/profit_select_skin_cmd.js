@@ -34,6 +34,7 @@ class ProfitSelectSkinCmd extends Command
 
         const executeCB = ( err, query_result ) =>
         {  
+            var file_type = Konst.NOTHING;
             var csv_file_path  = mkFilepath( 'test', 'csv' );
             var json_file_path = mkFilepath( 'test', 'json' );
             
@@ -50,37 +51,51 @@ class ProfitSelectSkinCmd extends Command
                     konsole.error ('ProfitSelectSkinCmd.writeFileCB() on a un prbl : ' + err ); 
                     return Konst.RC.KO;
                 }
-                konsole.log ('File written');
+                konsole.log ('File written with success');
             }; // writeFileCB()
-
-            fs.writeFile ( json_file_path, JSON.stringify(query_result[0]), 'utf8', writeFileCB )
-
-            var csv_data = Konst.NOTHING;
-            jsonexport( query_result[0] , function(err, csv)
+           
+            const exportToFile = (file_type_arg) =>
             {
-                if(err) return console.error(err);
-                csv_data = csv;
-                fs.writeFile ( csv_file_path, csv_data,'utf8', writeFileCB )
-            });
+                file_type = file_type_arg;
+                if (file_type_arg=='csv')
+                {
+                    var csv_data = Konst.NOTHING;
+                    jsonexport( query_result[0] , function(err, csv)
+                    {
+                        if(err) return console.error(err);
+                        csv_data = csv;
+                        file_type = "CSV";
+                        fs.writeFile ( csv_file_path, csv_data,'utf8', writeFileCB )
+                    });
+                }
+                else if (file_type_arg=='json')
+                {
+                    fs.writeFile ( json_file_path, JSON.stringify(query_result[0]), 'utf8', writeFileCB );
+                }
+            } // exportToFile()
 
+            exportToFile('json');
+            exportToFile('csv');
         }; // executeCB()
 
 
         var db = BB_Database.GetSingleton();
+        console.log ( "database:" + db.getName() );
+
         var query_text  = 
             expand( SQL_TEMPLATE.PROFIT_SELCT_SKIN.value, 
             {   'select-parent-subquery-1': 
                 expand( SQL_TEMPLATE.PROFIT_SELCT_ORDER.value,
                 {   'select-subquery': 
                     expand( SQL_TEMPLATE.SELECT_SKIN.value, 
-                        { 'skin-set-value' : args.skin_set_value, 'item-state-value' : args.item_state_value, 'skin-rarity-value' : args.skin_rarity_value } ) ,
-                        'p': 'A' } ) ,
+                        {   'database': db.getName(), 'skin-set-value' : args.skin_set_value, 
+                            'item-state-value' : args.skin_state_value, 'skin-rarity-value' : args.skin_rarity_value } ),       'p': 'A' }) ,
                 'select-parent-subquery-2':
                 expand( SQL_TEMPLATE.PROFIT_SELCT_ORDER.value,
                 {   'select-subquery': 
                     expand( SQL_TEMPLATE.SELECT_SKIN.value, 
-                        { 'skin-set-value':args.skin_set_value , 'item-state-value': args.item_state_value, 'skin-rarity-value' : args.skin_rarity_value -1 } ) ,
-                        'p': 'B'} ),
+                        {   'database': db.getName(),'skin-set-value':args.skin_set_value , 
+                            'item-state-value': args.skin_state_value, 'skin-rarity-value' : args.skin_rarity_value -1 } ),    'p': 'B'}),
             } );
         //konsole.log( query_text );
         var query_obj   = BB_SqlQuery.Create( query_text );

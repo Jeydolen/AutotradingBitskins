@@ -8,6 +8,7 @@ const Konst     = rekwire ('/src/constants.js');
 
 //const DB_NAME     = 'bitskins_csgo';
 var DB_NAME       = Session.GetSingleton().getAppVar(Session.DB_Name);
+console.log ( DB_NAME );
 const ADMIN_NAME  = "rdp_admin";
 const ADMIN_PWD   = 'UZ14xdQ7E';
 
@@ -42,6 +43,8 @@ class BB_Database
         konsole.log(">> ---- BB_Database constructor", LOG_LEVEL.MSG);
         if (connection_args == undefined) connection_args = CONNECTION_ARGS ;
 
+        this.name = connection_args.database;
+
         // ----------- Michel -----------
         const connectCB = (err) =>
         {
@@ -72,6 +75,11 @@ class BB_Database
     getType() 
     {
         return this.constructor.name;
+    }
+
+    getName() 
+    {
+        return this.name;
     }
 
     close() 

@@ -32,14 +32,15 @@ class BB_ServiceBroker extends Singleton
         // Create a service
         this.broker.createService
         ({
-            name: "api",
+            name: "stella",
             mixins: [ApiService],
             settings: 
             {
+                port: 51374,
                 assets: { folder: APP_ROOT_PATH + '/src/microservices/assets/'},
                 routes: 
                 [{ 
-                    path: "/api"
+                    path: "stella"
                 }]
             },
             actions: 

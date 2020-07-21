@@ -1,6 +1,7 @@
 const { ipcRenderer }   = require('electron');
 const assert            = require ('assert');
 const fetch             = require('node-fetch');
+const $                 = require ('jquery');
 
 // Permet d'enregistrer au niveau de window rekwire (pck ipcRenderer)
 global.rekwire = require('app-root-path').require;
@@ -31,9 +32,12 @@ ipcRenderer.on( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).value, (event, obj_a
     setProgressBarValue( Math.trunc(percent_value) );
 
     var type_label =  document.getElementById("type-label");
-    type_label.innerHTML = obj_arg.type;
-
     var page_label = document.getElementById("page-label");
+
+    if ( type_label == undefined ||  page_label == undefined)
+        return ;
+
+    type_label.innerHTML = obj_arg.type;
     page_label.innerHTML = obj_arg.page;
 });
 
@@ -45,7 +49,7 @@ const onServiceCall = ( service_name, action_name, args ) =>
     assert (service_name != null && service_name != undefined)
     assert ( typeof service_name == 'string' && service_name != '' )
     
-    fetch('http://localhost:3000/api/'+ service_name +'/' + action_name )
+    fetch('http://localhost:51374/stella/'+ service_name +'/' + action_name )
     .then ( (res) => 
     {
      console.log('Call ' + service_name + '.' + action_name);
@@ -103,13 +107,19 @@ const onSubmit = () =>
     ipcRenderer.send (GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT).value, new GUI.SubmitValueEventObj ( focused_entity, value ) );
 }
 
-const onFormSubmit = ( form_name ) =>
+const onFormSubmit = ( form_id ) =>
 {
-    var msg = "prout";
-    fetch('http://localhost:3000/api/session/log?msg=' + msg)
+    var params = $("#" + form_id).serialize(); // serializes the form's elements.
+    var msg = params;
+
+    fetch('http://localhost:51374/stella/db/query?' + params)
     .then ( (res) => 
     {
-        console.log('Call onFormSubmit');
+        console.log('Call onFormSubmit' + params);
+
     } )
     .catch ( (err) => { console.error( 'Pas bon onFormSubmit :' +  err)} )
+
+
+ 
 }

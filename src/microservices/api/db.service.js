@@ -1,10 +1,11 @@
 const { dialog }    = require( 'electron' );
 const APP_ROOT_PATH = require ('app-root-path');
 
-const Session       = rekwire ('/src/session.js').Session;
-const PopulateDBCmd = rekwire ('/src/commands/populate_db_cmd.js').PopulateDBCmd;
-const BackupDBCmd   = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
-const RestoreDBCmd  = rekwire ('/src/commands/restore_db_cmd.js').RestoreDBCmd;
+const Session               = rekwire ('/src/session.js').Session;
+const PopulateDBCmd         = rekwire ('/src/commands/populate_db_cmd.js').PopulateDBCmd;
+const BackupDBCmd           = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
+const RestoreDBCmd          = rekwire ('/src/commands/restore_db_cmd.js').RestoreDBCmd;
+const ProfitSelectSkinCmd   = rekwire ('/src/commands/profit_select_skin_cmd.js').ProfitSelectSkinCmd;
 
 
 module.exports =
@@ -78,6 +79,7 @@ module.exports =
         {
             //var app_var_value = Session.GetSingleton().getAppVar(ctx.params);
             console.log("params " + JSON.stringify(ctx.params));
+            ProfitSelectSkinCmd.GetSingleton().execute (ctx.params)
             return 'Query';
         }
     } // actions
