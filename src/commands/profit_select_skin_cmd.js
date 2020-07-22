@@ -1,7 +1,8 @@
 const expand                 = require ('expand-template')();
 const fs                     = require ('fs');
 const assert                 = require ('assert');
-const APP_ROOT_PATH          = require ('app-root-path');       
+const APP_ROOT_PATH          = require ('app-root-path');     
+const timestamp              = require ('time-stamp');  
 const jsonexport             = require('jsonexport');
  
 
@@ -35,7 +36,7 @@ class ProfitSelectSkinCmd extends Command
         const executeCB = ( err, query_result ) =>
         {  
             var file_type = Konst.NOTHING;
-            var csv_file_path  = mkFilepath( 'test', 'csv' );
+            var csv_file_path  = mkFilepath( 'Query'+ timestamp('YYYY_MM_DD_HH_mm'), 'csv' );
             var json_file_path = mkFilepath( 'test', 'json' );
             
             if ( err )
@@ -65,11 +66,13 @@ class ProfitSelectSkinCmd extends Command
                         if(err) return console.error(err);
                         csv_data = csv;
                         file_type = "CSV";
+                        console.log ( csv )
                         fs.writeFile ( csv_file_path, csv_data,'utf8', writeFileCB )
                     });
                 }
                 else if (file_type_arg=='json')
                 {
+                    console.log (JSON.stringify(query_result[0]))
                     fs.writeFile ( json_file_path, JSON.stringify(query_result[0]), 'utf8', writeFileCB );
                 }
             } // exportToFile()
@@ -86,18 +89,18 @@ class ProfitSelectSkinCmd extends Command
             expand( SQL_TEMPLATE.PROFIT_SELCT_SKIN.value, 
             {   'select-parent-subquery-1': 
                 expand( SQL_TEMPLATE.PROFIT_SELCT_ORDER.value,
-                {   'select-subquery': 
+                {   'database': db.getName(), 'select-subquery': 
                     expand( SQL_TEMPLATE.SELECT_SKIN.value, 
                         {   'database': db.getName(), 'skin-set-value' : args.skin_set_value, 
                             'item-state-value' : args.skin_state_value, 'skin-rarity-value' : args.skin_rarity_value } ),       'p': 'A' }) ,
                 'select-parent-subquery-2':
                 expand( SQL_TEMPLATE.PROFIT_SELCT_ORDER.value,
-                {   'select-subquery': 
+                {   'database': db.getName(), 'select-subquery': 
                     expand( SQL_TEMPLATE.SELECT_SKIN.value, 
                         {   'database': db.getName(),'skin-set-value':args.skin_set_value , 
-                            'item-state-value': args.skin_state_value, 'skin-rarity-value' : args.skin_rarity_value -1 } ),    'p': 'B'}),
+                            'item-state-value': args.skin_state_value, 'skin-rarity-value' : args.skin_rarity_value +1 } ),    'p': 'B'}),
             } );
-        //konsole.log( query_text );
+        konsole.log( query_text, LOG_LEVEL.CRITICAL );
         var query_obj   = BB_SqlQuery.Create( query_text );
         query_obj.executeWithCB( db, query_text, executeCB );
     } // execute()

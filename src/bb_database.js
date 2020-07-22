@@ -22,9 +22,6 @@ const CONNECTION_ARGS =
     multipleStatements : true
 }; // CONNECTION_ARGS
 
-
-
-
 /*
  /$$$$$$$  /$$$$$$$        /$$$$$$$              /$$               /$$                                    
 | $$__  $$| $$__  $$      | $$__  $$            | $$              | $$                                    
@@ -114,7 +111,6 @@ class BB_Database
 } // BB_Database class
 BB_Database.Singleton;
 //------------------------------  BB_Database
-
 
 exports.BB_Database = BB_Database ;
 exports.DB_NAME     = DB_NAME;
