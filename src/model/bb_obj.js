@@ -1,10 +1,13 @@
 const assert        = require ('assert');
+const { cpuUsage } = require('process');
 const expand        = require ('expand-template')();
 
 const Konst                         = rekwire ('/src/constants.js') ;
 const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js'); 
 const { BB_SqlQuery, SQL_TEMPLATE } = rekwire ('/src/bb_sql_query.js') ;
+const { BB_Database, knex_conn }    = rekwire ('/src/bb_database.js') ;
 
+const { ISerializable }             = rekwire ('/src/ISerializable.js') ;
 
 /*$$$$$$$  /$$   /$$              /$$       /$$                      /$$$$$$  /$$                                 /$$    
 | $$__  $$|__/  | $$             | $$      |__/                     /$$__  $$| $$                                | $$    
@@ -17,13 +20,15 @@ const { BB_SqlQuery, SQL_TEMPLATE } = rekwire ('/src/bb_sql_query.js') ;
                                                                                   /$$  | $$                              
                                                                                  |  $$$$$$/                              
                                                                                   \_____*/
-class BitskinsObject 
+class BitskinsObject extends ISerializable
 {
   static Instances  = new Map();
 
   //   arg =    input_item ou name (pour NULL_SKIN)
   constructor( arg ) 
   {     
+    super( arg );
+
     this._record_id            = 1; // NULL_OBJECT DANS LES TABLES 
     this._created_in_db       = false;
     this._updated_in_db       = false;
@@ -40,6 +45,7 @@ class BitskinsObject
   //            optionnel (les 2)
   getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
 
+
   buildQueryText = () => 
   { 
     var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
@@ -47,12 +53,58 @@ class BitskinsObject
   } // buildQueryText()
 
 
-  //                requis        requis            requis
-  createInDBTable (  db,    end_of_waterfall_cb, json_sell_order )
+  // implementation of 'save' service  
+  save( data_format, data  ) 
+  {   
+    var db = BB_Database.GetSingleton(); 
+    createInDBTable (  db,  end_of_waterfall_cb, data );
+  } // ISerializable.save()
+
+
+  // implementation of 'load' service  
+  async load( args )
+  {
+      assert( args != undefined && args != null );
+      assert( args.id != undefined && args.id != null );
+
+      var db = BB_Database.GetSingleton();
+
+      var klass = this.getType();
+      console.log ('klass ' + klass );
+
+      var table_name = klass == 
+        "SkinSellOrder" ? 'skin_sell_order' :
+        "SkinSet"       ? 'skin_set'        :
+        "Skin"          ? 'skin'            :
+        "Weapon"        ? 'weapon'          : null;
+
+      if ( table_name == null )
+      {
+        konsole.error( "BitskinsObject.load(): table_name unkown " + table_name );
+        return;
+      }
+
+      console.log ('table_name ' + table_name );
+
+      var result_rows = null;
+      await knex_conn.select().from( table_name )
+            .where('id', args.id)
+            .then( (rows) =>
+                   {  result_rows = rows 
+                      console.log ('fsdfdsfdsf' + JSON.stringify (result_rows) )
+                  } );
+
+      return result_rows;
+  } // ISerializable.load()
+
+
+  //                   requis         requis (bitskins api)
+  createInDBTable ( end_of_waterfall_cb, json_sell_order )
   { 
-      assert( db != undefined );
       assert( end_of_waterfall_cb != undefined);
       assert (json_sell_order != undefined);
+
+      var db = BB_Database.GetSingleton(); 
 
       const selectQuery = () =>
       {
@@ -151,5 +203,6 @@ class BitskinsObject
   } // createInDBTable()
 
 } // BitskinsObject class
+
 exports.BitskinsObject = BitskinsObject ;
 //------------------------ BitskinsObject class -------------------------

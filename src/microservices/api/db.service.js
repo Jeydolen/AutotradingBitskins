@@ -6,6 +6,8 @@ const PopulateDBCmd         = rekwire ('/src/commands/populate_db_cmd.js').Popul
 const BackupDBCmd           = rekwire ('/src/commands/backup_db_cmd.js').BackupDBCmd;
 const RestoreDBCmd          = rekwire ('/src/commands/restore_db_cmd.js').RestoreDBCmd;
 const ProfitSelectSkinCmd   = rekwire ('/src/commands/profit_select_skin_cmd.js').ProfitSelectSkinCmd;
+const { SkinSellOrder  }    = rekwire ('/src/model/skin_sell_order.js') ;
+const Konst                 = rekwire ('/src/constants.js');
 
 
 module.exports =
@@ -20,6 +22,14 @@ module.exports =
     },
     actions: 
     { 
+        async skin_sell_order ( ctx )
+        {
+            var id = ctx.params.id != undefined ?  ctx.params.id : 1;
+            var bb_obj = new SkinSellOrder( Konst.Reasons.Deserialize);
+            var rows = await bb_obj.load( { 'id': id } );
+            return JSON.stringify( rows );
+        }, // populate(
+
         populate (args) 
         {
             PopulateDBCmd.GetSingleton().execute(args);

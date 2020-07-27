@@ -4,9 +4,7 @@ const Session                = rekwire ('/src/session.js').Session;
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js') ;
 const BitskinsObject         = rekwire ('/src/model/bb_obj.js').BitskinsObject;
 const Skin                   = rekwire ('/src/model/skin.js').Skin;
-
-
-
+const Konst                 = rekwire ('/src/constants.js');
 
 const NULL_SKIN_SELL_ORDER      = "NULL_SKIN_SELL_ORDER" ;
 
@@ -27,7 +25,7 @@ class SkinSellOrder extends BitskinsObject
     static NULL       = SkinSellOrder.GetNullObject();
 
             // Valeur JSON
-    constructor( arg) 
+    constructor( arg ) 
     {
         super(arg);
         this.table              = 'skin_sell_order';
@@ -37,7 +35,10 @@ class SkinSellOrder extends BitskinsObject
             this.name = NULL_SKIN_SELL_ORDER;
             this.skin_id = 1;
         }
-        else // Cas nominal
+        else if ( arg == Konst.Reasons.Deserialize ) // Deserialiszation
+        {
+        } 
+        else // Cas nominal (arg = json_data from  Bitskjins API)
         {
             var json_sell_order     = arg;
             this.name               = json_sell_order.item_id.replace ("'", "''");

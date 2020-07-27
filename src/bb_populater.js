@@ -124,7 +124,7 @@ class DBPopulater extends Singleton
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var weapon_obj = klass.Create (json_sell_orders[i]) ;
-                weapon_obj.createInDBTable ( db, endOfWaterfallCB, json_sell_orders[i] );
+                weapon_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i] );
             }
         }; // populateDBWithWeapon()
 
@@ -139,7 +139,7 @@ class DBPopulater extends Singleton
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_set_obj            = klass.Create (json_sell_orders[i]) ;
-                skin_set_obj.createInDBTable (db, endOfWaterfallCB, json_sell_orders[i]);
+                skin_set_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i]);
             }
         }; // populateDBWithSkinset_CB()
 
@@ -158,7 +158,7 @@ class DBPopulater extends Singleton
                     this.create_in_db_done_count.set( klass, 0 );
 
                 var stck_skn_agt_obj = klass.Create (json_sell_order) ;
-                stck_skn_agt_obj.createInDBTable (db, endOfWaterfallCB, json_sell_orders[i]);
+                stck_skn_agt_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i]);
             }
         }; // populateDBWithSkinOrDumb_CB()
 
@@ -172,7 +172,7 @@ class DBPopulater extends Singleton
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
                 var skin_sell_order_obj     = klass.Create (json_sell_orders[i]) ;
-                skin_sell_order_obj.createInDBTable (db, endOfWaterfallCB, json_sell_orders[i] );
+                skin_sell_order_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i] );
             }
         }; // populateDBWithSkinSellOrder_CB()
 

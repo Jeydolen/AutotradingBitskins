@@ -11,6 +11,8 @@ var DB_NAME       = Session.GetSingleton().getAppVar(Session.DB_Name);
 console.log ( DB_NAME );
 const ADMIN_NAME  = "rdp_admin";
 const ADMIN_PWD   = 'UZ14xdQ7E';
+const KNEX_ADMIN  = 'KnexAdmin';
+const KNEX_PWD    = '6ZuwI9Lc20YWMb*70JQ^s^nV^';
 
 const CONNECTION_ARGS = 
 {
@@ -21,6 +23,19 @@ const CONNECTION_ARGS =
     database: DB_NAME,
     multipleStatements : true
 }; // CONNECTION_ARGS
+
+
+var knex_conn = require('knex')({
+    client: 'mysql',
+    connection: {
+        host      :     'localhost',
+        port      :     3308,
+        charset   :     'utf8',
+        user      :     KNEX_ADMIN,
+        password  :     KNEX_PWD,
+        database  :     Session.GetSingleton().getAppVar(Session.DB_Name)
+    }
+}); // knex_conn
 
 /*
  /$$$$$$$  /$$$$$$$        /$$$$$$$              /$$               /$$                                    
@@ -112,7 +127,9 @@ class BB_Database
 BB_Database.Singleton;
 //------------------------------  BB_Database
 
-exports.BB_Database = BB_Database ;
 exports.DB_NAME     = DB_NAME;
 exports.ADMIN_NAME  = ADMIN_NAME;
 exports.ADMIN_PWD   = ADMIN_PWD;
+
+exports.knex_conn   = knex_conn ;
+exports.BB_Database = BB_Database ;

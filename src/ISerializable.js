@@ -1,33 +1,22 @@
-const MxI = require ('mixin-interface-api/src/mixin_interface_api.js').MxI;
-const Enum = require('enum');
+const Enum  = require('enum');
 
-
-// npmjs.com/package/enum
-const MEDIA_TYPE         = new Enum(['DB', 'FILE']);
-const MEDIA              = new Enum(['DB_NAME', 'FILE_PATH']);
-const FILE_TYPE          = new Enum(['JSON', 'SQL' ]);
-const SERIALIZATION_ARGS = new Enum(['FILE_PATH', 'MEDIA_TYPE', 'FILE_TYPE']);
+const DataFormat = new Enum( [ 'Json', 'MySQL', 'CSV' ] );
 
 //==================== 'ISerializable' interface class ====================
-class ISerializable extends MxI.$Interface(MxI.$IBaseInterface) 
+class ISerializable 
 {  
-    // Fallback implementation of 'save' service
-    save(args) 
-    {
-        MxI.$raiseNotImplementedError(ISerializable, this);
+    // Fallback implementation of 'save' service  
+    save( data_format, data  ) 
+    {     
+        throw "ISerializable.save() not implemented";
     } // ISerializable.save()
 
-    load(args)
+    // Fallback implementation of 'load' service  
+    async load( data )
     {
-        MxI.$raiseNotImplementedError (ISerializable, this);
+        throw "ISerializable.load() not implemented";
     } // ISerializable.load()
-
 } // 'ISerializable' class
 
-MxI.$setAsInterface(ISerializable).$asChildOf(MxI.$IBaseInterface);
-  
-exports.ISerializable = ISerializable;
-exports.MEDIA_TYPE = MEDIA_TYPE;
-exports.MEDIA = MEDIA ;
-exports.FILE_TYPE = FILE_TYPE ;
-exports.SERIALIZATION_ARGS = SERIALIZATION_ARGS ;
+exports.DataFormat      = DataFormat ;
+exports.ISerializable   = ISerializable;

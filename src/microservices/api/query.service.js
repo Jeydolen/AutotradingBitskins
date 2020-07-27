@@ -1,20 +1,5 @@
 const Session = rekwire ('/src/session.js').Session;
-
-
-const KNEX_ADMIN  = 'KnexAdmin';
-const KNEX_PWD    = '6ZuwI9Lc20YWMb*70JQ^s^nV^';
-
-var knex = require('knex')({
-    client: 'mysql',
-    connection: {
-        host      :     'localhost',
-        port      :     3308,
-        charset   :     'utf8',
-        user      :     KNEX_ADMIN,
-        password  :     KNEX_PWD,
-        database  :     Session.GetSingleton().getAppVar(Session.DB_Name)
-    }
-  });
+const knex = rekwire ('/src/bb_database.js').knex_conn;
 
 module.exports =
 {
@@ -63,13 +48,8 @@ module.exports =
             var rarity      = ctx.params.rarity     != undefined ? ctx.params.rarity    : 4;
             var state       = ctx.params.state      != undefined ? ctx.params.state     : 4;
             var stattrak    = ctx.params.stattrak   != undefined ? ctx.params.stattrak  : 1;
-            var output = "<ol>";
-            var selectSellOrder_subquery =  null;
-            var selectSkin_subquery =       null;
-            var table_count = 0;
-            var previous_sq1_name = null;
-            var first_select = true;
 
+            var output = "<ol>";
 
             const logResult = (rows) =>
             {
@@ -77,23 +57,13 @@ module.exports =
                     ( row => 
                         {   console.log(row) ;
 
-                            var sq1_name = row.SQ1_name;
+                            output += "<li>" + row.SQ1_market_name;
 
-                            if (sq1_name != previous_sq1_name)
-                            {
-                                if (! first_select)
-                                {
-                                    output += "</select>";
-                                    output += "</li>";
-                                }
+                            output +=   row.SQ1_market_name + "@" + row.SQ1_price.toFixed(2) + "€&nbsp;&nbsp;<br>" 
+                                        + "==>" + row.SQ2_market_name +"@" + row.SQ2_price.toFixed(2) + "€&nbsp;&nbsp;";
 
-                                output += "<li>";
-                                output += "<select name =" + sq1_name + ">";
-                                first_select = false;
-                            }
-                            output += "<option value = '" + row.SQ1_market_name + "'>" + sq1_name + ": " + row.SQ1_market_name + "</option>";
-                        
-                            previous_sq1_name = sq1_name;
+                            var virtual_profit = (row.SQ2_price - (row.SQ1_price * 10)).toFixed(2) + "€" ;
+                            output += "&nbsp; Profit : " + virtual_profit + "</li>";
                         } 
                     );
             }; // logResult()
@@ -102,7 +72,7 @@ module.exports =
             const selectTradeUp = (subquery_1, subquery_2) =>
             {
                 return  knex.select().from  (subquery_1)
-                            .innerJoin      (subquery_2)// , knex.raw('(SQ1_price * 10.00) < (SQ2_price * 1.00)'));
+                            .innerJoin      (subquery_2 , knex.raw('(SQ1_price * 10.00) < (SQ2_price * 1.00)'));
             }; // selectTradeUp()
 
 
@@ -117,10 +87,9 @@ module.exports =
             const selectSkin  = () => 
             {
                 return query = knex.select('id').from('skin').where(
-                    {   'skin_set' : skin_set, 
-                        'skin_rarity': rarity++,
-                        //'item_state': state,
-                        //'has_StatTrak': stattrak             
+                    {   
+                        'skin_set' : skin_set, 
+                        'skin_rarity': rarity++         
                     }
                 );
             }; // selectSkin
@@ -130,10 +99,10 @@ module.exports =
             
             //await selectSellOrder(selectSkin_subquery).then( (rows) => logResult(rows) );
 
-            selectSkin_subquery_1       = selectSkin();
-            selectSkin_subquery_2       = selectSkin();
-            selectSellOrder_subquery_1  = selectSellOrder( selectSkin_subquery_1, 'SQ1'  );
-            selectSellOrder_subquery_2  = selectSellOrder( selectSkin_subquery_2, 'SQ2'  );
+            var selectSkin_subquery_1       = selectSkin();
+            var selectSkin_subquery_2       = selectSkin();
+            var selectSellOrder_subquery_1  = selectSellOrder( selectSkin_subquery_1, 'SQ1'  );
+            var selectSellOrder_subquery_2  = selectSellOrder( selectSkin_subquery_2, 'SQ2'  );
 
             await selectTradeUp(selectSellOrder_subquery_1, selectSellOrder_subquery_2).then( (rows) => logResult(rows) );
 
