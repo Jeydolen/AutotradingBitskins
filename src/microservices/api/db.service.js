@@ -25,16 +25,33 @@ module.exports =
         async skin_sell_order ( ctx )
         {
             var id = ctx.params.id != undefined ?  ctx.params.id : 1;
-            var bb_obj = new SkinSellOrder( Konst.Reasons.Deserialize);
-            var rows = await bb_obj.load( { 'id': id } );
-            return JSON.stringify( rows );
+
+            var result_rows = await SkinSellOrder.LoadFromDBTable( { 'id': id } );
+            console.log( "result_rows : " +  JSON.stringify( result_rows ) );
+
+            var rows_count = result_rows.length;
+            console.log( "rows_count: " + rows_count );
+
+            if ( rows_count == 1 )
+            {
+                var row = result_rows[ 0 ];
+                var bb_obj = SkinSellOrder.Create(  row,  Konst.Reason.Deserialize );
+                //console.log( "row: " + JSON.stringify( row ) + " \n result_rows : " + JSON.stringify(result_rows) );
+                //console.log( "bb_obj: " + JSON.stringify(bb_obj) );
+                ctx.meta.$responseType = "text/json ; charset=utf-8";
+                return JSON.stringify( bb_obj );            
+            }
+            else
+                return "Error /stella/db/skin_sell_order: rows_count = ";// + rows_count;  
         }, // populate(
+
 
         populate (args) 
         {
             PopulateDBCmd.GetSingleton().execute(args);
             return 'Lancement populate';
         }, // populate()
+
 
         backup ( args )
         {
@@ -60,6 +77,7 @@ module.exports =
             }
             ).catch( err => { console.log( err) });              
         }, //backup()
+
 
         restore ( args )
         {

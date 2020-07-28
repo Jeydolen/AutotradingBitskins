@@ -3,7 +3,7 @@ const Enum   = require('enum');
 const RC                = new Enum (['OK', 'KO']);
 const NOTHING           = 'NOTHING';
 const DEFAULT_NAMES     = new Enum (['NOTHING']);
-const Reasons           = new Enum ([ 'Deserialize' ]);
+const Reason            = new Enum ({'None': 0, 'Populate':1, 'Deserialize':2, 'Serialize': 3} );
 
 
 const getFunctionName = (f) =>
@@ -19,5 +19,5 @@ exports.RC = RC ;
 exports.NOTHING = NOTHING ;
 exports.DEFAULT_NAMES = DEFAULT_NAMES ;
 exports.getFunctionName = getFunctionName ;
-exports.Reasons = Reasons ;
+exports.Reason = Reason ;
 

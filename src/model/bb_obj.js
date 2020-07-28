@@ -61,16 +61,25 @@ class BitskinsObject extends ISerializable
   } // ISerializable.save()
 
 
-  // implementation of 'load' service  
-  async load( args )
+   // implementation of 'load' service  
+   load( json_data  ) 
+   {   
+     konsole.error( "BitskinsObject.load() not implemented" );
+   } // ISerializable.load()
+
+
+  //-----------------------------------------------------------------------
+  //-------------------------  LoadFromDBTable()  -------------------------
+  //-----------------------------------------------------------------------
+  static async LoadFromDBTable ( args )
   {
-      assert( args != undefined && args != null );
+      assert( args    != undefined && args    != null );
       assert( args.id != undefined && args.id != null );
 
       var db = BB_Database.GetSingleton();
 
-      var klass = this.getType();
-      console.log ('klass ' + klass );
+      var klass = this.name;
+      console.log ('klass ' + klass + ' id :' + args.id );
 
       var table_name = klass == 
         "SkinSellOrder" ? 'skin_sell_order' :
@@ -89,15 +98,16 @@ class BitskinsObject extends ISerializable
       var result_rows = null;
       await knex_conn.select().from( table_name )
             .where('id', args.id)
-            .then( (rows) =>
-                   {  result_rows = rows 
-                      console.log ('fsdfdsfdsf' + JSON.stringify (result_rows) )
-                  } );
+            .then( (rows) => {  result_rows = rows; } );
 
       return result_rows;
-  } // ISerializable.load()
+  } // ISerializable.LoadFromDBTable()
+  //---------------------------------------------/>
+  //-------------------------  LoadFromDBTable() />
+  //---------------------------------------------/>
 
 
+  //-------------------------  createInDBTable()  -------------------------
   //                   requis         requis (bitskins api)
   createInDBTable ( end_of_waterfall_cb, json_sell_order )
   { 

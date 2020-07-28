@@ -25,20 +25,35 @@ class SkinSellOrder extends BitskinsObject
     static NULL       = SkinSellOrder.GetNullObject();
 
             // Valeur JSON
-    constructor( arg ) 
+    constructor( arg, reason = Konst.Reason.None ) 
     {
-        super(arg);
+        super( arg );
+
         this.table              = 'skin_sell_order';
+
+        console.log("reason " + reason.key );
 
         if (arg == NULL_SKIN_SELL_ORDER) // Cas NULL_OBJ
         {
             this.name = NULL_SKIN_SELL_ORDER;
             this.skin_id = 1;
         }
-        else if ( arg == Konst.Reasons.Deserialize ) // Deserialiszation
+        else if ( reason == Konst.Reason.Deserialize ) // Deserialiszation
         {
+            console.log("Deserialize " + reason.key );
+            var json_sell_order     = arg;
+            this.name               = json_sell_order.item_id;
+            this.market_name        = json_sell_order.market_name;
+            this.state              = json_sell_order.item_state;
+            this.price              = json_sell_order.price;
+            this.recommanded_price  = json_sell_order.recommanded_price;  
+            //this.skin_name          = Skin.ExtractName( json_sell_order);
+            //this.skin_id            = Skin.GetSkin( this.skin_name).getRecordId();
+            this.hasStatTrak        =  json_sell_order.has_StatTrak;
+            this._record_id         = json_sell_order.id;
+            this._created_in_db     = true;
         } 
-        else // Cas nominal (arg = json_data from  Bitskjins API)
+        else if ( reason == Konst.Reason.Populate ) // Cas nominal (arg = json_data from  Bitskjins API)
         {
             var json_sell_order     = arg;
             this.name               = json_sell_order.item_id.replace ("'", "''");
@@ -48,7 +63,7 @@ class SkinSellOrder extends BitskinsObject
             this.recommanded_price  = json_sell_order.suggested_price;  
             this.skin_name          = Skin.ExtractName( json_sell_order);
             this.skin_id            = Skin.GetSkin( this.skin_name).getRecordId();
-            this.hasStatTrak        = Skin.Get_hasStatTrak (json_sell_order);
+            this.hasStatTrak        = SkinSellOrder.Get_hasStatTrak (json_sell_order);
         }  
     } // constructor
 
@@ -71,9 +86,27 @@ class SkinSellOrder extends BitskinsObject
                 ( value < 1.00 )  ? 1 :  0 ;
     } // computeStateID()
 
+    static Get_hasStatTrak ( json_sell_order)
+  {
+    var tags = json_sell_order['tags'];
+    var hasStatTrak = null;
+
+    if (tags != undefined)
+    {
+      var quality = tags['quality'];
+      if (quality != undefined)
+          hasStatTrak = (quality.search("StatTrak") != -1);
+    }    
+    else
+      hasStatTrak = false;   
+    
+    return hasStatTrak ? 1:0;
+  } // Get_hasStatTrak
+
+
     static GetNullObject() 
     {
-        if (SkinSellOrder.NULL   == undefined)
+        if ( SkinSellOrder.NULL == undefined )
             SkinSellOrder.NULL   = new SkinSellOrder( NULL_SKIN_SELL_ORDER );
         return SkinSellOrder.NULL;
     } // GetNullObject() 
@@ -81,25 +114,23 @@ class SkinSellOrder extends BitskinsObject
 
     static GetInstances ()  {  return SkinSellOrder.Instances;  }
 
-
-    static Create (input_item)
+    // Si reason =  None        : json_data = fetch frpm Bitskins API
+    //              Deserialize : json_data = { 'id': N } avec N fourni ctx.params.id dans microservice ( ex: /stella/db/skin_sell_order?id=1 )
+    static Create ( json_data, reason =  Konst.Reason.Populate )
     {
         var sell_order_obj = SkinSellOrder.NULL ;
 
-        var name = input_item.item_id ;
+        var obj_key     = json_data.item_id ;
+        var objExists   = SkinSellOrder.Instances.get ( obj_key ) != undefined;
 
-
-        if (SkinSellOrder.Instances.get (name) == undefined )
+        if ( ! objExists )
         {
-            //konsole.log ('Détection nouvel élément: ' + name, LOG_LEVEL.OK)
-            //console.log ('Détection nouvel élément: ' + name) ;
-            sell_order_obj = new SkinSellOrder (input_item);
-            SkinSellOrder.Instances.set (name, sell_order_obj) ;
+            sell_order_obj = new SkinSellOrder ( json_data, reason );
+            SkinSellOrder.Instances.set ( obj_key, sell_order_obj) ;
         }
         else 
         {
-            //konsole.log('Sell order déja créé (instance de SkinSellOrder): ' + name, LOG_LEVEL.WARNING)
-            sell_order_obj = SkinSellOrder.Instances.get (name) ;
+            sell_order_obj = SkinSellOrder.Instances.get ( obj_key ) ;
             sell_order_obj._is_just_created = false; 
         }
         return sell_order_obj ;

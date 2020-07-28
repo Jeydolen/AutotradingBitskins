@@ -12,7 +12,7 @@ class ISerializable
     } // ISerializable.save()
 
     // Fallback implementation of 'load' service  
-    async load( data )
+    load( data )
     {
         throw "ISerializable.load() not implemented";
     } // ISerializable.load()

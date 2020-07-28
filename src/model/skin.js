@@ -69,23 +69,6 @@ class Skin extends BitskinsObject
     } // if (arg == NULL_SKIN)
   } // constructor()
 
-  static Get_hasStatTrak ( json_sell_order)
-  {
-    var tags = json_sell_order['tags'];
-    var hasStatTrak = null;
-
-    if (tags != undefined)
-    {
-      var quality = tags['quality'];
-      if (quality != undefined)
-          hasStatTrak = (quality.search("StatTrak") != -1);
-    }    
-    else
-      hasStatTrak = false;   
-    
-    return hasStatTrak ? 1:0;
-  } // Get_hasStatTrak
-
   //             requis
   getCoVaSeq ( json_sell_order ) 
   { 
