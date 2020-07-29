@@ -22,10 +22,11 @@ const { ISerializable }             = rekwire ('/src/ISerializable.js') ;
                                                                                   \_____*/
 class BitskinsObject extends ISerializable
 {
-  static Instances  = new Map();
+  static Instances            = new Map();
+  static InstancesByRecordID  = new Map();
 
   //   arg =    input_item ou name (pour NULL_SKIN)
-  constructor( arg ) 
+  constructor( arg, id ) 
   {     
     super( arg );
 
@@ -40,7 +41,14 @@ class BitskinsObject extends ISerializable
   getIsJustCreated    ()      { return this._is_just_created;     } // getIsJustCreated()
   getType             ()      { return this.constructor.name ;    } // getType()
   getName             ()      { return this.name ;                } // getName()
+  getById             ( id )  { return this( id ) }
+
   getRecordId         ()      { return this._record_id;           } // getRecordId()
+  setRecordId         ( record_id)      
+  { 
+    this._record_id = record_id; 
+    InstancesByRecordID.set( record_id, this );    
+  } // getRecordId()
 
   //            optionnel (les 2)
   getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
@@ -54,10 +62,19 @@ class BitskinsObject extends ISerializable
 
 
   // implementation of 'save' service  
-  save( data_format, data  ) 
-  {   
-    var db = BB_Database.GetSingleton(); 
-    createInDBTable (  db,  end_of_waterfall_cb, data );
+  save( data_format = Konst.DataFormat.Json  ) 
+  {  
+    var output = {}; 
+    console.log('1')
+    for (var attribute in this) 
+    {
+      console.log('2' + attribute)
+      if ( ! attribute.startsWith('_'))
+        {
+          console.log('3' + this.attribute)
+          output.attribute = this.attribute;
+        }
+    }
   } // ISerializable.save()
 
 
@@ -168,7 +185,7 @@ class BitskinsObject extends ISerializable
         {
 
           var   insert_id = query_insert_result[0].insertId;
-          this._record_id = insert_id;
+          this.setRecordId( insert_id );
           //                                         requis ou optionnel ?
           var assignement_value = this.getCoVaSeq( json_sell_order) ;
           if (assignement_value == Konst.NOTHING) 

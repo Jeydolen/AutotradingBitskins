@@ -21,8 +21,9 @@ const NULL_SKIN_SELL_ORDER      = "NULL_SKIN_SELL_ORDER" ;
 
 class SkinSellOrder extends BitskinsObject
 {               
-    static Instances  = new Map();
-    static NULL       = SkinSellOrder.GetNullObject();
+    static Instances            = new Map();
+    static InstancesByRecordID  = new Map();
+    static NULL                 = SkinSellOrder.GetNullObject();
 
             // Valeur JSON
     constructor( arg, reason = Konst.Reason.None ) 
@@ -116,20 +117,33 @@ class SkinSellOrder extends BitskinsObject
 
     // Si reason =  None        : json_data = fetch frpm Bitskins API
     //              Deserialize : json_data = { 'id': N } avec N fourni ctx.params.id dans microservice ( ex: /stella/db/skin_sell_order?id=1 )
-    static Create ( json_data, reason =  Konst.Reason.Populate )
+    static async Create ( json_data, reason =  Konst.Reason.Populate )
     {
-        var sell_order_obj = SkinSellOrder.NULL ;
+        assert( json_data != undefined && json_data != null, 'Create: json_data arg ' + JSON.stringify( json_data ) );
+        var obj_key = null;
+        if ( reason ==  Konst.Reason.Populate )
+        {
+            assert( json_data.item_id != undefined && json_data.item_id != null,  'Create: json_data.item_id arg ' + JSON.stringify( json_data.item_id ) );
+            obj_key     = json_data.item_id ;
+        }       
+        else if ( reason == Konst.Reason.Deserialize )
+        {
+            assert( json_data.name != undefined && json_data.name != null,  'Create: json_data.name arg ' + JSON.stringify( json_data.named ) );
+            obj_key     = json_data.name ;
+        }
 
-        var obj_key     = json_data.item_id ;
+        var sell_order_obj = SkinSellOrder.NULL ;
         var objExists   = SkinSellOrder.Instances.get ( obj_key ) != undefined;
 
         if ( ! objExists )
         {
-            sell_order_obj = new SkinSellOrder ( json_data, reason );
+            console.log ( "! objExists ")
+            sell_order_obj = await new SkinSellOrder ( json_data, reason );
             SkinSellOrder.Instances.set ( obj_key, sell_order_obj) ;
         }
         else 
         {
+            console.log("SkinSellOrder.create obj " + obj_key + " found");
             sell_order_obj = SkinSellOrder.Instances.get ( obj_key ) ;
             sell_order_obj._is_just_created = false; 
         }

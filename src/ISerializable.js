@@ -6,7 +6,7 @@ const DataFormat = new Enum( [ 'Json', 'MySQL', 'CSV' ] );
 class ISerializable 
 {  
     // Fallback implementation of 'save' service  
-    save( data_format, data  ) 
+    save( data_format ) 
     {     
         throw "ISerializable.save() not implemented";
     } // ISerializable.save()
