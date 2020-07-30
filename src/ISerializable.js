@@ -5,8 +5,10 @@ const DataFormat = new Enum( [ 'Json', 'MySQL', 'CSV' ] );
 //==================== 'ISerializable' interface class ====================
 class ISerializable 
 {  
-    // Fallback implementation of 'save' service  
-    save( data_format ) 
+    // Fallback implementation of 'save' service
+    //       JSON       FICHIER
+    //      MYSQL       CONNEXION ( DB )  
+    save( data_format,      target ) 
     {     
         throw "ISerializable.save() not implemented";
     } // ISerializable.save()

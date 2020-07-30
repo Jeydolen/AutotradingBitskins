@@ -1,43 +1,46 @@
+const knex    = rekwire ('/src/bb_database.js').knex_conn;
 const Session = rekwire ('/src/session.js').Session;
-const knex = rekwire ('/src/bb_database.js').knex_conn;
+
 
 module.exports =
 {
     name: "query",
-    settings: 
-    {
-        routes: 
-        [
-            { path: "/query" }
-        ],
-        responseFormatter: "raw"
-    },
+    settings:  { routes: [ { path: "/query" } ] },
+
+
     actions: 
     { 
-        select (ctx) 
+        // https://www.searchenginenews.com/sample/content/are-you-using-commas-in-your-urls-heres-what-you-need-to-know
+        async select (ctx) 
         {
             //             v    v  v
-            // /quety/knex?table=XX&fields=A,B,C
+            // /quety/knex?table=XX&fields=AB,C
             var table  = ctx.params.table != undefined ? ctx.params.table : 'skin_sell_order';
             var fields = ctx.params.fields != undefined ? ctx.params.fields : 'id';
-            var field_items = fields.split(',');
-            var id     = ctx.params.id != undefined ? ctx.params.id : 0;
+            console.log ( fields )
+            var field_items = fields.split('|');
+            console.log ( fields )
+            var id     = ctx.params.id != undefined ? ctx.params.id : 1;
 
-            var output = "";
+            var output = [];
 
-            knex( table ).select( field_items ).where('id', id )
+            await knex( table ).select( field_items ).where('id', id )
             .then
             (   (rows) =>
                 {
                     rows.map
                     ( row => 
-                        { console.log(row) ;
-                          output += row + "\n";  
+                        { 
+                            console.log(row) ;
+                            output.push(row);  
                         } 
                     );
-                    return "/query/select: "+ output;
                 }
-            ); // knex select
+            );
+
+            ctx.meta.$responseType = "text/json ; charset=utf-8";
+            return JSON.stringify ( output ); // knex select
+            
         }, // 'select' action
 
 

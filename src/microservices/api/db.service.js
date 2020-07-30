@@ -36,10 +36,9 @@ module.exports =
             {
                 var row = result_rows[ 0 ];
                 var bb_obj = SkinSellOrder.Create(  row,  Konst.Reason.Deserialize );
-                //console.log( "row: " + JSON.stringify( row ) + " \n result_rows : " + JSON.stringify(result_rows) );
-                //console.log( "bb_obj: " + JSON.stringify(bb_obj) );
                 ctx.meta.$responseType = "text/json ; charset=utf-8";
-                return JSON.stringify( bb_obj );            
+                //return JSON.stringify( bb_obj );
+                return bb_obj.toJSON()            
             }
             else
                 return "Error /stella/db/skin_sell_order: rows_count = ";// + rows_count;  

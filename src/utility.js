@@ -45,9 +45,18 @@ const pause = (delay_msec) =>
     setTimeout(cb, delay_msec);
 } // pause
 
+const getFunctionName = (f) =>
+{
+    var ret = f.toString();
+    ret = ret.substr('function '.length);
+    ret = ret.substr(0, ret.indexOf('('));
+    return ret;
+}; // getFunctionName()
+
   
 exports.objToString = objToString;
 exports.mapToObj    = mapToObj;
 exports.mapToJSON   = mapToJSON;
 exports.mapToString = mapToString;
 exports.pause       = pause;
+exports.getFunctionName = getFunctionName ;

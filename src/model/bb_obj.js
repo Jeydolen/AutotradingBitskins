@@ -1,13 +1,13 @@
 const assert        = require ('assert');
-const { cpuUsage } = require('process');
 const expand        = require ('expand-template')();
 
 const Konst                         = rekwire ('/src/constants.js') ;
 const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js'); 
 const { BB_SqlQuery, SQL_TEMPLATE } = rekwire ('/src/bb_sql_query.js') ;
 const { BB_Database, knex_conn }    = rekwire ('/src/bb_database.js') ;
-
 const { ISerializable }             = rekwire ('/src/ISerializable.js') ;
+
+
 
 /*$$$$$$$  /$$   /$$              /$$       /$$                      /$$$$$$  /$$                                 /$$    
 | $$__  $$|__/  | $$             | $$      |__/                     /$$__  $$| $$                                | $$    
@@ -37,18 +37,44 @@ class BitskinsObject extends ISerializable
     this._is_just_created     = true;
   } // constructor()
 
+  toJSON = ( access_type = Konst.AccessType.Public ) => 
+  {
+    var json_data = {} ;
+    for (var attribute in this) 
+    {
+      if ( ! attribute.startsWith('_'))
+        {
+          json_data[attribute] = this[attribute];
+        }
+    }
+    return json_data;
+  }; // toJSON()
+
 
   getIsJustCreated    ()      { return this._is_just_created;     } // getIsJustCreated()
   getType             ()      { return this.constructor.name ;    } // getType()
   getName             ()      { return this.name ;                } // getName()
-  getById             ( id )  { return this( id ) }
+
+  static GetFromRecordId( record_id )  
+  { 
+    console.log ( 'Prout' + record_id + this.name)
+    var klass = this;
+    var bb_obj = klass.NULL;
+    if ( klass.InstancesByRecordID.has( record_id ) )
+    {
+      bb_obj = klass.InstancesByRecordID.get( record_id );
+      console.log ('Trouvé !' + bb_obj)
+    }
+      
+    return bb_obj;
+  } // GetFromRecordId()
 
   getRecordId         ()      { return this._record_id;           } // getRecordId()
   setRecordId         ( record_id)      
   { 
     this._record_id = record_id; 
     InstancesByRecordID.set( record_id, this );    
-  } // getRecordId()
+  } // setRecordId()
 
   //            optionnel (les 2)
   getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
@@ -64,17 +90,7 @@ class BitskinsObject extends ISerializable
   // implementation of 'save' service  
   save( data_format = Konst.DataFormat.Json  ) 
   {  
-    var output = {}; 
-    console.log('1')
-    for (var attribute in this) 
-    {
-      console.log('2' + attribute)
-      if ( ! attribute.startsWith('_'))
-        {
-          console.log('3' + this.attribute)
-          output.attribute = this.attribute;
-        }
-    }
+    
   } // ISerializable.save()
 
 
@@ -88,15 +104,15 @@ class BitskinsObject extends ISerializable
   //-----------------------------------------------------------------------
   //-------------------------  LoadFromDBTable()  -------------------------
   //-----------------------------------------------------------------------
-  static async LoadFromDBTable ( args )
+  static async LoadFromDBTable ( id, args )
   {
-      assert( args    != undefined && args    != null );
-      assert( args.id != undefined && args.id != null );
+      //assert( args != undefined && args    != null );
+      assert( id   != undefined && id != null && ! isNaN(id));
 
       var db = BB_Database.GetSingleton();
 
       var klass = this.name;
-      console.log ('klass ' + klass + ' id :' + args.id );
+      console.log ('klass ' + klass + ' id :' + id );
 
       var table_name = klass == 
         "SkinSellOrder" ? 'skin_sell_order' :
@@ -114,7 +130,7 @@ class BitskinsObject extends ISerializable
 
       var result_rows = null;
       await knex_conn.select().from( table_name )
-            .where('id', args.id)
+            .where('id', id )
             .then( (rows) => {  result_rows = rows; } );
 
       return result_rows;

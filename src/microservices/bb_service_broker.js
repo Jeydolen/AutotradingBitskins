@@ -40,7 +40,12 @@ class BB_ServiceBroker extends Singleton
                 assets: { folder: APP_ROOT_PATH + '/src/microservices/assets/'},
                 routes: 
                 [{ 
-                    path: "stella"
+                    path: "stella",
+                   /* aliases: 
+                    {
+                        "GET skin_sell_order" : "skin_sell_order.list"
+                    }
+                    */
                 }]
             },
             actions: 
