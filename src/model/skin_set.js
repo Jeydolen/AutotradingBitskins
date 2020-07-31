@@ -18,6 +18,7 @@ const NULL_STICKER_CAPSULE      = "NULL_STICKER_CAPSULE";
 
 class SkinSet extends BitskinsObject
 {
+    static InstancesByRecordID  = new Map();
     static Instances  = new Map();
     static NULL       = SkinSet.GetNullObject();
 
@@ -28,7 +29,7 @@ class SkinSet extends BitskinsObject
             this.name = arg ; 
         else
             this.name = SkinSet.ExtractName(arg);
-        this.table = 'skin_set';
+        this._table = 'skin_set';
     } // constructor
 
     static ExtractName( input_item )

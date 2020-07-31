@@ -157,8 +157,8 @@ class DBPopulater extends Singleton
                 if ( this.create_in_db_done_count.get( klass) == undefined )
                     this.create_in_db_done_count.set( klass, 0 );
 
-                var stck_skn_agt_obj = klass.Create (json_sell_order) ;
-                stck_skn_agt_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i]);
+                var skin_or_dumb_obj = klass.Create (json_sell_order) ;
+                skin_or_dumb_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i]);
             }
         }; // populateDBWithSkinOrDumb_CB()
 
@@ -171,7 +171,7 @@ class DBPopulater extends Singleton
             
             for (var i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var skin_sell_order_obj     = klass.Create (json_sell_orders[i]) ;
+                var skin_sell_order_obj     = klass.Create ( json_sell_orders[i] ) ;
                 skin_sell_order_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i] );
             }
         }; // populateDBWithSkinSellOrder_CB()

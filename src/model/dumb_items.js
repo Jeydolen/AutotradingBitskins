@@ -24,6 +24,7 @@ const ITEM_TYPE_TABLE_IDS = new Enum  ({  'NULL_ITEM_TYPE' : 0, 'Skin' : 1, 'Age
 class DumbItem extends BitskinsObject
 {
     static Instances    = new Map();
+    static InstancesByRecordID  = new Map();
     static NULL         = DumbItem.GetNullObject();
 
     //           name | json_sell_order
@@ -44,7 +45,7 @@ class DumbItem extends BitskinsObject
             this.item_type  = json_sell_order.item_type;
         } 
 
-        this.table      = 'dumb_item';
+        this._table      = 'dumb_item';
     } // constructor
 
 

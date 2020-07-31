@@ -28,11 +28,13 @@ class Skin extends BitskinsObject
   // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Classes/Class_fields
   // https://developer.mozilla.org/fr/docs/Web/JavaScript/Reference/Objets_globaux/Map
   static Instances  = new Map();
+  static InstancesByRecordID  = new Map();
 
   //   arg =    json_sell_order ou name (pour NULL_SKIN)
   constructor( arg ) 
   {
     super (arg)    ;  
+    this._table              = 'skin';
     //                      Flag       WP_name |  Skin name  (State(float_value))
     // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
     //console.log("Skin constructor : " + arg);
@@ -42,7 +44,6 @@ class Skin extends BitskinsObject
       // Cas particulier: instanciation du NullObject (cf. Design Patterns)
       this.name         = NULL_SKIN ;
       this.image_url    = NULL_URL ;
-      this.hasStatTrak  = false;
       this.item_rarity  = NULL_RARITY ;
       this.weapon_id    = 1; // NULL_WEAPON Dans DB
       this.short_name   = NULL_SKIN;
@@ -61,11 +62,7 @@ class Skin extends BitskinsObject
       this.weapon_obj         = Weapon.GetWeapon (this.weapon_name);
       this.weapon_id          = this.weapon_obj.getRecordId();
       this.item_rarity        = this.computeRarityID(json_sell_order.item_rarity);
-      this.table              = 'skin';
-      this.hasStatTrak        = Skin.Get_hasStatTrak(json_sell_order)
       assert ( this.weapon_obj   != Weapon.NULL );
-
-         
     } // if (arg == NULL_SKIN)
   } // constructor()
 

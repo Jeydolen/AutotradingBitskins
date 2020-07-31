@@ -30,9 +30,7 @@ class SkinSellOrder extends BitskinsObject
     {
         super( arg );
 
-        this.table              = 'skin_sell_order';
-
-        console.log("reason " + reason.key );
+        this._table              = 'skin_sell_order';
 
         if (arg == NULL_SKIN_SELL_ORDER) // Cas NULL_OBJ
         {
@@ -117,33 +115,42 @@ class SkinSellOrder extends BitskinsObject
 
     // Si reason =  None        : json_data = fetch frpm Bitskins API
     //              Deserialize : json_data = { 'id': N } avec N fourni ctx.params.id dans microservice ( ex: /stella/db/skin_sell_order?id=1 )
-    static async Create ( json_data, reason =  Konst.Reason.Populate )
+    // PAS METTRE de ASYNC / AWAIT ça sert a R dans contexte Populate ( utilisation du NEW )
+    static Create ( json_data, reason =  Konst.Reason.Populate )
     {
         assert( json_data != undefined && json_data != null, 'Create: json_data arg ' + JSON.stringify( json_data ) );
+
         var obj_key = null;
+        console.log ('reason :' + reason)
         if ( reason ==  Konst.Reason.Populate )
         {
             assert( json_data.item_id != undefined && json_data.item_id != null,  'Create: json_data.item_id arg ' + JSON.stringify( json_data.item_id ) );
             obj_key     = json_data.item_id ;
+            console.log ( 'obj_key :' + obj_key );
         }       
         else if ( reason == Konst.Reason.Deserialize )
         {
             assert( json_data.name != undefined && json_data.name != null,  'Create: json_data.name arg ' + JSON.stringify( json_data.named ) );
             obj_key     = json_data.name ;
         }
+        else
+        {
+            console.log ('SaaaaaaaaaaaallllllUUUUUUUUUUUUUUUUUUUUUUUUUUUUuuuuuuuuuuuuuuuuuuuUUUUUUUUUUUUUUUU')
+        }
+
 
         var sell_order_obj = SkinSellOrder.NULL ;
         var objExists   = SkinSellOrder.Instances.get ( obj_key ) != undefined;
 
+
         if ( ! objExists )
         {
-            console.log ( "! objExists ")
-            sell_order_obj = await new SkinSellOrder ( json_data, reason );
-            SkinSellOrder.Instances.set ( obj_key, sell_order_obj) ;
+            sell_order_obj = new SkinSellOrder ( json_data, reason );
+            SkinSellOrder.Instances.set ( obj_key, sell_order_obj ) ;
         }
         else 
         {
-            console.log("SkinSellOrder.create obj " + obj_key + " found");
+            //console.log("SkinSellOrder.create obj " + obj_key + " found");
             sell_order_obj = SkinSellOrder.Instances.get ( obj_key ) ;
             sell_order_obj._is_just_created = false; 
         }

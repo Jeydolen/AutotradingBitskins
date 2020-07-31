@@ -33,7 +33,7 @@ class BitskinsObject extends ISerializable
     this._record_id            = 1; // NULL_OBJECT DANS LES TABLES 
     this._created_in_db       = false;
     this._updated_in_db       = false;
-    this.table                = Konst.NOTHING;
+    this._table                = Konst.NOTHING;
     this._is_just_created     = true;
   } // constructor()
 
@@ -72,8 +72,9 @@ class BitskinsObject extends ISerializable
   getRecordId         ()      { return this._record_id;           } // getRecordId()
   setRecordId         ( record_id)      
   { 
+    var klass = this.constructor;
     this._record_id = record_id; 
-    InstancesByRecordID.set( record_id, this );    
+    klass.InstancesByRecordID.set( record_id, this );    
   } // setRecordId()
 
   //            optionnel (les 2)
@@ -82,7 +83,7 @@ class BitskinsObject extends ISerializable
 
   buildQueryText = () => 
   { 
-    var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this.table, 'db-name-value' : this.name});
+    var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this._table, 'db-name-value' : this.name});
     return query_text;
   } // buildQueryText()
 
@@ -153,8 +154,6 @@ class BitskinsObject extends ISerializable
       {
 
           var query_select_obj = BB_SqlQuery.Create();
-          //konsole.log( this.getType() +".createInDBTable() SELECT");
-          
           var query_text = this.buildQueryText();
           query_select_obj.executeWithCB( db, query_text, insertQueryCB );
         
@@ -164,8 +163,6 @@ class BitskinsObject extends ISerializable
       const  insertQueryCB = ( err,  query_select_result ) =>
       {
         this.query_result = query_select_result ;
-
-        
         var query_insert_obj = BB_SqlQuery.Create();
   
         if ( err )
@@ -178,7 +175,7 @@ class BitskinsObject extends ISerializable
 
         if ( query_select_result[0].length == 0)
         {
-          var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this.table, 'db-name-value': this.name } );
+          var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this._table, 'db-name-value': this.name } );
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
         }
         else 
@@ -211,7 +208,7 @@ class BitskinsObject extends ISerializable
           else 
           {
             var query_update_obj  = BB_SqlQuery.Create();
-            var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this.table, 'co-va-seq' : assignement_value, 'db-field' : 'name', 'db-field-value' : this.name });    
+            var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this._table, 'co-va-seq' : assignement_value, 'db-field' : 'name', 'db-field-value' : this.name });    
             query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
           }
         }

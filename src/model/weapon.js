@@ -26,21 +26,21 @@ const WEAPON_TYPE_DB_IDS = new Enum  ({ 'Unknown' : 0, 'Knife' : 1, 'Pistol' : 2
 class Weapon extends BitskinsObject
 {
     static Instances    = new Map();
+    static InstancesByRecordID  = new Map();
     static NULL         = Weapon.GetNullObject();
 
 
     constructor(arg) 
     {
         super (arg);
+        this._table = 'weapon';
+        this.item_type = arg.item_type;
     
         if ( arg == NULL_WEAPON )
             this.name = NULL_WEAPON ;
         else 
             this.name = Weapon.ExtractName(arg) ; 
-
-        this.item_type = arg.item_type;
-        this.table = 'weapon';
-
+            
     } // constructor
 
 

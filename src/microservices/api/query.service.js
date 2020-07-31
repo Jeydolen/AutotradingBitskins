@@ -1,4 +1,5 @@
 const knex    = rekwire ('/src/bb_database.js').knex_conn;
+const TradeUp = rekwire ('/src/model/trade_up.js').TradeUp;
 const Session = rekwire ('/src/session.js').Session;
 
 
@@ -56,35 +57,43 @@ module.exports =
 
             const logResult = (rows) =>
             {
-               rows.map
+                {
+                    console.log (rows)
+                    rows.map
                     ( row => 
                         {   console.log(row) ;
 
-                            output += "<li>" + row.SQ1_market_name;
+                            
+                            output += "<li>";
 
-                            output +=   row.SQ1_market_name + "@" + row.SQ1_price.toFixed(2) + "€&nbsp;&nbsp;<br>" 
-                                        + "==>" + row.SQ2_market_name +"@" + row.SQ2_price.toFixed(2) + "€&nbsp;&nbsp;";
-
-                            var virtual_profit = (row.SQ2_price - (row.SQ1_price * 10)).toFixed(2) + "€" ;
-                            output += "&nbsp; Profit : " + virtual_profit + "</li>";
+                            output +=   row.SQ1_id + "==>" + row.SQ2_id + "</li>";
                         } 
                     );
+                }
+               
             }; // logResult()
 
             
             const selectTradeUp = (subquery_1, subquery_2) =>
             {
                 return  knex.select().from  (subquery_1)
-                            .innerJoin      (subquery_2 , knex.raw('(SQ1_price * 10.00) < (SQ2_price * 1.00)'));
+                            .innerJoin      (subquery_2 )//, knex.raw('(SQ1_price * 10.00) < (SQ2_price * 1.00)'));
             }; // selectTradeUp()
 
 
-            const selectSellOrder = (subquery, tmp_table) => 
+            const selectSellOrder_old = (subquery, tmp_table) => 
             {
                 return  knex.select('name as ' + tmp_table +'_name', 'price as ' + tmp_table +'_price', 'skin', 'market_name as ' + tmp_table +'_market_name').from('skin_sell_order')
                      .where(  {'item_state' : state, 'has_StatTrak': stattrak } )
                      .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) ).as( tmp_table ) ;
             }; // selectSellOrder
+
+            const selectSellOrderID = (subquery, tmp_table) => 
+            {
+                return  knex.select('id as ' + tmp_table + '_id').from('skin_sell_order')
+                     .where(  {'item_state' : state, 'has_StatTrak': stattrak } )
+                     .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) ).as( tmp_table ) ;
+            }; // selectSellOrderID
 
 
             const selectSkin  = () => 
@@ -104,10 +113,27 @@ module.exports =
 
             var selectSkin_subquery_1       = selectSkin();
             var selectSkin_subquery_2       = selectSkin();
+            /*
             var selectSellOrder_subquery_1  = selectSellOrder( selectSkin_subquery_1, 'SQ1'  );
             var selectSellOrder_subquery_2  = selectSellOrder( selectSkin_subquery_2, 'SQ2'  );
+            */
+            var selectSellOrder_subquery_1  = selectSellOrderID( selectSkin_subquery_1, 'SQ1'  );
+            var selectSellOrder_subquery_2  = selectSellOrderID( selectSkin_subquery_2, 'SQ2'  );
 
-            await selectTradeUp(selectSellOrder_subquery_1, selectSellOrder_subquery_2).then( (rows) => logResult(rows) );
+            await selectTradeUp(selectSellOrder_subquery_1, selectSellOrder_subquery_2)
+            .then( (rows) => 
+            {
+                rows.map
+                ( (row) => 
+                    {   var trade_up_obj = new TradeUp( row );
+                    } 
+                );
+            });
+            /*
+            .then( (rows) => 
+            {
+                logResult(rows)
+            } );*/
 
 
             // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types
