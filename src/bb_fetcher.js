@@ -28,7 +28,6 @@ const BITSKINS_FETCHER_SINGLETON    = "BITSKINS_FETCHER_SINGLETON";
 |_______/ |__/   \___/ |_______/ |__/  \__/|__/|__/  |__/|_______/ |__/    \_______/   \___/   \_______/|__/  |__/ \_______/|_*/      
                                                                                                                                 
 class BitskinsFetcher extends Singleton
-
 {
     static Singleton = null;
     
@@ -42,8 +41,12 @@ class BitskinsFetcher extends Singleton
         this._is_populate_finished  = false;
     } // constructor
 
-    getName () {return this.name ;}
+    getName         () {return this.name ;}
     setIsPopulateFinished (value) {this._is_populate_finished  = value ; }
+
+    getIsLastPage   () { return this._is_last_page;   }
+    getPageIndex    () { return this._page_index;     }
+    getType         () { return this.constructor.name;}
     
 
     buildQuery (page_index)
@@ -53,6 +56,112 @@ class BitskinsFetcher extends Singleton
                         + two_FA_code + "&is_souvenir=-1&per_page=480&show_trade_delayed_items=1&page=" + page_index ;
         return query;
     } // buildQuery
+
+
+    getExitFetchItems () { return this.exitFetchItems ; }
+    
+    
+    //parseOnReady_CB ( json_data,  populate_finished_cb )
+    parseOnReady_CB ( json_data,  cb_args )
+    {
+        var populate_finished_cb    = cb_args.cb;
+        var reason                  = cb_args.reason ;
+
+        var items_count = Konst.NOTHING;
+        //-------------------- Parsing du JSON -------------------
+        var json_obj = { "NOTHING" : Konst.NOTHING } ;
+        try 
+        {
+            items_count = 0;
+            json_obj = JSON.parse( json_data.toString() );
+        }
+        catch( error ) 
+        {
+          konsole.log("BB_FETCHER.parseOnReady_CB () : Error when Parsing", LOG_LEVEL.ERROR);
+          konsole.log("error code: \n" + error, LOG_LEVEL.ERROR); // error in the above string (in this case, yes)!
+        } 
+        //-------------------- Parsing du JSON -------------------
+    
+        if 
+        (       json_obj['data']            != undefined  
+            &&  json_obj['data']['items']   != undefined
+            &&  json_obj['data']['items'].length > 0
+        )
+        {
+            items_count = json_obj['data']['items'].length;
+            konsole.log ("Items count :" + items_count, LOG_LEVEL.OK)
+            konsole.log('firstItem : ' + json_obj['data']['items'][0].market_hash_name, LOG_LEVEL.MSG);
+            konsole.log("page :" +json_obj['data']['page'], LOG_LEVEL.MSG)
+
+            var singleton  = BitskinsFetcher.Singleton;
+    
+            if ( reason == Konst.Reason.Populate ) 
+                DBPopulater.GetSingleton().populateWaterfall( json_obj, singleton._page_index, populate_finished_cb );
+
+            singleton._page_index++;
+        }
+    
+        if ( items_count  == 0)
+        {
+            konsole.log (process.type, LOG_LEVEL.ERROR);
+            konsole.log ("C'est qui le patron ?", LOG_LEVEL.STEP);
+            BitskinsFetcher.GetSingleton().exitFetchItems = true;
+            BitskinsFetcher.GetSingleton()._is_last_page  = true;
+        }
+        return json_obj;
+    } // parseOnReady_CB()
+
+
+    //====================  POPULATE_DB  ====================
+    // POPULATE_DB --> FETCH_ITEMS --> DOWNLOAD_PAGE
+    async populateDB ( page_index, reason = Konst.Reason.Populate ) 
+    {
+        console.log('PopulateDB (bb_fetcher) Page_index :' + page_index)
+        assert ( ! isNaN(page_index) )
+        if (page_index != undefined )
+            this._page_index = page_index
+
+
+        if ( reason == Konst.Reason.Populate)
+        {
+            db.clearTables();
+        }  
+    
+        const populate = ( reason_arg ) =>
+        {
+            assert (! this._is_last_page);
+            this.fetchItems( this._page_index, { cb: this.parseOnReady_CB, reason: reason_arg }, populate  );    
+            konsole.log ("Boucle du populate: " + this._page_index, LOG_LEVEL.OK);
+        }; // populate()
+
+        populate( reason );
+       
+    }; //==================== populateDB ()
+
+
+    //====================  FETCH_ITEMS  ====================
+    //async fetchItems ( page_index, on_response_ready, populate_finished_cb, reason = Konst.Reason.Populate ) 
+    async fetchItems ( page_index, on_response_ready, cb_args, reason = Konst.Reason.Populate ) 
+    {
+        var populate_finished_cb    = cb_args.cb;
+        var reason                  = cb_args.reason ;
+
+        assert( on_response_ready != undefined );
+
+        var fetch_result = Konst.NOTHING;
+        
+        try 
+        {
+            fetch_result = await this.downloadPage( this.buildQuery( page_index ), on_response_ready, populate_finished_cb );
+        } 
+        catch ( error ) 
+        {
+            konsole.error('ERROR:');
+            konsole.error("error: " + error);
+            fetch_result = error;
+        }
+        return Konst.NOTHING;
+    } //==================== FETCH_ITEMS
 
 
     ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
@@ -77,105 +186,8 @@ class BitskinsFetcher extends Singleton
         });
         return result;
     }; // downloadPage()
-
-
-    async fetchItems ( page_index, on_response_ready, populate_finished_cb ) 
-    {
-        assert( on_response_ready != undefined );
-
-        var fetch_result = Konst.NOTHING;
-        
-        try 
-        {
-            fetch_result = await this.downloadPage( this.buildQuery( page_index ), on_response_ready, populate_finished_cb );
-        } 
-        catch ( error ) 
-        {
-            konsole.error('ERROR:');
-            konsole.error("error: " + error);
-            fetch_result = error;
-        }
-        return Konst.NOTHING;
-    } // fetchItems()
     
     ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
-
-    getExitFetchItems () { return this.exitFetchItems ; }
-    
-                                                                                                             
-    parseOnReady_CB ( json_data,  populate_finished_cb )
-    {
-        var items_count = Konst.NOTHING;
-        //-------------------- Parsing du JSON -------------------
-        var json_obj = { "NOTHING" : Konst.NOTHING } ;
-        try 
-        {
-            items_count = 0;
-            // console.log("Try Parsing");
-            json_obj = JSON.parse( json_data.toString() );
-        }
-        catch( error ) 
-        {
-          konsole.log("BB_FETCHER.parseOnReady_CB () : Error when Parsing", LOG_LEVEL.ERROR);
-          konsole.log("error code: \n" + error, LOG_LEVEL.ERROR); // error in the above string (in this case, yes)!
-        } 
-        //-------------------- Parsing du JSON -------------------
-    
-        if 
-        (       json_obj['data']            != undefined  
-            &&  json_obj['data']['items']   != undefined
-            &&  json_obj['data']['items'].length > 0
-        )
-        {
-            items_count = json_obj['data']['items'].length;
-            konsole.log ("Items count :" + items_count, LOG_LEVEL.OK)
-            konsole.log('firstItem : ' + json_obj['data']['items'][0].market_hash_name, LOG_LEVEL.MSG);
-            konsole.log("page :" +json_obj['data']['page'], LOG_LEVEL.MSG)
-
-            var singleton  = BitskinsFetcher.Singleton;
-    
-           //populateDB( json_obj ); 
-           DBPopulater.GetSingleton().populateWaterfall( json_obj, singleton._page_index++, populate_finished_cb );
-        }
-    
-        if ( items_count  == 0)
-        {
-            konsole.log (process.type, LOG_LEVEL.ERROR);
-            konsole.log ("C'est qui le patron ?", LOG_LEVEL.STEP);
-            BitskinsFetcher.GetSingleton().exitFetchItems = true;
-            BitskinsFetcher.GetSingleton()._is_last_page  = true;
-        }
-        return json_obj;
-    } // parseOnReady_CB()
-
-
-    getIsLastPage   () { return this._is_last_page; }
-
-    getType() 
-    {
-        return this.constructor.name;
-    }
-
-    async populateDB ( page_index ) 
-    {
-        console.log('PopulateDB (bb_fetcher) Page_index :' + page_index)
-        assert ( ! isNaN(page_index) )
-        if (page_index != undefined )
-            this._page_index = page_index     
-        db.clearTables();
-
-        var exit_condition = ( BitskinsFetcher.Singleton.getIsLastPage() );
-
-        const populate = () =>
-        {
-            assert (! this._is_last_page);
-            this.fetchItems( this._page_index, this.parseOnReady_CB, populate );    
-            konsole.log ("Boucle du populate: " + this._page_index, LOG_LEVEL.OK);
-        }
-
-        populate();
-       
-    }; // populateDB ()
 
 } // BitskinsFetcher
 
