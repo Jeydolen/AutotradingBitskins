@@ -37,6 +37,7 @@ class BitskinsObject extends ISerializable
     this._is_just_created     = true;
   } // constructor()
 
+
   toJSON = ( access_type = Konst.AccessType.Public ) => 
   {
     var json_data = {} ;
@@ -81,6 +82,39 @@ class BitskinsObject extends ISerializable
   getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
 
 
+  static _GetTableName( klass )
+  {
+    console.log ('klass ' + klass );
+
+    var table_name = klass == 
+      "SkinSellOrder" ? 'skin_sell_order' :
+      "SkinSet"       ? 'skin_set'        :
+      "Skin"          ? 'skin'            :
+      "Weapon"        ? 'weapon'          : null;
+
+    return table_name;
+  } // _GetTableName()
+
+
+  static async GetCount()
+  {
+    var klass = this.name;
+    var table_name = BitskinsObject._GetTableName( klass );
+    var result_rows = null;
+    console.log( "table_name: " + table_name );
+
+    await knex_conn.count().from(table_name)
+    .then( (rows) =>
+      { 
+         result_rows = rows;
+         console.log( "result_rows: " + JSON.stringify(result_rows) );
+      } 
+    );
+
+    return result_rows;
+  } // GetCount()
+
+
   buildQueryText = () => 
   { 
     var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this._table, 'db-name-value' : this.name});
@@ -113,13 +147,7 @@ class BitskinsObject extends ISerializable
       var db = BB_Database.GetSingleton();
 
       var klass = this.name;
-      console.log ('klass ' + klass + ' id :' + id );
-
-      var table_name = klass == 
-        "SkinSellOrder" ? 'skin_sell_order' :
-        "SkinSet"       ? 'skin_set'        :
-        "Skin"          ? 'skin'            :
-        "Weapon"        ? 'weapon'          : null;
+      var table_name = BitskinsObject._GetTableName( klass );
 
       if ( table_name == null )
       {

@@ -16,6 +16,7 @@ module.exports =
             { path: "/skin_sell_order" }
         ]
     },
+
     actions: 
     { 
         async list ( ctx )
@@ -39,24 +40,18 @@ module.exports =
                 console.log ('for typeof id :' + typeof id + ' id : ' + id)
                 bb_obj = SkinSellOrder.GetFromRecordId( id );
 
-                if ( bb_obj !== SkinSellOrder.NULL )
-                {
-                    // console.log ( 'trouvé, BB_objects.push de :' + bb_obj + ' ' + bb_obj.name)
-                    bb_objects.push( bb_obj );
-                }
+                if ( bb_obj !== SkinSellOrder.NULL ) { bb_objects.push( bb_obj ); }
+
                 else
                 {
                     // Restauration depuis db (deserialization)
                     var result_rows = await SkinSellOrder.LoadFromDBTable( id );
                     var rows_count = result_rows.length;
-                    //console.log( "rows_count: " + rows_count + ' result_rows :' + result_rows);
-        
+                   
                     if ( rows_count == 1 )
                     {
                         var row = result_rows[ 0 ];
-                        //console.log( "row " + JSON.stringify(row))
                         bb_obj = await SkinSellOrder.Create(  row,  Konst.Reason.Deserialize );
-                        //console.log ( 'BB_objects.push de :' + obj2string(bb_obj) + ' ' + bb_obj.id)
                         bb_objects.push( bb_obj );
                     }
                     else console.log ('JE SUIS M2CHANT' + rows_count)
@@ -81,6 +76,14 @@ module.exports =
 
             ctx.meta.$responseType = "text/json ; charset=utf-8";            
             return "Error /stella/skin_sell_order/save id= " + id;// + rows_count;  
+        }, // save
+
+        async count ( ctx )
+        {
+            var result = await SkinSellOrder.GetCount();
+
+            ctx.meta.$responseType = "text/json ; charset=utf-8";            
+            return result; // + rows_count;  
         } // save
 
     } // actions list

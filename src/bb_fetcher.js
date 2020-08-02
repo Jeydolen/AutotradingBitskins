@@ -41,12 +41,13 @@ class BitskinsFetcher extends Singleton
         this._is_populate_finished  = false;
     } // constructor
 
-    getName         () {return this.name ;}
+    getName             () {return this.name ;}
+    getIsLastPage       () { return this._is_last_page;   }
+    getPageIndex        () { return this._page_index;     }
+    getMaxPageIndex     () { return this._page_index -1;  }
+    getType             () { return this.constructor.name;}
+    getExitFetchItems   () { return this.exitFetchItems ; }
     setIsPopulateFinished (value) {this._is_populate_finished  = value ; }
-
-    getIsLastPage   () { return this._is_last_page;   }
-    getPageIndex    () { return this._page_index;     }
-    getType         () { return this.constructor.name;}
     
 
     buildQuery (page_index)
@@ -56,9 +57,6 @@ class BitskinsFetcher extends Singleton
                         + two_FA_code + "&is_souvenir=-1&per_page=480&show_trade_delayed_items=1&page=" + page_index ;
         return query;
     } // buildQuery
-
-
-    getExitFetchItems () { return this.exitFetchItems ; }
     
     
     //parseOnReady_CB ( json_data,  populate_finished_cb )
@@ -73,6 +71,7 @@ class BitskinsFetcher extends Singleton
         try 
         {
             items_count = 0;
+            console.log ("Try parsing")
             json_obj = JSON.parse( json_data.toString() );
         }
         catch( error ) 
@@ -96,9 +95,13 @@ class BitskinsFetcher extends Singleton
             var singleton  = BitskinsFetcher.Singleton;
     
             if ( reason == Konst.Reason.Populate ) 
-                DBPopulater.GetSingleton().populateWaterfall( json_obj, singleton._page_index, populate_finished_cb );
-
-            singleton._page_index++;
+                DBPopulater.GetSingleton().populateWaterfall( json_obj, singleton._page_index++, populate_finished_cb );
+            else
+            {
+                singleton._page_index++;
+                populate_finished_cb();
+            }
+                
         }
     
         if ( items_count  == 0)
@@ -113,37 +116,39 @@ class BitskinsFetcher extends Singleton
 
 
     //====================  POPULATE_DB  ====================
-    // POPULATE_DB --> FETCH_ITEMS --> DOWNLOAD_PAGE
-    async populateDB ( page_index, reason = Konst.Reason.Populate ) 
+    // POPULATE_DB --> FETCH_ITEMS --> DOWNLOAD_PAGE --> PARSEONREADY
+    async populateDB ( page_index, reason_arg = Konst.Reason.Populate ) 
     {
-        console.log('PopulateDB (bb_fetcher) Page_index :' + page_index)
+        console.log('PopulateDB (bb_fetcher) Page_index :' + page_index + ' reason: ' + reason_arg)
         assert ( ! isNaN(page_index) )
-        if (page_index != undefined )
+        assert( reason_arg != undefined );
+
+        if ( page_index != undefined )
             this._page_index = page_index
 
 
-        if ( reason == Konst.Reason.Populate)
+        if ( reason_arg == Konst.Reason.Populate)
         {
             db.clearTables();
         }  
     
-        const populate = ( reason_arg ) =>
+        const populate_finished_cb = ( reason_arg ) =>
         {
             assert (! this._is_last_page);
-            this.fetchItems( this._page_index, { cb: this.parseOnReady_CB, reason: reason_arg }, populate  );    
+            this.fetchItems( this._page_index, { cb: this.parseOnReady_CB, reason: reason_arg }, populate_finished_cb  );    
             konsole.log ("Boucle du populate: " + this._page_index, LOG_LEVEL.OK);
-        }; // populate()
+        }; // populate_finished_cb()
 
-        populate( reason );
+        populate_finished_cb( reason_arg );
        
     }; //==================== populateDB ()
 
 
     //====================  FETCH_ITEMS  ====================
     //async fetchItems ( page_index, on_response_ready, populate_finished_cb, reason = Konst.Reason.Populate ) 
-    async fetchItems ( page_index, on_response_ready, cb_args, reason = Konst.Reason.Populate ) 
+    async fetchItems ( page_index, cb_args, populate_finished_cb ) 
     {
-        var populate_finished_cb    = cb_args.cb;
+        var on_response_ready       = cb_args.cb;
         var reason                  = cb_args.reason ;
 
         assert( on_response_ready != undefined );
@@ -152,7 +157,7 @@ class BitskinsFetcher extends Singleton
         
         try 
         {
-            fetch_result = await this.downloadPage( this.buildQuery( page_index ), on_response_ready, populate_finished_cb );
+            fetch_result = await this.downloadPage( this.buildQuery( page_index ), cb_args, populate_finished_cb );
         } 
         catch ( error ) 
         {
@@ -165,9 +170,13 @@ class BitskinsFetcher extends Singleton
 
 
     ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
-    downloadPage ( url, on_response_ready, populate_finished_cb ) 
+    downloadPage ( url, cb_args, populate_finished_cb ) 
     {
         var result = Konst.NOTHING;
+        
+        var on_response_ready       = cb_args.cb;
+        var reason_arg              = cb_args.reason ;
+
         result = new Promise( ( resolve, reject ) => 
         {
             request( url, (error, response, body ) => 
@@ -179,7 +188,7 @@ class BitskinsFetcher extends Singleton
                 }
                 else
                 {
-                    on_response_ready( body, populate_finished_cb );
+                    on_response_ready( body,  { cb: populate_finished_cb, reason: reason_arg } ) ;
                 }
                 resolve(body);
             });

@@ -18,8 +18,9 @@ class PopulateDBCmd extends Command
     {
         var session_obj = Session.GetSingleton();
         var start_page_index = session_obj.getAppVar( Session.PageIndexStart );
-        konsole.log ("Proutprout" + start_page_index, LOG_LEVEL.OK);
-        BitskinsFetcher.GetSingleton().populateDB(start_page_index);
+        konsole.log ("Proutprout" + start_page_index, LOG_LEVEL.MSG);
+        BitskinsFetcher.GetSingleton().populateDB(start_page_index, Konst.Reason.Count );
+        console.log( BitskinsFetcher.GetSingleton().getPageIndex() );
     }
 }
 exports.PopulateDBCmd = PopulateDBCmd;
