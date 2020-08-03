@@ -53,7 +53,7 @@ module.exports =
             var state       = ctx.params.state      != undefined ? ctx.params.state     : 4;
             var stattrak    = ctx.params.stattrak   != undefined ? ctx.params.stattrak  : 1;
 
-            var output = "<ol>";
+            var output = "<html><body><ol>";
 
             const logResult = (rows) =>
             {
@@ -77,7 +77,7 @@ module.exports =
             const selectTradeUp = (subquery_1, subquery_2) =>
             {
                 return  knex.select().from  (subquery_1)
-                            .innerJoin      (subquery_2 )//, knex.raw('(SQ1_price * 10.00) < (SQ2_price * 1.00)'));
+                            .innerJoin      ((subquery_2 ), knex.raw('(SQ1_price * 7.50) < (SQ2_price * 1.00)'));
             }; // selectTradeUp()
 
 
@@ -90,7 +90,7 @@ module.exports =
 
             const selectSellOrderID = (subquery, tmp_table) => 
             {
-                return  knex.select('id as ' + tmp_table + '_id').from('skin_sell_order')
+                return  knex.select('id as ' + tmp_table + '_id', 'price as ' + tmp_table + '_price').from('skin_sell_order')
                      .where(  {'item_state' : state, 'has_StatTrak': stattrak } )
                      .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) ).as( tmp_table ) ;
             }; // selectSellOrderID
@@ -107,39 +107,33 @@ module.exports =
             }; // selectSkin
        
             //--------------------------------------------------------
-            //await selectSkin().then( (rows) => logResult(rows) );
-            
-            //await selectSellOrder(selectSkin_subquery).then( (rows) => logResult(rows) );
-
             var selectSkin_subquery_1       = selectSkin();
             var selectSkin_subquery_2       = selectSkin();
             /*
-            var selectSellOrder_subquery_1  = selectSellOrder( selectSkin_subquery_1, 'SQ1'  );
-            var selectSellOrder_subquery_2  = selectSellOrder( selectSkin_subquery_2, 'SQ2'  );
+            var selectSellOrder_subquery_1  = selectSellOrder_old( selectSkin_subquery_1, 'SQ1'  );
+            var selectSellOrder_subquery_2  = selectSellOrder_old( selectSkin_subquery_2, 'SQ2'  );
             */
             var selectSellOrder_subquery_1  = selectSellOrderID( selectSkin_subquery_1, 'SQ1'  );
             var selectSellOrder_subquery_2  = selectSellOrderID( selectSkin_subquery_2, 'SQ2'  );
-
+            
             await selectTradeUp(selectSellOrder_subquery_1, selectSellOrder_subquery_2)
             .then( (rows) => 
             {
                 rows.map
                 ( (row) => 
-                    {   var trade_up_obj = new TradeUp( row );
+                    {   
+                        //var trade_up_obj = new TradeUp( row );
+                        var trade_up_obj = TradeUp.Create( row, rarity );
+                        output += "<li>" + trade_up_obj.getKey() + "</li>";
                     } 
                 );
             });
-            /*
-            .then( (rows) => 
-            {
-                logResult(rows)
-            } );*/
 
 
             // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types
             ctx.meta.$responseType = "text/html ; charset=utf-8";
-
-            output += "</ol>";
+        
+            output += "</ol></body></html>";
             return output;
         }, // 'profit' action
 

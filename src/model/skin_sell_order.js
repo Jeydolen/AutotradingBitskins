@@ -39,7 +39,7 @@ class SkinSellOrder extends BitskinsObject
         }
         else if ( reason == Konst.Reason.Deserialize ) // Deserialiszation
         {
-            console.log("Deserialize " + reason.key );
+            //console.log("Deserialize " + reason.key );
             var json_sell_order     = arg;
             this.name               = json_sell_order.item_id;
             this.market_name        = json_sell_order.market_name;
@@ -121,7 +121,6 @@ class SkinSellOrder extends BitskinsObject
         assert( json_data != undefined && json_data != null, 'Create: json_data arg ' + JSON.stringify( json_data ) );
 
         var obj_key = null;
-        console.log ('reason :' + reason)
         if ( reason ==  Konst.Reason.Populate )
         {
             assert( json_data.item_id != undefined && json_data.item_id != null,  'Create: json_data.item_id arg ' + JSON.stringify( json_data.item_id ) );

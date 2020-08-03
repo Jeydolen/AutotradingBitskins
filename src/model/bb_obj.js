@@ -31,10 +31,10 @@ class BitskinsObject extends ISerializable
     super( arg );
 
     this._record_id            = 1; // NULL_OBJECT DANS LES TABLES 
-    this._created_in_db       = false;
-    this._updated_in_db       = false;
+    this._created_in_db        = false;
+    this._updated_in_db        = false;
     this._table                = Konst.NOTHING;
-    this._is_just_created     = true;
+    this._is_just_created      = true;
   } // constructor()
 
 
@@ -82,11 +82,10 @@ class BitskinsObject extends ISerializable
   getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
 
 
-  static _GetTableName( klass )
+  static _GetTableName( klass_name )
   {
-    console.log ('klass ' + klass );
-
-    var table_name = klass == 
+    console.log ('klass_name ' + klass_name );
+    var table_name = klass_name == 
       "SkinSellOrder" ? 'skin_sell_order' :
       "SkinSet"       ? 'skin_set'        :
       "Skin"          ? 'skin'            :
@@ -96,12 +95,12 @@ class BitskinsObject extends ISerializable
   } // _GetTableName()
 
 
-  static async GetCount()
+  static async GetRecordCount()
   {
     var klass = this.name;
     var table_name = BitskinsObject._GetTableName( klass );
     var result_rows = null;
-    console.log( "table_name: " + table_name );
+    //console.log( "table_name: " + table_name );
 
     await knex_conn.count().from(table_name)
     .then( (rows) =>
@@ -112,7 +111,14 @@ class BitskinsObject extends ISerializable
     );
 
     return result_rows;
-  } // GetCount()
+  } // GetRecordCount()
+
+  static GetInstanceCount()
+  {
+    var klass = this.name;
+    var instance_count = klass.Instances.size
+    return instance_count;
+  } // GetInstanceCount()
 
 
   buildQueryText = () => 

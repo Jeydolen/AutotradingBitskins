@@ -8,7 +8,7 @@ class ISerializable
     // Fallback implementation of 'save' service
     //       JSON       FICHIER
     //      MYSQL       CONNEXION ( DB )  
-    save( data_format,      target ) 
+    save( data_format, target ) 
     {     
         throw "ISerializable.save() not implemented";
     } // ISerializable.save()

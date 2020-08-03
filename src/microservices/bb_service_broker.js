@@ -41,11 +41,6 @@ class BB_ServiceBroker extends Singleton
                 routes: 
                 [{ 
                     path: "stella",
-                   /* aliases: 
-                    {
-                        "GET skin_sell_order" : "skin_sell_order.list"
-                    }
-                    */
                 }]
             },
             actions: 
