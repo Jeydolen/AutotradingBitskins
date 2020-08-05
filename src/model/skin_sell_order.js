@@ -66,6 +66,8 @@ class SkinSellOrder extends BitskinsObject
         }  
     } // constructor
 
+    getPrice() { return this.price; };
+
     //            optionnel
     getCoVaSeq( json_sell_order )
     { 
@@ -85,22 +87,23 @@ class SkinSellOrder extends BitskinsObject
                 ( value < 1.00 )  ? 1 :  0 ;
     } // computeStateID()
 
-    static Get_hasStatTrak ( json_sell_order)
-  {
-    var tags = json_sell_order['tags'];
-    var hasStatTrak = null;
 
-    if (tags != undefined)
+    static Get_hasStatTrak ( json_sell_order )
     {
-      var quality = tags['quality'];
-      if (quality != undefined)
-          hasStatTrak = (quality.search("StatTrak") != -1);
-    }    
-    else
-      hasStatTrak = false;   
-    
-    return hasStatTrak ? 1:0;
-  } // Get_hasStatTrak
+        var tags = json_sell_order['tags'];
+        var hasStatTrak = null;
+
+        if (tags != undefined)
+        {
+        var quality = tags['quality'];
+        if (quality != undefined)
+            hasStatTrak = (quality.search("StatTrak") != -1);
+        }    
+        else
+        hasStatTrak = false;   
+        
+        return hasStatTrak ? 1:0;
+    } // Get_hasStatTrak
 
 
     static GetNullObject() 
@@ -112,6 +115,7 @@ class SkinSellOrder extends BitskinsObject
 
 
     static GetInstances ()  {  return SkinSellOrder.Instances;  }
+
 
     // Si reason =  None        : json_data = fetch frpm Bitskins API
     //              Deserialize : json_data = { 'id': N } avec N fourni ctx.params.id dans microservice ( ex: /stella/db/skin_sell_order?id=1 )

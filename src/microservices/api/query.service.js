@@ -1,6 +1,9 @@
+const assert = require("assert");
+
 const knex    = rekwire ('/src/bb_database.js').knex_conn;
 const TradeUp = rekwire ('/src/model/trade_up.js').TradeUp;
 const Session = rekwire ('/src/session.js').Session;
+const SkinSellOrder = rekwire ('/src/model/skin_sell_order.js').SkinSellOrder;
 
 
 module.exports =
@@ -124,10 +127,50 @@ module.exports =
                     {   
                         //var trade_up_obj = new TradeUp( row );
                         var trade_up_obj = TradeUp.Create( row, rarity );
-                        output += "<li>" + trade_up_obj.getKey() + "</li>";
                     } 
                 );
             });
+
+            // AVANT
+            TradeUp.Instances.forEach( (trade_up_obj, trade_up_key, map) =>
+                {
+                    console.log( trade_up_key );
+                    var msg         = JSON.stringify( trade_up_obj.toJSON() )
+                    var rarity      = trade_up_obj.getSourceRarity();
+
+                    var target_map  = TradeUp.Rarity2TargetIdToSourceIds.get( rarity );
+                    assert( target_map != undefined, "target map undefined");
+
+                    var target_id_2_source_ids = target_map.get( trade_up_obj.getTargetId() );
+                    assert( target_id_2_source_ids != undefined, "target_id_2_source_ids undefined");
+
+                    var source_ids = target_id_2_source_ids.getSourceIds();
+
+                    //output += "<li><ui>";
+
+                    var prices = []; 
+                    source_ids.forEach( (source_id) =>
+                        {
+                            var source_sell_order_obj = SkinSellOrder.GetFromRecordId( source_id );
+                            //output += "<li>" + JSON.stringify(source_sell_order_obj.toJSON())
+                            //+ "</li>";
+                            var price = source_sell_order_obj.getPrice();
+                            prices.push( price );
+                        }
+                    )
+
+                    output += "</ui></li>";
+
+
+                    console.log( msg );
+                    
+                    output += "<li>" + msg
+                                 + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + source_ids 
+                                // + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + prices 
+                                 + "</li>";
+                }
+            );
+
 
 
             // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types

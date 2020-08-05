@@ -58,13 +58,13 @@ class BitskinsObject extends ISerializable
 
   static GetFromRecordId( record_id )  
   { 
-    console.log ( 'Prout' + record_id + this.name)
+    //console.log ( 'Prout' + record_id + this.name)
     var klass = this;
     var bb_obj = klass.NULL;
     if ( klass.InstancesByRecordID.has( record_id ) )
     {
       bb_obj = klass.InstancesByRecordID.get( record_id );
-      console.log ('Trouvé !' + bb_obj)
+      //console.log ('Trouvé !' + bb_obj)
     }
       
     return bb_obj;
@@ -84,7 +84,7 @@ class BitskinsObject extends ISerializable
 
   static _GetTableName( klass_name )
   {
-    console.log ('klass_name ' + klass_name );
+    //console.log ('klass_name ' + klass_name );
     var table_name = klass_name == 
       "SkinSellOrder" ? 'skin_sell_order' :
       "SkinSet"       ? 'skin_set'        :
