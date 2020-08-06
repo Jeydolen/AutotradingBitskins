@@ -58,28 +58,71 @@ class BitskinsObject extends ISerializable
 
   static GetFromRecordId( record_id )  
   { 
-    //console.log ( 'Prout' + record_id + this.name)
     var klass = this;
     var bb_obj = klass.NULL;
-    if ( klass.InstancesByRecordID.has( record_id ) )
-    {
-      bb_obj = klass.InstancesByRecordID.get( record_id );
-      //console.log ('Trouvé !' + bb_obj)
+    console.log ( 'record_id : ' + record_id)
+   
+    if ( klass.InstancesByRecordID.has( record_id ) ) 
+    { 
+      bb_obj = klass.InstancesByRecordID.get( record_id ); 
+      konsole.log ( 'Class_name : ' + klass.name + ' bb_obj : ' + JSON.stringify(bb_obj), LOG_LEVEL.INFO)
     }
-      
+    else 
+    {
+      konsole.log ( " Pas d'enregistrement dans la map " ,LOG_LEVEL.INFO)
+    } 
+
     return bb_obj;
   } // GetFromRecordId()
 
+
   getRecordId         ()      { return this._record_id;           } // getRecordId()
-  setRecordId         ( record_id)      
+  setRecordId         ( record_id )      
   { 
     var klass = this.constructor;
     this._record_id = record_id; 
-    klass.InstancesByRecordID.set( record_id, this );    
+
+    if ( ! klass.InstancesByRecordID.has( record_id ) )
+        klass.InstancesByRecordID.set( record_id, this );    
   } // setRecordId()
+
 
   //            optionnel (les 2)
   getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
+
+
+  static async GetObjectsFromRecordIDs ( record_ids_arg, klass )
+  {
+    var bb_obj = null;
+    var bb_objects = [];
+
+    console.log("record_ids_arg: " + JSON.stringify(record_ids_arg ));
+
+    for ( var i=0; i < record_ids_arg.length; i++ )
+    {
+        var id = Number( record_ids_arg[i] );
+        bb_obj = klass.GetFromRecordId( id );
+
+        if ( bb_obj != klass.NULL ) 
+        { bb_objects.push( bb_obj ); }
+        else
+        {
+            // Restauration depuis db (deserialization)
+            var result_rows = await klass.LoadFromDBTable( id );
+            var rows_count = result_rows.length;
+            
+            if ( rows_count == 1 )
+            {
+                var row = result_rows[ 0 ];
+                // bb_obj = await klass.Create(  row,  Konst.Reason.Deserialize );
+                bb_obj = klass.Create(  row,  Konst.Reason.Deserialize );
+                bb_objects.push( bb_obj );
+            }
+            else konsole.error ('JE SUIS M2CHANT' + rows_count);
+        }
+    }
+    return bb_objects
+  } // GetObjectsFromRecordIDs()
 
 
   static _GetTableName( klass_name )
@@ -161,7 +204,7 @@ class BitskinsObject extends ISerializable
         return;
       }
 
-      console.log ('table_name ' + table_name );
+      // console.log ('table_name ' + table_name );
 
       var result_rows = null;
       await knex_conn.select().from( table_name )

@@ -53,6 +53,7 @@ class SkinSellOrderService extends Service
         });
     } // constructor
 
+
     async list ( ctx ) 
     {
         var ids = [];
@@ -64,38 +65,15 @@ class SkinSellOrderService extends Service
             ids = id_ctx.split('|');
         else
             ids.push (id) ;
-        console.log ('id : ' +  typeof ids )
+        console.log ('ids : ' +  JSON.stringify ( ids ) )
 
-        var bb_obj = null;
-        var bb_objects = [];
-        console.log (ids);
 
-        for ( var i=0; i < ids.length; i++ )
-        {
-            var id = Number(ids[i]);
-            console.log ('for typeof id :' + typeof id + ' id : ' + id)
-            bb_obj = this.klass.GetFromRecordId( id );
+        var bb_objects = await BitskinsObject.GetObjectsFromRecordIDs( ids, this.klass );
 
-            if ( bb_obj !== this.klass.NULL ) { bb_objects.push( bb_obj ); }
-
-            else
-            {
-                // Restauration depuis db (deserialization)
-                var result_rows = await this.klass.LoadFromDBTable( id );
-                var rows_count = result_rows.length;
-                
-                if ( rows_count == 1 )
-                {
-                    var row = result_rows[ 0 ];
-                    bb_obj = await this.klass.Create(  row,  Konst.Reason.Deserialize );
-                    bb_objects.push( bb_obj );
-                }
-                else console.log ('JE SUIS M2CHANT' + rows_count)
-            }
-        }
-
+        
         ctx.meta.$responseType = "text/json ; charset=utf-8";
-        return bb_objects;          
+        return bb_objects;   
+              
         //return "Error /stella/" + this.klass + "_sell_order/list";// + rows_count; 
 
     } // list()

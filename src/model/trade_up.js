@@ -1,6 +1,8 @@
-const assert        = require ('assert');
-const Enum                = require ('enum');
-const { BitskinsObject }  = require('./bb_obj');
+const assert                        = require ('assert');
+const Enum                          = require ('enum');
+
+const { BitskinsObject  }           = rekwire ('/src/model/bb_obj.js') ;
+const { SkinSellOrder  }            = rekwire ('/src/model/skin_sell_order.js') ;
 
 const Konst                         = rekwire ('/src/constants.js') ;
 const Session                       = rekwire ('/src/session.js').Session ;
@@ -81,7 +83,6 @@ class TradeUp extends BitskinsObject
     this.source_sell_order_id = json_data.SQ1_id;
     this.target_sell_order_id = json_data.SQ2_id;
     this._broker = Session.GetSingleton().getAppVar( Session.Broker );
-    this.init();
   } // constructor()
 
   getSourceRarity() { return this.source_rarity; }
@@ -89,9 +90,11 @@ class TradeUp extends BitskinsObject
   getTargetId()     { return this.target_sell_order_id; }
 
   
-  init()
+  async init()
   {
-    this._broker.call( "skin_sell_order.list", { id: this.source_sell_order_id + "|" + this.target_sell_order_id } );
+    //this._broker.call( "skin_sell_order.list", { id: this.source_sell_order_id + "|" + this.target_sell_order_id } );
+    var ids = [ this.source_sell_order_id, this.target_sell_order_id ];
+    await BitskinsObject.GetObjectsFromRecordIDs( ids, SkinSellOrder );
   } // init
 
 

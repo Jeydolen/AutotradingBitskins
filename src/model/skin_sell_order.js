@@ -36,6 +36,10 @@ class SkinSellOrder extends BitskinsObject
         {
             this.name = NULL_SKIN_SELL_ORDER;
             this.skin_id = 1;
+            this.market_name        =  Konst.NOTHING ;
+            this.state              = 0;
+            this.price              = NaN;
+            this.recommanded_price  = NaN;  
         }
         else if ( reason == Konst.Reason.Deserialize ) // Deserialiszation
         {
@@ -51,6 +55,8 @@ class SkinSellOrder extends BitskinsObject
             this.hasStatTrak        =  json_sell_order.has_StatTrak;
             this._record_id         = json_sell_order.id;
             this._created_in_db     = true;
+
+            this.setRecordId ( this._record_id );
         } 
         else if ( reason == Konst.Reason.Populate ) // Cas nominal (arg = json_data from  Bitskjins API)
         {
@@ -124,6 +130,7 @@ class SkinSellOrder extends BitskinsObject
     {
         assert( json_data != undefined && json_data != null, 'Create: json_data arg ' + JSON.stringify( json_data ) );
 
+
         var obj_key = null;
         if ( reason ==  Konst.Reason.Populate )
         {
@@ -133,12 +140,12 @@ class SkinSellOrder extends BitskinsObject
         }       
         else if ( reason == Konst.Reason.Deserialize )
         {
-            assert( json_data.name != undefined && json_data.name != null,  'Create: json_data.name arg ' + JSON.stringify( json_data.named ) );
+            assert( json_data.name != undefined && json_data.name != null );
             obj_key     = json_data.name ;
         }
         else
         {
-            console.log ('SaaaaaaaaaaaallllllUUUUUUUUUUUUUUUUUUUUUUUUUUUUuuuuuuuuuuuuuuuuuuuUUUUUUUUUUUUUUUU')
+            konsole.log ('SaaaaaaaaaaaallllllUUUUUUUUUUUUUUUUUUUUUUUUUUUUuuuuuuuuuuuuuuuuuuuUUUUUUUUUUUUUUUU', LOG_LEVEL.CRITICAL)
         }
 
 
@@ -150,6 +157,12 @@ class SkinSellOrder extends BitskinsObject
         {
             sell_order_obj = new SkinSellOrder ( json_data, reason );
             SkinSellOrder.Instances.set ( obj_key, sell_order_obj ) ;
+            /*
+            if ( reason == Konst.Reason.Deserialize )
+                sell_order_obj.setRecordId ( json_data._record_id )
+
+            else console.log ('Petit populate oklm')
+            */
         }
         else 
         {

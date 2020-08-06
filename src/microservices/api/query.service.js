@@ -1,5 +1,6 @@
 const assert = require("assert");
 
+const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js')
 const knex    = rekwire ('/src/bb_database.js').knex_conn;
 const TradeUp = rekwire ('/src/model/trade_up.js').TradeUp;
 const Session = rekwire ('/src/session.js').Session;
@@ -123,10 +124,11 @@ module.exports =
             .then( (rows) => 
             {
                 rows.map
-                ( (row) => 
+                ( async (row) => 
                     {   
                         //var trade_up_obj = new TradeUp( row );
                         var trade_up_obj = TradeUp.Create( row, rarity );
+                        await trade_up_obj.init();
                     } 
                 );
             });
@@ -152,9 +154,10 @@ module.exports =
                     source_ids.forEach( (source_id) =>
                         {
                             var source_sell_order_obj = SkinSellOrder.GetFromRecordId( source_id );
-                            //output += "<li>" + JSON.stringify(source_sell_order_obj.toJSON())
-                            //+ "</li>";
-                            var price = source_sell_order_obj.getPrice();
+                            //konsole.log ( 'Sell_order_obj : ' + JSON.stringify(source_sell_order_obj) , LOG_LEVEL.STEP)
+                            //assert ( source_sell_order_obj != SkinSellOrder.NULL )
+                            //var price = source_sell_order_obj.getPrice();
+                            var price = source_sell_order_obj.name;
                             prices.push( price );
                         }
                     )
@@ -166,7 +169,7 @@ module.exports =
                     
                     output += "<li>" + msg
                                  + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + source_ids 
-                                // + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + prices 
+                                 + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + prices 
                                  + "</li>";
                 }
             );
