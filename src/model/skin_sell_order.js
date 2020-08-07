@@ -143,10 +143,7 @@ class SkinSellOrder extends BitskinsObject
             assert( json_data.name != undefined && json_data.name != null );
             obj_key     = json_data.name ;
         }
-        else
-        {
-            konsole.log ('SaaaaaaaaaaaallllllUUUUUUUUUUUUUUUUUUUUUUUUUUUUuuuuuuuuuuuuuuuuuuuUUUUUUUUUUUUUUUU', LOG_LEVEL.CRITICAL)
-        }
+        else { konsole.log ('SaaaaaaaaaaaallllllUUUUUUUUUUUUUUUUUUUUUUUUUUUUuuuuuuuuuuuuuuuuuuuUUUUUUUUUUUUUUUU', LOG_LEVEL.CRITICAL) }
 
 
         var sell_order_obj = SkinSellOrder.NULL ;
@@ -157,12 +154,10 @@ class SkinSellOrder extends BitskinsObject
         {
             sell_order_obj = new SkinSellOrder ( json_data, reason );
             SkinSellOrder.Instances.set ( obj_key, sell_order_obj ) ;
-            /*
             if ( reason == Konst.Reason.Deserialize )
                 sell_order_obj.setRecordId ( json_data._record_id )
 
             else console.log ('Petit populate oklm')
-            */
         }
         else 
         {

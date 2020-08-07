@@ -29,7 +29,6 @@ class BitskinsObject extends ISerializable
   constructor( arg, id ) 
   {     
     super( arg );
-
     this._record_id            = 1; // NULL_OBJECT DANS LES TABLES 
     this._created_in_db        = false;
     this._updated_in_db        = false;
@@ -56,11 +55,68 @@ class BitskinsObject extends ISerializable
   getType             ()      { return this.constructor.name ;    } // getType()
   getName             ()      { return this.name ;                } // getName()
 
-  static GetFromRecordId( record_id )  
-  { 
-    var klass = this;
+
+  static async RestoreObjectFromDB ( record_id, klass_arg ) 
+  {
+    assert ( record_id != null && record_id != undefined );
+    var klass = klass_arg;
     var bb_obj = klass.NULL;
-    console.log ( 'record_id : ' + record_id)
+  
+    // Restauration depuis db (deserialization)
+    var result_rows = await klass.LoadFromDBTable( record_id, klass );
+    var rows_count  = result_rows.length;
+    
+    if ( rows_count == 1 )
+    {
+        var row = result_rows[ 0 ];
+        bb_obj = klass.Create(  row,  Konst.Reason.Deserialize );
+    }
+    else 
+    {
+        konsole.error ('JE SUIS M2CHANT rows count = ' + rows_count + ', record id : ' + record_id );
+    }
+
+    return bb_obj;
+  } // RestoreObjectFromDB()
+
+
+  
+  //-----------------------------------------------------------------------
+  //-------------------------  LoadFromDBTable()  -------------------------
+  //-----------------------------------------------------------------------
+  static async LoadFromDBTable ( id, klass_arg )
+  {
+      //assert( args != undefined && args    != null );
+      assert( id   != undefined && id != null && ! isNaN(id));
+
+      var klass_name = klass_arg.name;
+      var table_name = BitskinsObject._GetTableName( klass_name );
+      var result_rows = null;
+
+      if ( table_name == null )
+      {
+        konsole.error( "BitskinsObject.load(): table_name unkown " + table_name );
+        return result_rows;
+      }
+
+      
+      await knex_conn.select().from( table_name )
+            .where('id', id )
+            .then( (rows) => {  result_rows = rows; } );
+      //console.log ( result_rows )
+      return result_rows;
+  } // ISerializable.LoadFromDBTable()
+  //---------------------------------------------/>
+  //-------------------------  LoadFromDBTable() />
+  //---------------------------------------------/>
+
+
+  //static async GetFromRecordId( record_id, klass_arg )  
+  static GetFromRecordId( record_id, klass_arg )  
+  { 
+    var klass = klass_arg;
+    var bb_obj = klass.NULL;
+    //console.log ( 'record_id : ' + record_id)
    
     if ( klass.InstancesByRecordID.has( record_id ) ) 
     { 
@@ -68,8 +124,10 @@ class BitskinsObject extends ISerializable
       konsole.log ( 'Class_name : ' + klass.name + ' bb_obj : ' + JSON.stringify(bb_obj), LOG_LEVEL.INFO)
     }
     else 
-    {
-      konsole.log ( " Pas d'enregistrement dans la map " ,LOG_LEVEL.INFO)
+    { 
+      // bb_obj = await klass.RestoreObjectFromDB ( record_id, klass );
+      bb_obj = klass.RestoreObjectFromDB ( record_id, klass );
+      assert ( bb_obj != klass.NULL) 
     } 
 
     return bb_obj;
@@ -91,35 +149,18 @@ class BitskinsObject extends ISerializable
   getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
 
 
-  static async GetObjectsFromRecordIDs ( record_ids_arg, klass )
+  static async GetObjectsFromRecordIDs ( record_ids_arg, klass_arg )
   {
+    var klass = klass_arg;
     var bb_obj = null;
     var bb_objects = [];
-
-    console.log("record_ids_arg: " + JSON.stringify(record_ids_arg ));
+    //console.log("record_ids_arg: " + JSON.stringify(record_ids_arg ));
 
     for ( var i=0; i < record_ids_arg.length; i++ )
     {
         var id = Number( record_ids_arg[i] );
-        bb_obj = klass.GetFromRecordId( id );
-
-        if ( bb_obj != klass.NULL ) 
-        { bb_objects.push( bb_obj ); }
-        else
-        {
-            // Restauration depuis db (deserialization)
-            var result_rows = await klass.LoadFromDBTable( id );
-            var rows_count = result_rows.length;
-            
-            if ( rows_count == 1 )
-            {
-                var row = result_rows[ 0 ];
-                // bb_obj = await klass.Create(  row,  Konst.Reason.Deserialize );
-                bb_obj = klass.Create(  row,  Konst.Reason.Deserialize );
-                bb_objects.push( bb_obj );
-            }
-            else konsole.error ('JE SUIS M2CHANT' + rows_count);
-        }
+        bb_obj = await klass.GetFromRecordId( id, klass );
+        bb_objects.push ( bb_obj );
     }
     return bb_objects
   } // GetObjectsFromRecordIDs()
@@ -185,39 +226,6 @@ class BitskinsObject extends ISerializable
    } // ISerializable.load()
 
 
-  //-----------------------------------------------------------------------
-  //-------------------------  LoadFromDBTable()  -------------------------
-  //-----------------------------------------------------------------------
-  static async LoadFromDBTable ( id, args )
-  {
-      //assert( args != undefined && args    != null );
-      assert( id   != undefined && id != null && ! isNaN(id));
-
-      var db = BB_Database.GetSingleton();
-
-      var klass = this.name;
-      var table_name = BitskinsObject._GetTableName( klass );
-
-      if ( table_name == null )
-      {
-        konsole.error( "BitskinsObject.load(): table_name unkown " + table_name );
-        return;
-      }
-
-      // console.log ('table_name ' + table_name );
-
-      var result_rows = null;
-      await knex_conn.select().from( table_name )
-            .where('id', id )
-            .then( (rows) => {  result_rows = rows; } );
-
-      return result_rows;
-  } // ISerializable.LoadFromDBTable()
-  //---------------------------------------------/>
-  //-------------------------  LoadFromDBTable() />
-  //---------------------------------------------/>
-
-
   //-------------------------  createInDBTable()  -------------------------
   //                   requis         requis (bitskins api)
   createInDBTable ( end_of_waterfall_cb, json_sell_order )
@@ -255,7 +263,7 @@ class BitskinsObject extends ISerializable
           var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this._table, 'db-name-value': this.name } );
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
         }
-        else 
+        else
         {
           konsole.log ("Cet objet est déja inséré dans la DB: " + this.name , LOG_LEVEL.INFO);
           afterUpdateQueryCB( null, Konst.NOTHING );

@@ -153,16 +153,17 @@ module.exports =
                     var prices = []; 
                     source_ids.forEach( (source_id) =>
                         {
-                            var source_sell_order_obj = SkinSellOrder.GetFromRecordId( source_id );
+                            var source_sell_order_obj = SkinSellOrder.GetFromRecordId( source_id, SkinSellOrder );
+                            assert( source_sell_order_obj != null  &&  source_sell_order_obj != undefined );
                             //konsole.log ( 'Sell_order_obj : ' + JSON.stringify(source_sell_order_obj) , LOG_LEVEL.STEP)
                             //assert ( source_sell_order_obj != SkinSellOrder.NULL )
                             //var price = source_sell_order_obj.getPrice();
-                            var price = source_sell_order_obj.name;
+                            var price = source_sell_order_obj.state;
                             prices.push( price );
                         }
                     )
 
-                    output += "</ui></li>";
+                    output += "</ul></li>";
 
 
                     console.log( msg );
