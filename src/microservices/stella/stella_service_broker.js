@@ -3,18 +3,19 @@ const  ServiceBroker            = require("moleculer").ServiceBroker;
 const  ApiService               = require("moleculer-web");
 const  fs                       = require("fs");
 const  APP_ROOT_PATH            = require ('app-root-path');
-const { Session } = require("../session");
+
 
 // https://github.com/inxilpro/node-app-root-path 
 // Permet d'enregistrer au niveau de global rekwire (pck autre process)
 global.rekwire = require('app-root-path').require;
 if      ( !global[rekwire] )       global[rekwire] = rekwire;
 
+const { Session }       = rekwire("/src/session.js");
 const { Singleton }     = rekwire("/src/singleton.js");
 
 
 //https://medium.com/moleculer/moleculer-a-modern-microservices-framework-for-nodejs-bc4065e6b7ba
-class BB_ServiceBroker extends Singleton
+class StellaServiceBroker extends Singleton
 {
 
     static Singleton = null;
@@ -37,7 +38,7 @@ class BB_ServiceBroker extends Singleton
             settings: 
             {
                 port: 51374,
-                assets: { folder: APP_ROOT_PATH + '/src/microservices/assets/'},
+                assets: { folder: APP_ROOT_PATH + '/src/microservices/stella/assets/'},
                 routes: 
                 [{ 
                     path: "stella",
@@ -47,7 +48,7 @@ class BB_ServiceBroker extends Singleton
             {
             }
         });
-        this.broker.loadServices( APP_ROOT_PATH + "/src/microservices/api/", "*.service.js");
+        this.broker.loadServices( APP_ROOT_PATH + "/src/microservices/stella/services/", "*.service.js");
     } // Constructor
     
 
@@ -65,6 +66,4 @@ const unitTest = () =>
 }; 
 
 //unitTest();
-
-
-exports.BB_ServiceBroker = BB_ServiceBroker;
+exports.StellaServiceBroker = StellaServiceBroker;

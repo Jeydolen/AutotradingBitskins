@@ -17,7 +17,8 @@ document.addEventListener("keydown", function (e)
     console.log(e.which);
     if ( e.which === 123 ) 
     {
-        onGUIButton('show_dev_tools');
+        //onGUIButton('show_dev_tools');
+        onServiceCall('gui', 'show_dev_tools');
     } 
     // F5
     else if (e.which === 116) 

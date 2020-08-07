@@ -20,6 +20,7 @@ module.exports =
             { path: "/db" }
         ]
     },
+
     actions: 
     { 
         async skin_sell_order ( ctx )
@@ -45,9 +46,12 @@ module.exports =
         }, // populate(
 
 
-        populate (args) 
+        populate ( ctx)
         {
-            PopulateDBCmd.GetSingleton().execute(args);
+            var reason_ctx  = ctx.params.reason != undefined ?  ctx.params.reason : 'Populate' ;
+            var reason = Konst.Reason.get(reason_ctx);
+
+            PopulateDBCmd.GetSingleton().execute(reason);
             return 'Lancement populate';
         }, // populate()
 

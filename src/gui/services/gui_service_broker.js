@@ -32,21 +32,21 @@ class GuiServiceBroker extends Singleton
         // Create a service
         this.broker.createService
         ({
-            name: "ui",
+            name: "gui",
             mixins: [ApiService],
             settings: 
             {
                 assets: { folder: APP_ROOT_PATH + '/src/microservices/assets/'},
                 routes: 
                 [{ 
-                    path: "/api"
+                    path: "/gui"
                 }]
             },
             actions: 
             {
             }
         });
-        this.broker.loadServices( APP_ROOT_PATH + "/src/microservices/api/", "*.service.js");
+        this.broker.loadServices( APP_ROOT_PATH + "/src/gui/services/api/", "*.service.js");
     } // Constructor
     
 

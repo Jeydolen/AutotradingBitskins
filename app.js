@@ -11,15 +11,15 @@ const { Session } = require('./src/session');
 global.rekwire = require('app-root-path').require;
 if      ( !global[rekwire] )       global[rekwire] = rekwire;
 
-const BB_ServiceBroker     = rekwire ('/src/microservices/bb_service_broker.js').BB_ServiceBroker;
-const http_server       = rekwire ('/src/httpserver.js');
-const db                = rekwire ('/src/db.js');
-const Controller        = rekwire ('/src/gui/controller.js').Controller;
-const GUI               = rekwire ('/src/gui/GUI.js').GUI;
-const Boostrap          = rekwire ('/src/boostrap.js').Boostrap;
-const CommandRegistry   = rekwire ('/src/commands/command_registry.js').CommandRegistry;
-const ShowDevToolsCmd   = rekwire ('/src/commands/show_dev_tools_cmd.js').ShowDevToolsCmd;
-const CMD_KONST         = rekwire ('/src/commands/command_constants.js').CMD_KONST;
+const StellaServiceBroker = rekwire ('/src/microservices/stella/stella_service_broker.js').StellaServiceBroker;
+const http_server         = rekwire ('/src/httpserver.js');
+const db                  = rekwire ('/src/db.js');
+const Controller          = rekwire ('/src/gui/controller.js').Controller;
+const GUI                 = rekwire ('/src/gui/GUI.js').GUI;
+const Boostrap            = rekwire ('/src/boostrap.js').Boostrap;
+const CommandRegistry     = rekwire ('/src/commands/command_registry.js').CommandRegistry;
+const ShowDevToolsCmd     = rekwire ('/src/commands/show_dev_tools_cmd.js').ShowDevToolsCmd;
+const CMD_KONST           = rekwire ('/src/commands/command_constants.js').CMD_KONST;
 
 
 const MENU_LABELS = 
@@ -80,7 +80,7 @@ const ParseCommandLineArgs = (args) =>
 
   if (commander.admin)
   {
-    BB_ServiceBroker.GetSingleton().start();
+    StellaServiceBroker.GetSingleton().start();
     app.whenReady().then( createWindow ).then( createMenu );
   }
   

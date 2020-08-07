@@ -14,12 +14,12 @@ class PopulateDBCmd extends Command
         this.name = name;
     }
 
-    execute ( args )
+    execute ( reason  = Konst.Reason.Populate)
     {
         var session_obj = Session.GetSingleton();
         var start_page_index = session_obj.getAppVar( Session.PageIndexStart );
         konsole.log ("Proutprout" + start_page_index, LOG_LEVEL.MSG);
-        BitskinsFetcher.GetSingleton().populateDB(start_page_index, Konst.Reason.Count );
+        BitskinsFetcher.GetSingleton().populateDB(start_page_index, reason );
         console.log( BitskinsFetcher.GetSingleton().getPageIndex() );
     }
 }
