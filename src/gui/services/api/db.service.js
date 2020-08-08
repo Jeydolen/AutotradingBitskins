@@ -24,14 +24,14 @@ module.exports =
         }, 
         backup (args) 
         {
-            var file_name = args.params.file
+            let file_name = args.params.file
             console.log('Backup : ' + file_name);
             BackupDBCmd.GetSingleton().execute(file_name);
             return 'Lancement backup';
         },
         backup_as ( args )
         {
-            var main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
+            let main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
 
             dialog.showSaveDialog
             ( main_window, 
@@ -47,7 +47,7 @@ module.exports =
                 console.log (JSON.stringify(result));
                 if ( result.filePath != undefined )
                 {
-                var output_sql_file_path = result.filePath;
+                let output_sql_file_path = result.filePath;
                 BackupDBCmd.GetSingleton().execute( output_sql_file_path );
                 } // if 
             }

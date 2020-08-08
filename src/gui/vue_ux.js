@@ -2,10 +2,10 @@
 
 // https://fr.vuejs.org/v2/guide/index.html
 
-var microservice_stella_url = 'http://localhost:51374/stella'
+let microservice_stella_url = 'http://localhost:51374/stella'
 
 
-var home_panel    = Vue.component
+let home_panel    = Vue.component
 (
   'home-panel',
   {
@@ -24,7 +24,7 @@ var home_panel    = Vue.component
 ); // 'home_panel' Vue component
 
 
-var config_panel    = Vue.component
+let config_panel    = Vue.component
 (
   'config-panel',
   {
@@ -53,7 +53,7 @@ var config_panel    = Vue.component
 ); // 'config_panel' Vue component
 
 
-var db_panel    = Vue.component
+let db_panel    = Vue.component
 (
   'db-panel',
   {
@@ -70,7 +70,7 @@ var db_panel    = Vue.component
   }
 ); // 'db_panel' Vue component
 
-var query_panel    = Vue.component
+let query_panel    = Vue.component
 (
   'query-panel',
   {
@@ -108,7 +108,7 @@ var query_panel    = Vue.component
   }
 ); // 'config_panel' Vue component
 
-var vertical_menu = Vue.component
+let vertical_menu = Vue.component
 ( 'vertical-menu',
   { 
     template: `<nav class="menu-bar" v-on:click.prevent>
@@ -122,7 +122,7 @@ var vertical_menu = Vue.component
 ); // 'vertical_menu' Vue component
 
 
-var app = new Vue
+let app = new Vue
 (
   {
     el: '#app',
@@ -140,8 +140,8 @@ var app = new Vue
       { 
         
         this.menu_displayed = ! this.menu_displayed;
-        var menu    = document.getElementById('menu');
-        var content = document.getElementById('panel');
+        let menu    = document.getElementById('menu');
+        let content = document.getElementById('panel');
 
         if ( ! this.menu_displayed)
         { this.width['menu']   = '0.5%';

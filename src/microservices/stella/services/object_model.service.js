@@ -42,7 +42,7 @@ class SkinSellOrderService extends Service
                /*
                 save: this.save,
                 {
-                    var id = ctx.params.id != undefined ?  ctx.params.id : 1;
+                    let id = ctx.params.id != undefined ?  ctx.params.id : 1;
                     ctx.meta.$responseType = "text/json ; charset=utf-8";            
                     return "Error /stella/skin/save id= " + id;// + rows_count;  
                 }, // save
@@ -56,20 +56,22 @@ class SkinSellOrderService extends Service
 
     async list ( ctx ) 
     {
-        var ids = [];
+        let ids = [];
                     
-        var id_ctx  = ctx.params.id != undefined ?  ctx.params.id : '1';
+        let id_ctx  = ctx.params.id != undefined ?  ctx.params.id : '1';
+        let access_type_arg =  ctx.params.access_type != undefined ?  ctx.params.access_type : 'Public';
+        let access_type = Konst.AccessType.get ( access_type_arg );
         assert ( typeof id_ctx == 'string', typeof id_ctx )
         console.log ( id_ctx )
+        console.log ( access_type );
+
         if ( id_ctx.search ('|') != -1 )
             ids = id_ctx.split('|');
         else
             ids.push (id) ;
         console.log ('ids : ' +  JSON.stringify ( ids ) )
 
-
-        var bb_objects = await BitskinsObject.GetObjectsFromRecordIDs( ids, this.klass );
-
+        let bb_objects = await BitskinsObject.GetObjectsFromRecordIDs( ids, this.klass );
         
         ctx.meta.$responseType = "text/json ; charset=utf-8";
         return bb_objects;   
@@ -78,10 +80,22 @@ class SkinSellOrderService extends Service
 
     } // list()
 
-    async count ( ctx)
+    async count ( ctx )
     {
-        var result = await this.klass.GetRecordCount();
+        //                                  'db' or 'mem'
+        let from_arg = ctx.params.from != undefined ? ctx.params.from : 'db';
+        let result = null;
+        if ( from_arg == 'db' )
+            result = await this.klass.GetRecordCount();
+        else if ( from_arg == 'mem')
+            result = this.klass.GetInstanceCount()
+        else 
+        {
+            result = NaN;
+            console.log (' From arg is unknown ' + from_arg)
+        }
 
+        assert ( result != null )
         ctx.meta.$responseType = "text/json ; charset=utf-8"; 
         return result; // + rows_count;  
 
@@ -111,22 +125,22 @@ module.exports =
     { 
         async list ( ctx )
         {
-            var ids = [];
+            let ids = [];
             
-            var id_ctx  = ctx.params.id != undefined ?  ctx.params.id : 1;
+            let id_ctx  = ctx.params.id != undefined ?  ctx.params.id : 1;
             if ( id_ctx.search ('|') != -1 )
                 ids = id_ctx.split('|');
             else
                 ids.push (id) ;
             console.log ('id : ' +  typeof ids )
 
-            var bb_obj = null;
-            var bb_objects = [];
+            let bb_obj = null;
+            let bb_objects = [];
             console.log (ids);
 
-            for ( var i=0; i < ids.length; i++ )
+            for ( let i=0; i < ids.length; i++ )
             {
-                var id = Number(ids[i]);
+                let id = Number(ids[i]);
                 console.log ('for typeof id :' + typeof id + ' id : ' + id)
                 bb_obj = Skin.GetFromRecordId( id );
 
@@ -135,12 +149,12 @@ module.exports =
                 else
                 {
                     // Restauration depuis db (deserialization)
-                    var result_rows = await Skin.LoadFromDBTable( id );
-                    var rows_count = result_rows.length;
+                    let result_rows = await Skin.LoadFromDBTable( id );
+                    let rows_count = result_rows.length;
                    
                     if ( rows_count == 1 )
                     {
-                        var row = result_rows[ 0 ];
+                        let row = result_rows[ 0 ];
                         bb_obj = await Skin.Create(  row,  Konst.Reason.Deserialize );
                         bb_objects.push( bb_obj );
                     }
@@ -161,7 +175,7 @@ module.exports =
 
         async save ( ctx )
         {
-            var id = ctx.params.id != undefined ?  ctx.params.id : 1;
+            let id = ctx.params.id != undefined ?  ctx.params.id : 1;
 
 
             ctx.meta.$responseType = "text/json ; charset=utf-8";            
@@ -170,7 +184,7 @@ module.exports =
 
         async count ( ctx )
         {
-            var result = await Skin.GetRecordCount();
+            let result = await Skin.GetRecordCount();
 
             ctx.meta.$responseType = "text/json ; charset=utf-8";            
             return result; // + rows_count;  
@@ -194,22 +208,22 @@ module.exports =
     { 
         async list ( ctx )
         {
-            var ids = [];
+            let ids = [];
             
-            var id_ctx  = ctx.params.id != undefined ?  ctx.params.id : 1;
+            let id_ctx  = ctx.params.id != undefined ?  ctx.params.id : 1;
             if ( id_ctx.search ('|') != -1 )
                 ids = id_ctx.split('|');
             else
                 ids.push (id) ;
             console.log ('id : ' +  typeof ids )
 
-            var bb_obj = null;
-            var bb_objects = [];
+            let bb_obj = null;
+            let bb_objects = [];
             console.log (ids);
 
-            for ( var i=0; i < ids.length; i++ )
+            for ( let i=0; i < ids.length; i++ )
             {
-                var id = Number(ids[i]);
+                let id = Number(ids[i]);
                 console.log ('for typeof id :' + typeof id + ' id : ' + id)
                 bb_obj = SkinSellOrder.GetFromRecordId( id );
 
@@ -218,12 +232,12 @@ module.exports =
                 else
                 {
                     // Restauration depuis db (deserialization)
-                    var result_rows = await SkinSellOrder.LoadFromDBTable( id );
-                    var rows_count = result_rows.length;
+                    let result_rows = await SkinSellOrder.LoadFromDBTable( id );
+                    let rows_count = result_rows.length;
                    
                     if ( rows_count == 1 )
                     {
-                        var row = result_rows[ 0 ];
+                        let row = result_rows[ 0 ];
                         bb_obj = await SkinSellOrder.Create(  row,  Konst.Reason.Deserialize );
                         bb_objects.push( bb_obj );
                     }
@@ -244,7 +258,7 @@ module.exports =
 
         async save ( ctx )
         {
-            var id = ctx.params.id != undefined ?  ctx.params.id : 1;
+            let id = ctx.params.id != undefined ?  ctx.params.id : 1;
 
 
             ctx.meta.$responseType = "text/json ; charset=utf-8";            
@@ -253,7 +267,7 @@ module.exports =
 
         async count ( ctx )
         {
-            var result = await SkinSellOrder.GetRecordCount();
+            let result = await SkinSellOrder.GetRecordCount();
 
             ctx.meta.$responseType = "text/json ; charset=utf-8";            
             return result; // + rows_count;  

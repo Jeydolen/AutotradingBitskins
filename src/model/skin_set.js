@@ -37,7 +37,7 @@ class SkinSet extends BitskinsObject
         assert (input_item != undefined);
         assert (input_item.hasOwnProperty('tags'));
         
-        var name = input_item.tags.itemset;
+        let name = input_item.tags.itemset;
         if (name == undefined)
         {
             name = NULL_SKIN_SET;
@@ -61,9 +61,9 @@ class SkinSet extends BitskinsObject
 
     static GetSkinSet (name)
     {
-        var null_skin_set = SkinSet.GetNullObject();
+        let null_skin_set = SkinSet.GetNullObject();
   
-        var skin_set = SkinSet.Instances.get (name);
+        let skin_set = SkinSet.Instances.get (name);
         if (skin_set != undefined)  return skin_set;
         else                        return null_skin_set;
     } // GetSkinSet()
@@ -71,7 +71,7 @@ class SkinSet extends BitskinsObject
 
     static GetInstanceCount  ()
     {
-        var instance_count = SkinSet.Instances.size ;  // Map !!
+        let instance_count = SkinSet.Instances.size ;  // Map !!
         konsole.log("SkinSet.GetInstanceCount:" + instance_count, LOG_LEVEL.CRITICAL);
         return instance_count;
     } // GetInstanceCount()
@@ -81,9 +81,9 @@ class SkinSet extends BitskinsObject
     {
         assert (input_item != undefined);
 
-        var skin_set = SkinSet.GetNullObject();
+        let skin_set = SkinSet.GetNullObject();
 
-        var name = SkinSet.ExtractName(input_item);
+        let name = SkinSet.ExtractName(input_item);
 
         if (SkinSet.Instances.get (name) == undefined )
         {

@@ -40,7 +40,7 @@ class DumbItem extends BitskinsObject
 
         else 
         {
-            var json_sell_order = arg;
+            let json_sell_order = arg;
             this.name       = DumbItem.ExtractName( json_sell_order ) ; 
             this.item_type  = json_sell_order.item_type;
         } 
@@ -52,7 +52,7 @@ class DumbItem extends BitskinsObject
     static ComputeItemTypeID ( item_type ) 
     {   
         //konsole.log("item_type: '" + item_type + "'", LOG_LEVEL.OK);
-        var weapon_type_id = Weapon.ComputeWeaponTypeId( item_type) ;
+        let weapon_type_id = Weapon.ComputeWeaponTypeId( item_type) ;
         //konsole.log (ITEM_TYPE_TABLE_IDS[CONTAINER_TYPE], LOG_LEVEL.OK);
 
         if (weapon_type_id != 0 )
@@ -74,10 +74,10 @@ class DumbItem extends BitskinsObject
         assert (json_sell_order != undefined);
         assert (json_sell_order.hasOwnProperty('item_type'));
 
-        var item_type = json_sell_order.item_type;
+        let item_type = json_sell_order.item_type;
 
         // Item is either a 'Skin' or a 'DumbItem'
-        var item_type_id = DumbItem.ComputeItemTypeID( item_type)
+        let item_type_id = DumbItem.ComputeItemTypeID( item_type)
 
 
         if ( item_type_id == ITEM_TYPE_TABLE_IDS[SKIN_TYPE].value )
@@ -91,7 +91,7 @@ class DumbItem extends BitskinsObject
     {
         assert (json_sell_order != undefined);
         assert (json_sell_order.hasOwnProperty('item_type'));
-        var name = json_sell_order.market_hash_name;
+        let name = json_sell_order.market_hash_name;
         name = name.replace("'", "\\'")
         return name;
     } // ExtractName()
@@ -109,7 +109,7 @@ class DumbItem extends BitskinsObject
     {
         DumbItem.GetNullObject();
   
-        var dumb_item_obj = DumbItem.Instances.get (name);
+        let dumb_item_obj = DumbItem.Instances.get (name);
         if (dumb_item_obj != undefined)   return dumb_item_obj;
         else                       return DumbItem.NULL;
     } // GetWeapon()
@@ -118,7 +118,7 @@ class DumbItem extends BitskinsObject
 
     static GetInstanceCount  ()
     {
-        var instance_count = DumbItem.Instances.size ;  // Map !!
+        let instance_count = DumbItem.Instances.size ;  // Map !!
         //konsole.log("DumbItem.GetInstanceCount:" + instance_count, LOG_LEVEL.OK);
         return instance_count;
     } // GetInstanceCount()
@@ -128,7 +128,7 @@ class DumbItem extends BitskinsObject
     /*
     getCoVaSeq( json_sell_order )
     { 
-        var assignement_value = "item_type = " + DumbItem.ComputeItemTypeID(this.item_type);
+        let assignement_value = "item_type = " + DumbItem.ComputeItemTypeID(this.item_type);
         return assignement_value;
     }
     */
@@ -137,7 +137,7 @@ class DumbItem extends BitskinsObject
     {
         assert(json_sell_order != undefined);
 
-        var item_type = json_sell_order.item_type;
+        let item_type = json_sell_order.item_type;
 
         if (item_type == undefined || item_type == null )
         item_type = NULL_DUMB;
@@ -145,9 +145,9 @@ class DumbItem extends BitskinsObject
         if (item_type == 'null')
             konsole.log ("PAS COOL !!", LOG_LEVEL.OK);
         
-        var name = DumbItem.ExtractName( json_sell_order);
+        let name = DumbItem.ExtractName( json_sell_order);
 
-        var dumb_item_obj = DumbItem.GetNullObject() ; 
+        let dumb_item_obj = DumbItem.GetNullObject() ; 
 
         if ( DumbItem.Instances.get( name )  == undefined  || DumbItem.Instances.get (name) === undefined )
         {

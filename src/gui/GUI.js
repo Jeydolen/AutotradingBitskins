@@ -54,9 +54,9 @@ class GUI
 
 const test_2 = () =>
 {
-   var obj_func = GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT]
+   let obj_func = GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT]
    console.log (obj_func);
-   var obj = new obj_func ('Weapon', 256, 480, 64 );
+   let obj = new obj_func ('Weapon', 256, 480, 64 );
    console.log ("object:" +JSON.stringify(obj))
 };
 

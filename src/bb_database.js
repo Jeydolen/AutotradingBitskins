@@ -7,7 +7,7 @@ const Konst     = rekwire ('/src/constants.js');
 
 
 //const DB_NAME     = 'bitskins_csgo';
-var DB_NAME       = Session.GetSingleton().getAppVar(Session.DB_Name);
+let DB_NAME       = Session.GetSingleton().getAppVar(Session.DB_Name);
 console.log ( DB_NAME );
 const ADMIN_NAME  = "rdp_admin";
 const ADMIN_PWD   = 'UZ14xdQ7E';
@@ -25,7 +25,7 @@ const CONNECTION_ARGS =
 }; // CONNECTION_ARGS
 
 
-var knex_conn = require('knex')({
+let knex_conn = require('knex')({
     client: 'mysql',
     connection: {
         host      :     'localhost',

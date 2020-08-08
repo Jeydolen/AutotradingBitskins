@@ -48,7 +48,7 @@ class Weapon extends BitskinsObject
     {
         assert (json_sell_order != undefined);
         assert (json_sell_order.hasOwnProperty('item_weapon'));
-        var name = json_sell_order.item_weapon;
+        let name = json_sell_order.item_weapon;
 
         if (name == undefined || name == 'null' ||name == null)
             name = NULL_WEAPON;
@@ -74,7 +74,7 @@ class Weapon extends BitskinsObject
     //            optionnel
     getCoVaSeq( json_sell_order )
     { 
-        var assignement_value = "type = " + Weapon.ComputeWeaponTypeId(this.item_type);
+        let assignement_value = "type = " + Weapon.ComputeWeaponTypeId(this.item_type);
         return assignement_value;
     }
 
@@ -91,7 +91,7 @@ class Weapon extends BitskinsObject
     {
         Weapon.GetNullObject();
   
-        var weapon = Weapon.Instances.get (name);
+        let weapon = Weapon.Instances.get (name);
         if (weapon != undefined)   return weapon;
         else                                return Weapon.NULL;
     } // GetWeapon()
@@ -100,7 +100,7 @@ class Weapon extends BitskinsObject
 
     static GetInstanceCount  ()
     {
-        var instance_count = Weapon.Instances.size ;  // Map !!
+        let instance_count = Weapon.Instances.size ;  // Map !!
         //konsole.log("Weapon.GetInstanceCount:" + instance_count, LOG_LEVEL.OK);
         return instance_count;
     } // GetInstanceCount()
@@ -110,7 +110,7 @@ class Weapon extends BitskinsObject
     {
         assert(input_item != undefined);
 
-        var item_weapon = input_item.item_weapon;
+        let item_weapon = input_item.item_weapon;
 
         if (item_weapon == undefined || item_weapon == null )
             item_weapon = NULL_WEAPON;
@@ -118,10 +118,10 @@ class Weapon extends BitskinsObject
         if (item_weapon == 'null')
                 konsole.log ("PAS COOL !!", LOG_LEVEL.OK);
         
-        var name = Weapon.ExtractName( input_item);
+        let name = Weapon.ExtractName( input_item);
    
 
-        var weapon = Weapon.GetNullObject() ; 
+        let weapon = Weapon.GetNullObject() ; 
 
 
         if ( Weapon.Instances.get( name )  == undefined  || Weapon.Instances.get (name) === undefined )

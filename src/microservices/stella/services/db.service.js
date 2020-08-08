@@ -23,33 +23,39 @@ module.exports =
 
     actions: 
     { 
+        /*
         async skin_sell_order ( ctx )
         {
-            var id = ctx.params.id != undefined ?  ctx.params.id : 1;
+            let id = ctx.params.id != undefined ?  ctx.params.id : 1;
+            let access_type_arg =  ctx.params.access_type != undefined ?  ctx.params.access_type : 'Public';
+            let access_type = Konst.AccessType.get ( access_type_arg );
+            console.log ( access_type );
 
-            var result_rows = await SkinSellOrder.LoadFromDBTable( { 'id': id } );
+            let result_rows = await SkinSellOrder.LoadFromDBTable( { 'id': id } );
             console.log( "result_rows : " +  JSON.stringify( result_rows ) );
 
-            var rows_count = result_rows.length;
+            let rows_count = result_rows.length;
             console.log( "rows_count: " + rows_count );
 
             if ( rows_count == 1 )
             {
-                var row = result_rows[ 0 ];
-                var bb_obj = SkinSellOrder.Create(  row,  Konst.Reason.Deserialize );
+                let row = result_rows[ 0 ];
+                let bb_obj = SkinSellOrder.Create(  row,  Konst.Reason.Deserialize );
                 ctx.meta.$responseType = "text/json ; charset=utf-8";
                 //return JSON.stringify( bb_obj );
-                return bb_obj.toJSON()            
+               
+                return bb_obj.toJSON( access_type )            
             }
             else
                 return "Error /stella/db/skin_sell_order: rows_count = ";// + rows_count;  
-        }, // populate(
+        }, // populate()
+            */
 
 
         populate ( ctx)
         {
-            var reason_ctx  = ctx.params.reason != undefined ?  ctx.params.reason : 'Populate' ;
-            var reason = Konst.Reason.get(reason_ctx);
+            let reason_ctx  = ctx.params.reason != undefined ?  ctx.params.reason : 'Populate' ;
+            let reason = Konst.Reason.get(reason_ctx);
 
             PopulateDBCmd.GetSingleton().execute(reason);
             return 'Lancement populate';
@@ -58,7 +64,7 @@ module.exports =
 
         backup ( args )
         {
-            var main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
+            let main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
 
             dialog.showSaveDialog
             ( main_window, 
@@ -74,7 +80,7 @@ module.exports =
                 console.log (JSON.stringify(result));
                 if ( result.filePath != undefined )
                 {
-                var output_sql_file_path = result.filePath;
+                let output_sql_file_path = result.filePath;
                 BackupDBCmd.GetSingleton().execute( output_sql_file_path );
                 } // if 
             }
@@ -84,7 +90,7 @@ module.exports =
 
         restore ( args )
         {
-            var main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
+            let main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
 
             dialog.showOpenDialog
             ( main_window, 
@@ -99,7 +105,7 @@ module.exports =
                 if ( result.canceled ) return;
                 if ( result.filePaths.length == 1 )
                 {
-                  var input_sql_file_path = result.filePaths[0];
+                  let input_sql_file_path = result.filePaths[0];
                   RestoreDBCmd.GetSingleton().execute ( input_sql_file_path );
                 } // if 
               }
@@ -108,7 +114,7 @@ module.exports =
 
         query ( ctx ) 
         {
-            //var app_var_value = Session.GetSingleton().getAppVar(ctx.params);
+            //let app_var_value = Session.GetSingleton().getAppVar(ctx.params);
             console.log("params " + JSON.stringify(ctx.params));
             ProfitSelectSkinCmd.GetSingleton().execute (ctx.params)
             return 'Query';

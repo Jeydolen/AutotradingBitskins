@@ -51,25 +51,25 @@ class Controller extends Singleton
         else if (event == GUI.EVENT.get(GUI.SHOW_DEV_TOOLS_EVT) )
         {
             //console.log ("Main_window : " + this.main_window);
-            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SHOW_DEV_TOOLS_ID );
+            let cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SHOW_DEV_TOOLS_ID );
             cmd_klass.GetSingleton().execute(args); 
         }
 
         else if (event == GUI.EVENT.get(GUI.BACKUP_DB_EVT) )
         {
-            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.BACKUP_DB_ID );
+            let cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.BACKUP_DB_ID );
             cmd_klass.GetSingleton().execute(args);
         }
             
         else if (event == GUI.EVENT.get(GUI.RESTORE_DB_EVT) )
         {
-            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.RESTORE_DB_ID );
+            let cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.RESTORE_DB_ID );
             cmd_klass.GetSingleton().execute(args);
         }
 
         else if (event == GUI.EVENT.get(GUI.START_POPULATE_DB_EVT))
         {
-            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
+            let cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
             konsole.log (cmd_klass.name, LOG_LEVEL.OK)
             cmd_klass.GetSingleton().execute(null);
         }
@@ -77,19 +77,19 @@ class Controller extends Singleton
         else if (event == GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT))
         {
             //console.log ("Salut depuis controller.js")
-            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.PROFIT_SLCT_SKIN_ID );
+            let cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.PROFIT_SLCT_SKIN_ID );
             cmd_klass.GetSingleton().execute(args);
         }
 
         else if (event == GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT))
         {
-            var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SUBMIT_VALUE_ID );
+            let cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.SUBMIT_VALUE_ID );
             cmd_klass.GetSingleton().execute(args);
         }
 
         else if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT)  )
         {
-            var app_var_name = args;
+            let app_var_name = args;
             //console.log ("APPVar '" + app_var_name + "'changed");
             if ( app_var_name = Session.MainWindow )
                 this.main_window = Session.GetSingleton().getAppVar(app_var_name);

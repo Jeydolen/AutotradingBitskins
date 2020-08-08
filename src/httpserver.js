@@ -6,8 +6,8 @@ const { konsole, LOG_LEVEL} = rekwire('/src/bb_log.js');
 
 const start = (skins) => 
 {
-    var app = express();
-    var tagline = "Affronte le profit"
+    let app = express();
+    let tagline = "Affronte le profit"
 
     // set the view engine to ejs
     app.set('view engine', 'ejs');

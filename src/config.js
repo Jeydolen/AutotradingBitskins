@@ -31,13 +31,13 @@ class Config extends Singleton
 
     init()
     {
-        var config_setting = ini.read( APP_ROOT_PATH + "/config.ini");
+        let config_setting = ini.read( APP_ROOT_PATH + "/config.ini");
 
-        var page_index_start = Number(config_setting.db.page_index_start);
+        let page_index_start = Number(config_setting.db.page_index_start);
         console.log(page_index_start + ' ' +  typeof page_index_start)
         this._setAppVar( Config.PageIndexStart, page_index_start);
 
-        var is_prod = config_setting.db.is_prod;
+        let is_prod = config_setting.db.is_prod;
         console.log ("Is prod ? :" + is_prod);
         this._setAppVar( Config.IsProd, is_prod);
     }

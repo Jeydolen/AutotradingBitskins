@@ -1,8 +1,8 @@
 // https://stackoverflow.com/questions/44740423/create-json-string-from-js-map-and-string
 const objToString = (obj) =>
 {
-    var str = '';
-    for (var p in obj) {
+    let str = '';
+    for (let p in obj) {
         if (obj.hasOwnProperty(p)) {
             str += p + '::' + obj[p] + '\n';
         }
@@ -12,7 +12,7 @@ const objToString = (obj) =>
 
 const mapToObj = (map) =>
 {
-    var obj = {}
+    let obj = {}
     map.forEach(function(v, k){
       obj[k] = v
     })
@@ -21,15 +21,15 @@ const mapToObj = (map) =>
 
 const mapToJSON = (map) =>
 {
-    var json_obj = {};
+    let json_obj = {};
     json_obj.map = mapToObj(map);
     return json_obj;
 }; // mapToJSON()
 
 const mapToString = (map) =>
 {
-    var json_obj = mapToJSON(map);
-    var json_str = JSON.stringify(json_obj);
+    let json_obj = mapToJSON(map);
+    let json_str = JSON.stringify(json_obj);
     return json_str;
 }; // mapToString()
 
@@ -47,7 +47,7 @@ const pause = (delay_msec) =>
 
 const getFunctionName = (f) =>
 {
-    var ret = f.toString();
+    let ret = f.toString();
     ret = ret.substr('function '.length);
     ret = ret.substr(0, ret.indexOf('('));
     return ret;

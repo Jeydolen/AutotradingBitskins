@@ -29,11 +29,11 @@ document.addEventListener("keydown", function (e)
     
 ipcRenderer.on( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT).value, (event, obj_arg) => 
 {
-    var percent_value = (obj_arg.value / obj_arg.max_value) * 100;
+    let percent_value = (obj_arg.value / obj_arg.max_value) * 100;
     setProgressBarValue( Math.trunc(percent_value) );
 
-    var type_label =  document.getElementById("type-label");
-    var page_label = document.getElementById("page-label");
+    let type_label =  document.getElementById("type-label");
+    let page_label = document.getElementById("page-label");
 
     if ( type_label == undefined ||  page_label == undefined)
         return ;
@@ -54,7 +54,7 @@ const onServiceCall = ( service_name, action_name, args ) =>
     .then ( (res) => 
     {
      console.log('Call ' + service_name + '.' + action_name);
-     var action_button          = document.getElementById(action_name + "-button");
+     let action_button          = document.getElementById(action_name + "-button");
      if ( action_button != null && action_button != undefined)
      action_button.disabled = true ;
     } )
@@ -75,7 +75,7 @@ const ipcGetAppVar = async url => {
 
 const onCheckSkin = () =>
 {
-    var values_obj = new CMD_KONST.CMD_ARGS[CMD_KONST.PROFIT_SLCT_SKIN_ID]( 5,4,4 );
+    let values_obj = new CMD_KONST.CMD_ARGS[CMD_KONST.PROFIT_SLCT_SKIN_ID]( 5,4,4 );
 
     ipcRenderer.send (GUI.EVENT.get(GUI.PROFIT_SLCT_SKIN_EVT).value, values_obj);
     console.log('Bouton check skin');
@@ -84,7 +84,7 @@ const onCheckSkin = () =>
 const setProgressBarValue = ( value ) => 
 {
     if (value > 100) value = 100;
-    var pbar_value          = document.getElementById("progress-bar-value");
+    let pbar_value          = document.getElementById("progress-bar-value");
     if ( pbar_value != null)
     {
         pbar_value.style.width = value + "%";
@@ -94,7 +94,7 @@ const setProgressBarValue = ( value ) =>
 } // setProgressBarValue()
 
 
-var focused_entity = null;
+let focused_entity = null;
 const onFocus = (entity_arg) =>
 {
     focused_entity = entity_arg
@@ -103,15 +103,15 @@ const onFocus = (entity_arg) =>
 
 const onSubmit = () =>
 {
-    var value = document.getElementById(focused_entity).value
+    let value = document.getElementById(focused_entity).value
     console.log('Coucou')
     ipcRenderer.send (GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT).value, new GUI.SubmitValueEventObj ( focused_entity, value ) );
 }
 
 const onFormSubmit = ( form_id ) =>
 {
-    var params = $("#" + form_id).serialize(); // serializes the form's elements.
-    var msg = params;
+    let params = $("#" + form_id).serialize(); // serializes the form's elements.
+    let msg = params;
 
     fetch('http://localhost:51374/stella/db/query?' + params)
     .then ( (res) => 

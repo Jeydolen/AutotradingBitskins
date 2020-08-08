@@ -35,7 +35,7 @@ class Session extends Singleton
         this.AppVars.set( Session.PageIndexStart,   Config.GetSingleton().getAppVar(Config.PageIndexStart) );
         this.AppVars.set( Session.IsProd,           Config.GetSingleton().getAppVar(Config.IsProd) );
 
-        var db_name = "bitskins_csgo_dev"; 
+        let db_name = "bitskins_csgo_dev"; 
         if ( this.getAppVar(Session.IsProd) == 'true' )
             db_name = "bitskins_csgo_prod";
 
@@ -48,7 +48,7 @@ class Session extends Singleton
     {
         if (this.subscribers.has(event_arg ))
         {
-            var index_of = this.subscribers.get( event_arg).indexOf(subscriber_obj);
+            let index_of = this.subscribers.get( event_arg).indexOf(subscriber_obj);
             if ( this.subscribers.get( event_arg).indexOf(subscriber_obj) == -1 )
             {
                 this.subscribers.get( event_arg ).push( subscriber_obj );
@@ -65,7 +65,7 @@ class Session extends Singleton
         if (this.AppVars.has(name_arg ))
         {
            console.log ('1sfsqfsq')
-            var previous_value = this.AppVars.get( name_arg );
+            let previous_value = this.AppVars.get( name_arg );
             if ( previous_value != value_arg )
             {
                 console.log ('2')
@@ -78,11 +78,11 @@ class Session extends Singleton
                 
                 this.AppVars.set( name_arg, value_arg );
 
-                var event_subscribers = this.subscribers.get( GUI.EVENT[GUI.APP_VAR_CHANGED_EVT] );
+                let event_subscribers = this.subscribers.get( GUI.EVENT[GUI.APP_VAR_CHANGED_EVT] );
 
-                for ( var i=0; i< event_subscribers.length; i++ )
+                for ( let i=0; i< event_subscribers.length; i++ )
                 {
-                    var subscriber_obj = event_subscribers[i];
+                    let subscriber_obj = event_subscribers[i];
                     if (subscriber_obj != undefined) 
                     { 
                         subscriber_obj.inform(  GUI.EVENT[GUI.APP_VAR_CHANGED_EVT], name_arg );

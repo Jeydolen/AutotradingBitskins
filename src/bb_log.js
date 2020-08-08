@@ -19,7 +19,7 @@ const LOG_LEVEL = new Enum (['OK', 'WARNING', 'MSG', 'INFO', 'PAUSE', 'ERROR', '
 
 const COLORS = new Enum ( {'PURPLE': '#DA6DE6', 'CYAN': '#0BC6A7', 'OCHRE': '#D6BC24', 'ORANGE': '#F78A07' } );
 
-var is_initialized = false;
+let is_initialized = false;
 
 //============ 'konsole' class ============
 class konsole extends Singleton
@@ -35,7 +35,7 @@ class konsole extends Singleton
     {
         if (is_initialized) return;
 
-        var color_logger = new ColorConsole();
+        let color_logger = new ColorConsole();
         MxI.$Log.addSink(color_logger);
         
  
@@ -57,6 +57,16 @@ class konsole extends Singleton
         konsole.log( msg, LOG_LEVEL.ERROR);
     } // error()
 
+    static msg( msg )
+    {
+        konsole.log( msg, LOG_LEVEL.MSG);
+    } // msg()
+
+    static warn( msg )
+    {
+        konsole.log( msg, LOG_LEVEL.WARNING);
+    } // warn()
+
     inform ( event, args )
     {
         assert ( GUI.EVENT.isDefined( event ));
@@ -64,12 +74,12 @@ class konsole extends Singleton
         //console.log ('controller.js inform event: ' + event);
         if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT).key)
         {
-            var app_var_name = args;
+            let app_var_name = args;
             console.log ("APPVar '" + app_var_name + "'changed");
             if ( app_var_name = Session.Broker )
             {
-                var broker_value = args;
-                var moleculer_logger = new MoleculerConsole( broker_value );
+                let broker_value = args;
+                let moleculer_logger = new MoleculerConsole( broker_value );
                 MxI.$Log.addSink(moleculer_logger);
             }
         }
@@ -125,7 +135,7 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
                     message: 'Do you want to stop ?'
                 };
 
-                var response = dialog.showMessageBoxSync(options)
+                let response = dialog.showMessageBoxSync(options)
                 
                     console.log (response);
                     if (response == 0)
@@ -144,9 +154,9 @@ class ColorConsole extends MxI.$Implementation(MxI.$ConsoleLogSink).$with(MxI.$I
 
         else if (log_level == LOG_LEVEL.CRITICAL )
         {
-            var critical_msg = "  F* word  [ " + arg_msg + " ] F* word  ";
+            let critical_msg = "  F* word  [ " + arg_msg + " ] F* word  ";
 
-            var repeat_symbol_count = 100;
+            let repeat_symbol_count = 100;
 
             console.log( chalk.white.bold.bgHex('#FF00FF')("=".repeat(repeat_symbol_count)) );
             console.log( chalk.white.bold.bgHex('#FF00FF')(critical_msg));

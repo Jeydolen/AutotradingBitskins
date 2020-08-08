@@ -13,9 +13,9 @@ module.exports =
 
     actions: 
     { 
-        getappvar ( ctx ) 
+        getapplet ( ctx ) 
         {
-            var app_var_value = Session.GetSingleton().getAppVar(ctx.params.name);
+            let app_var_value = Session.GetSingleton().getAppVar(ctx.params.name);
             console.log("app_var_value " + app_var_value);
             return app_var_value;
         }, // getAppVar()

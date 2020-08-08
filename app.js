@@ -32,7 +32,7 @@ const MENU_LABELS =
   'quit-id'           :    'Quitter'
 }; // MENU_LABELS
 
-var main_window = null;
+let main_window = null;
 
 //====================================================================================================================
 //=================================================  main de app.js  =================================================
@@ -61,8 +61,8 @@ const ParseCommandLineArgs = (args) =>
 
   if (commander.http) 
   {
-    var skin_map = Skin.Instances;
-    var skin_values = skin_map.values();
+    let skin_map = Skin.Instances;
+    let skin_values = skin_map.values();
     
     http_server.start(skin_map);
   }
@@ -74,7 +74,7 @@ const ParseCommandLineArgs = (args) =>
 
   if (commander.update)                              
   {
-    var cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
+    let cmd_klass =  CommandRegistry.GetSingleton().getItem( CMD_KONST.POPULATE_DB_ID );
     cmd_klass.GetSingleton().execute(null);
   }
 
@@ -114,7 +114,7 @@ const createWindow = () =>
 
 const createMenu = () =>
 {
-    var menu = Menu.buildFromTemplate
+    let menu = Menu.buildFromTemplate
     ([
         {
             label: MENU_LABELS['file-id'],
@@ -129,7 +129,7 @@ const createMenu = () =>
                 {   label: MENU_LABELS['backup-id'],
                     click() 
                     {
-                      var event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
+                      let event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
                       EventDispatcher.GetSingleton().dispatch(event, null);
                     }
                     
@@ -151,8 +151,8 @@ const createMenu = () =>
                         //console.log (JSON.stringify(result));
                         if ( result.filePath != undefined )
                         {
-                          var output_sql_file_path = result.filePath;
-                          var event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
+                          let output_sql_file_path = result.filePath;
+                          let event = GUI.EVENT.get(GUI.BACKUP_DB_EVT);
                           EventDispatcher.GetSingleton().dispatch(event, output_sql_file_path);
 
                         } // if 
@@ -177,8 +177,8 @@ const createMenu = () =>
                         if ( result.canceled ) return;
                         if ( result.filePaths.length == 1 )
                         {
-                          var input_sql_file_path = result.filePaths[0];
-                          var event = GUI.EVENT.get(GUI.RESTORE_DB_EVT);
+                          let input_sql_file_path = result.filePaths[0];
+                          let event = GUI.EVENT.get(GUI.RESTORE_DB_EVT);
                           EventDispatcher.GetSingleton().dispatch(event, input_sql_file_path);
                         } // if 
                       }

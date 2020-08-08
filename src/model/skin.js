@@ -54,7 +54,7 @@ class Skin extends BitskinsObject
 
       assert (arg != undefined);
 
-      var json_sell_order     = arg;
+      let json_sell_order     = arg;
       this.name               = Skin.ExtractName(json_sell_order); 
       this.short_name         = Skin.ExtractShortName ( json_sell_order );
       this.image_url          = json_sell_order.image ;
@@ -71,11 +71,11 @@ class Skin extends BitskinsObject
   { 
     assert ( json_sell_order != undefined );
 
-    var skinset_name      = SkinSet.ExtractName( json_sell_order );
-    var skinset_obj       = SkinSet.GetSkinSet (skinset_name);
+    let skinset_name      = SkinSet.ExtractName( json_sell_order );
+    let skinset_obj       = SkinSet.GetSkinSet (skinset_name);
     assert (skinset_obj != SkinSet.NULL);
 
-    var assignement_value = "`image_url` = '" + this.image_url + "', `skin_rarity` = " + this.item_rarity 
+    let assignement_value = "`image_url` = '" + this.image_url + "', `skin_rarity` = " + this.item_rarity 
                           + ", skin_set = " + skinset_obj.getRecordId() 
                           + ", weapon = " + this.weapon_id  + ", `short_name` = '" + this.short_name + "'" ;
                         
@@ -87,10 +87,10 @@ class Skin extends BitskinsObject
 
   static ExtractName( json_sell_order )
   {
-    var name = Konst.NOTHING;
+    let name = Konst.NOTHING;
    
-    var skin_name = Skin.ExtractShortName (json_sell_order);
-    var weapon_name = Weapon.ExtractName  (json_sell_order);
+    let skin_name = Skin.ExtractShortName (json_sell_order);
+    let weapon_name = Weapon.ExtractName  (json_sell_order);
     name = weapon_name + ' | ' + skin_name;
 
     return name;
@@ -100,18 +100,18 @@ class Skin extends BitskinsObject
   static ExtractShortName ( json_sell_order )
   {
     assert (json_sell_order != undefined)
-    var skin_name = json_sell_order.market_hash_name;
+    let skin_name = json_sell_order.market_hash_name;
     assert ( skin_name != undefined, "Ce n'est pas le json_sell_order");
 
     //                     ------ left ------   ---------- right ----------
     // "market_hash_name": "StatTrak™    M4A4  |  X-Ray      (Minimal Wear)",
     if ( skin_name.search('|') != -1)
     {
-      var parts = skin_name.split('|');
+      let parts = skin_name.split('|');
 
       if (parts.length > 1)
       {
-        var right_part =  skin_name.split('|')[1];
+        let right_part =  skin_name.split('|')[1];
         right_part = right_part.trim();
         skin_name = right_part.split('(')[0].trim(' ');
 
@@ -128,7 +128,7 @@ class Skin extends BitskinsObject
   {
     Skin.GetNullObject(); // Crée le Null Object si pas déjà créé
 
-    var found_skin = Skin.Instances.get(name); // Map !!
+    let found_skin = Skin.Instances.get(name); // Map !!
     if (found_skin != undefined)
       return found_skin;
     else
@@ -138,7 +138,7 @@ class Skin extends BitskinsObject
 
   static GetInstanceCount  ()
   {
-      var instance_count = Skin.Instances.size ;  // Map !!
+      let instance_count = Skin.Instances.size ;  // Map !!
       return instance_count;
   } // GetInstanceCount()
 
@@ -172,9 +172,9 @@ class Skin extends BitskinsObject
   {
     assert(json_sell_order != undefined);
 
-    var skin_obj = Skin.GetNullObject() ;
+    let skin_obj = Skin.GetNullObject() ;
 
-    var name                  = Skin.ExtractName( json_sell_order);
+    let name                  = Skin.ExtractName( json_sell_order);
 
     if ( Skin.Instances.has( name ) ) 
     {

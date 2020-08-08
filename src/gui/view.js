@@ -37,10 +37,10 @@ class View
         console.log("View.js event:" + event);
         EventDispatcher.GetSingleton().dispatch(event, args);
 
-        /*for ( var i=0; i< this.event_sinks.get( event.key ).length; i++ )
+        /*for ( let i=0; i< this.event_sinks.get( event.key ).length; i++ )
         {
             //console.log('Yo');
-            var event_sink_obj = this.event_sinks.get( event.key )[i];
+            let event_sink_obj = this.event_sinks.get( event.key )[i];
 
             if (event_sink_obj != undefined) 
             { 

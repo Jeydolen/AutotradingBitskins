@@ -19,8 +19,8 @@ class BackupDBCmd extends Command
 
     execute ( args )
     { 
-        var fullpath_to_sql_output_file = mkDBFullPath(args);
-        var child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' > ' + fullpath_to_sql_output_file);
+        let fullpath_to_sql_output_file = mkDBFullPath(args);
+        let child = exec(' mysqldump -u '+ ADMIN_NAME +' -p'+ ADMIN_PWD +' ' +  DB_NAME + ' > ' + fullpath_to_sql_output_file);
         
 
        child.on('exit', function (code) {

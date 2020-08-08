@@ -15,7 +15,7 @@ module.exports =
     { 
         help(args)
         {
-            var msg = 'Je suis ton pere !'
+            let msg = 'Je suis ton pere !'
             return msg;
         }
     }

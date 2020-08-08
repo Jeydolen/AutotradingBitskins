@@ -47,12 +47,12 @@ class DBPopulater extends Singleton
     { 
         assert( json_obj != undefined );
 
-        var json_sell_orders = json_obj['data']['items'];
-        var json_sell_order_count = json_sell_orders.length;
+        let json_sell_orders = json_obj['data']['items'];
+        let json_sell_order_count = json_sell_orders.length;
 
         konsole.log(" JSON Sell Order count : " + json_sell_order_count, LOG_LEVEL.MSG);
 
-        var db = BB_Database.GetSingleton();
+        let db = BB_Database.GetSingleton();
 
 
         const getNextCB = ( klass ) =>
@@ -76,8 +76,8 @@ class DBPopulater extends Singleton
         {
             assert( bb_obj != undefined );
 
-            var klass = (bb_obj.constructor);
-            var done_count = this.create_in_db_done_count.get( klass );
+            let klass = (bb_obj.constructor);
+            let done_count = this.create_in_db_done_count.get( klass );
 
             if ( klass == Skin || klass == DumbItem ) 
             {
@@ -102,9 +102,9 @@ class DBPopulater extends Singleton
                 return;
             }
 
-            var done_count = this.create_in_db_done_count.get( klass ) + 1;
+            done_count = this.create_in_db_done_count.get( klass ) + 1;
             this.create_in_db_done_count.set ( klass, done_count );
-            var values_obj = new GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT](bb_obj.getType(), done_count, json_sell_order_count, page_index);
+            let values_obj = new GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT](bb_obj.getType(), done_count, json_sell_order_count, page_index);
             EventDispatcher.GetSingleton().dispatch( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT), values_obj );
             //EventDispatcher.GetSingleton().dispatch( GUI.EVENT[GUI.POPULATE_DB_PROGRESS_EVT], values_obj );
         }; // endOfWaterfallCB()
@@ -114,16 +114,16 @@ class DBPopulater extends Singleton
         {
             konsole.log("----------------------------------------------------------------------------------------", LOG_LEVEL.MSG)
 
-            var klass = Weapon;
+            let klass = Weapon;
 
             this.create_in_db_done_count.clear();
 
             this.create_in_db_done_count.set( klass, 0 );
             this.next_cb = populateDBWithSkinSet_CB;
             
-            for (var i = 0, len = json_sell_order_count; i < len; i++) 
+            for (let i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var weapon_obj = klass.Create (json_sell_orders[i]) ;
+                let weapon_obj = klass.Create (json_sell_orders[i]) ;
                 weapon_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i] );
             }
         }; // populateDBWithWeapon()
@@ -131,14 +131,14 @@ class DBPopulater extends Singleton
 
         const populateDBWithSkinSet_CB = () =>
         {
-            var klass = SkinSet;
+            let klass = SkinSet;
             
             this.create_in_db_done_count.set( klass, 0 );
             this.next_cb = populateDBWithSkinOrDumb_CB;
 
-            for (var i = 0, len = json_sell_order_count; i < len; i++) 
+            for (let i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var skin_set_obj            = klass.Create (json_sell_orders[i]) ;
+                let skin_set_obj            = klass.Create (json_sell_orders[i]) ;
                 skin_set_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i]);
             }
         }; // populateDBWithSkinset_CB()
@@ -148,16 +148,16 @@ class DBPopulater extends Singleton
         {
             this.next_cb = populateDBWithSkinSellOrder_CB;
 
-            for (var i = 0, len = json_sell_order_count; i < len; i++) 
+            for (let i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var json_sell_order = json_sell_orders[i];
+                let json_sell_order = json_sell_orders[i];
 
-                var klass = DumbItem.ExtractType( json_sell_order );
+                let klass = DumbItem.ExtractType( json_sell_order );
                 assert (klass != Konst.NOTHING);
                 if ( this.create_in_db_done_count.get( klass) == undefined )
                     this.create_in_db_done_count.set( klass, 0 );
 
-                var skin_or_dumb_obj = klass.Create (json_sell_order) ;
+                let skin_or_dumb_obj = klass.Create (json_sell_order) ;
                 skin_or_dumb_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i]);
             }
         }; // populateDBWithSkinOrDumb_CB()
@@ -165,13 +165,13 @@ class DBPopulater extends Singleton
 
         const populateDBWithSkinSellOrder_CB = () =>
         {   
-            var klass = SkinSellOrder;
+            let klass = SkinSellOrder;
             this.next_cb = populateEnd_CB;
             this.create_in_db_done_count.set( klass, 0 );
             
-            for (var i = 0, len = json_sell_order_count; i < len; i++) 
+            for (let i = 0, len = json_sell_order_count; i < len; i++) 
             {
-                var skin_sell_order_obj     = klass.Create ( json_sell_orders[i] ) ;
+                let skin_sell_order_obj     = klass.Create ( json_sell_orders[i] ) ;
                 skin_sell_order_obj.createInDBTable ( endOfWaterfallCB, json_sell_orders[i] );
             }
         }; // populateDBWithSkinSellOrder_CB()

@@ -52,7 +52,7 @@ class EventDispatcher extends Singleton
         //konsole.log('Subscribe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
         assert ( GUI.EVENT.isDefined( event ), event);
 
-        var evt_sink_get = this.event_sinks.get( event );
+        let evt_sink_get = this.event_sinks.get( event );
         if ( evt_sink_get.indexOf (event_sink_obj) == -1 )
         {
            //konsole.log('T la : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
@@ -67,7 +67,7 @@ class EventDispatcher extends Singleton
         assert (event.key != undefined)
         assert ( GUI.EVENT.isDefined( event.key ));
         assert (this.event_sinks != null, this.event_sinks)
-        var evt_sink_get = this.event_sinks.get( event )
+        let evt_sink_get = this.event_sinks.get( event )
 
         if ( evt_sink_get == null || evt_sink_get == undefined)
         {
@@ -76,10 +76,10 @@ class EventDispatcher extends Singleton
         }
            
 
-        for ( var i=0; i< evt_sink_get.length; i++ )
+        for ( let i=0; i< evt_sink_get.length; i++ )
         {
             //console.log('Yo' + event.key);
-            var event_sink_obj = this.event_sinks.get( event )[i];
+            let event_sink_obj = this.event_sinks.get( event )[i];
 
             if (event_sink_obj != undefined) 
             { 

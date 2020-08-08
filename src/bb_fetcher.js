@@ -52,8 +52,8 @@ class BitskinsFetcher extends Singleton
 
     buildQuery (page_index)
     {
-        var   two_FA_code      =  totp.gen(base32.decode(SECRET_BITSKINS));
-        var query    = "https://bitskins.com/api/v1/get_inventory_on_sale/?api_key=" + API_KEY + "&app_id=730&code="
+        let   two_FA_code      =  totp.gen(base32.decode(SECRET_BITSKINS));
+        let query    = "https://bitskins.com/api/v1/get_inventory_on_sale/?api_key=" + API_KEY + "&app_id=730&code="
                         + two_FA_code + "&is_souvenir=-1&per_page=480&show_trade_delayed_items=1&page=" + page_index ;
         return query;
     } // buildQuery
@@ -62,12 +62,12 @@ class BitskinsFetcher extends Singleton
     //parseOnReady_CB ( json_data,  populate_finished_cb )
     parseOnReady_CB ( json_data,  cb_args )
     {
-        var populate_finished_cb    = cb_args.cb;
-        var reason                  = cb_args.reason ;
+        let populate_finished_cb    = cb_args.cb;
+        let reason                  = cb_args.reason ;
 
-        var items_count = Konst.NOTHING;
+        let items_count = Konst.NOTHING;
         //-------------------- Parsing du JSON -------------------
-        var json_obj = { "NOTHING" : Konst.NOTHING } ;
+        let json_obj = { "NOTHING" : Konst.NOTHING } ;
         try 
         {
             items_count = 0;
@@ -92,7 +92,7 @@ class BitskinsFetcher extends Singleton
             konsole.log('firstItem : ' + json_obj['data']['items'][0].market_hash_name, LOG_LEVEL.MSG);
             konsole.log("page :" +json_obj['data']['page'], LOG_LEVEL.MSG)
 
-            var singleton  = BitskinsFetcher.Singleton;
+            let singleton  = BitskinsFetcher.Singleton;
     
             if ( reason == Konst.Reason.Populate ) 
                 DBPopulater.GetSingleton().populateWaterfall( json_obj, singleton._page_index++, populate_finished_cb );
@@ -148,12 +148,12 @@ class BitskinsFetcher extends Singleton
     //async fetchItems ( page_index, on_response_ready, populate_finished_cb, reason = Konst.Reason.Populate ) 
     async fetchItems ( page_index, cb_args, populate_finished_cb ) 
     {
-        var on_response_ready       = cb_args.cb;
-        var reason                  = cb_args.reason ;
+        let on_response_ready       = cb_args.cb;
+        let reason                  = cb_args.reason ;
 
         assert( on_response_ready != undefined );
 
-        var fetch_result = Konst.NOTHING;
+        let fetch_result = Konst.NOTHING;
         
         try 
         {
@@ -172,10 +172,10 @@ class BitskinsFetcher extends Singleton
     ///// https://stackoverflow.com/questions/8775262/synchronous-requests-in-node-js
     downloadPage ( url, cb_args, populate_finished_cb ) 
     {
-        var result = Konst.NOTHING;
+        let result = Konst.NOTHING;
         
-        var on_response_ready       = cb_args.cb;
-        var reason_arg              = cb_args.reason ;
+        let on_response_ready       = cb_args.cb;
+        let reason_arg              = cb_args.reason ;
 
         result = new Promise( ( resolve, reject ) => 
         {

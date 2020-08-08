@@ -29,7 +29,7 @@ class BitskinsObject extends ISerializable
   constructor( arg, id ) 
   {     
     super( arg );
-    this._record_id            = 1; // NULL_OBJECT DANS LES TABLES 
+    this._record_id            = Konst.NULL_RECORD_ID; // NULL_OBJECT DANS LES TABLES 
     this._created_in_db        = false;
     this._updated_in_db        = false;
     this._table                = Konst.NOTHING;
@@ -39,8 +39,8 @@ class BitskinsObject extends ISerializable
 
   toJSON = ( access_type = Konst.AccessType.Public ) => 
   {
-    var json_data = {} ;
-    for (var attribute in this) 
+    let json_data = {} ;
+    for (let attribute in this) 
     {
       if ( ! attribute.startsWith('_'))
         {
@@ -59,17 +59,20 @@ class BitskinsObject extends ISerializable
   static async RestoreObjectFromDB ( record_id, klass_arg ) 
   {
     assert ( record_id != null && record_id != undefined );
-    var klass = klass_arg;
-    var bb_obj = klass.NULL;
+    let klass = klass_arg;
+    let bb_obj = klass.NULL;
   
     // Restauration depuis db (deserialization)
-    var result_rows = await klass.LoadFromDBTable( record_id, klass );
-    var rows_count  = result_rows.length;
+    let result_rows = await klass.LoadFromDBTable( record_id, klass );
+    let rows_count  = result_rows.length;
+    //konsole.warn( "RestoreObjectFromDB: InstancesByRecordID.keys: " + JSON.stringify( Array.from( klass.InstancesByRecordID.keys() ).sort() ) + ' ' + klass.name) ;
     
     if ( rows_count == 1 )
     {
-        var row = result_rows[ 0 ];
-        bb_obj = klass.Create(  row,  Konst.Reason.Deserialize );
+        let json_data = result_rows[ 0 ];
+        konsole.log ( JSON.stringify( json_data ), LOG_LEVEL.MSG );
+        konsole.log ( 'RestoreObjectFromDB , record id : ' + record_id )
+        bb_obj = klass.Create(  json_data,  Konst.Reason.Deserialize );
     }
     else 
     {
@@ -89,9 +92,9 @@ class BitskinsObject extends ISerializable
       //assert( args != undefined && args    != null );
       assert( id   != undefined && id != null && ! isNaN(id));
 
-      var klass_name = klass_arg.name;
-      var table_name = BitskinsObject._GetTableName( klass_name );
-      var result_rows = null;
+      let klass_name = klass_arg.name;
+      let table_name = BitskinsObject._GetTableName( klass_name );
+      let result_rows = null;
 
       if ( table_name == null )
       {
@@ -111,22 +114,23 @@ class BitskinsObject extends ISerializable
   //---------------------------------------------/>
 
 
-  //static async GetFromRecordId( record_id, klass_arg )  
-  static GetFromRecordId( record_id, klass_arg )  
+  static async GetFromRecordId( record_id, klass_arg )  
   { 
-    var klass = klass_arg;
-    var bb_obj = klass.NULL;
+    let klass = klass_arg;
+    let bb_obj = klass.NULL;
     //console.log ( 'record_id : ' + record_id)
+
+    //konsole.warn( "GetFromRecordId: InstancesByRecordID.keys: " + JSON.stringify( Array.from( klass.InstancesByRecordID.keys() ) ) + ' ' + klass.name) ;
    
     if ( klass.InstancesByRecordID.has( record_id ) ) 
     { 
       bb_obj = klass.InstancesByRecordID.get( record_id ); 
-      konsole.log ( 'Class_name : ' + klass.name + ' bb_obj : ' + JSON.stringify(bb_obj), LOG_LEVEL.INFO)
+      //konsole.log ( 'GetFromRecordId if record_id != undefined : ' + klass.name + ' bb_obj : ' + JSON.stringify(bb_obj), LOG_LEVEL.CRITICAL)
     }
     else 
     { 
-      // bb_obj = await klass.RestoreObjectFromDB ( record_id, klass );
-      bb_obj = klass.RestoreObjectFromDB ( record_id, klass );
+      bb_obj = await klass.RestoreObjectFromDB ( record_id, klass );
+      //konsole.log ( 'GetFromRecordId else : ' + klass.name + ' id : '  + record_id, LOG_LEVEL.INFO)
       assert ( bb_obj != klass.NULL) 
     } 
 
@@ -137,7 +141,9 @@ class BitskinsObject extends ISerializable
   getRecordId         ()      { return this._record_id;           } // getRecordId()
   setRecordId         ( record_id )      
   { 
-    var klass = this.constructor;
+    let klass = this.constructor;
+    konsole.msg ( record_id)
+    assert ( record_id != undefined && record_id != Konst.NULL_RECORD_ID)
     this._record_id = record_id; 
 
     if ( ! klass.InstancesByRecordID.has( record_id ) )
@@ -151,14 +157,15 @@ class BitskinsObject extends ISerializable
 
   static async GetObjectsFromRecordIDs ( record_ids_arg, klass_arg )
   {
-    var klass = klass_arg;
-    var bb_obj = null;
-    var bb_objects = [];
-    //console.log("record_ids_arg: " + JSON.stringify(record_ids_arg ));
+    let klass = klass_arg;
+    let bb_obj = null;
+    let bb_objects = [];
 
-    for ( var i=0; i < record_ids_arg.length; i++ )
+    //konsole.log("record_ids_arg: " + JSON.stringify(record_ids_arg ), LOG_LEVEL.CRITICAL);
+
+    for ( let i=0; i < record_ids_arg.length; i++ )
     {
-        var id = Number( record_ids_arg[i] );
+        let id = Number( record_ids_arg[i] );
         bb_obj = await klass.GetFromRecordId( id, klass );
         bb_objects.push ( bb_obj );
     }
@@ -169,7 +176,7 @@ class BitskinsObject extends ISerializable
   static _GetTableName( klass_name )
   {
     //console.log ('klass_name ' + klass_name );
-    var table_name = klass_name == 
+    let table_name = klass_name == 
       "SkinSellOrder" ? 'skin_sell_order' :
       "SkinSet"       ? 'skin_set'        :
       "Skin"          ? 'skin'            :
@@ -181,9 +188,10 @@ class BitskinsObject extends ISerializable
 
   static async GetRecordCount()
   {
-    var klass = this.name;
-    var table_name = BitskinsObject._GetTableName( klass );
-    var result_rows = null;
+    let klass = this;
+    let table_name = BitskinsObject._GetTableName( klass.name );
+    let result_rows = null;
+    
     //console.log( "table_name: " + table_name );
 
     await knex_conn.count().from(table_name)
@@ -197,17 +205,19 @@ class BitskinsObject extends ISerializable
     return result_rows;
   } // GetRecordCount()
 
+
   static GetInstanceCount()
   {
-    var klass = this.name;
-    var instance_count = klass.Instances.size
+    let klass = this;
+    konsole.warn( "GetInstanceCount: InstancesByRecordID.keys: " + JSON.stringify( Array.from( klass.InstancesByRecordID.keys() ) ) + ' ' + klass.name) ;
+    let instance_count = klass.Instances.size;
     return instance_count;
   } // GetInstanceCount()
 
 
   buildQueryText = () => 
   { 
-    var query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this._table, 'db-name-value' : this.name});
+    let query_text  = expand(SQL_TEMPLATE.SELECT_NAME.value, { 'db-table': this._table, 'db-name-value' : this.name});
     return query_text;
   } // buildQueryText()
 
@@ -233,13 +243,13 @@ class BitskinsObject extends ISerializable
       assert( end_of_waterfall_cb != undefined);
       assert (json_sell_order != undefined);
 
-      var db = BB_Database.GetSingleton(); 
+      let db = BB_Database.GetSingleton(); 
 
       const selectQuery = () =>
       {
 
-          var query_select_obj = BB_SqlQuery.Create();
-          var query_text = this.buildQueryText();
+          let query_select_obj = BB_SqlQuery.Create();
+          let query_text = this.buildQueryText();
           query_select_obj.executeWithCB( db, query_text, insertQueryCB );
         
       }; // selectQuery()
@@ -248,7 +258,7 @@ class BitskinsObject extends ISerializable
       const  insertQueryCB = ( err,  query_select_result ) =>
       {
         this.query_result = query_select_result ;
-        var query_insert_obj = BB_SqlQuery.Create();
+        let query_insert_obj = BB_SqlQuery.Create();
   
         if ( err )
         {
@@ -260,7 +270,7 @@ class BitskinsObject extends ISerializable
 
         if ( query_select_result[0].length == 0)
         {
-          var insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this._table, 'db-name-value': this.name } );
+          let insert_query_text  = expand(SQL_TEMPLATE.INSERT_NAME.value, { 'db-table': this._table, 'db-name-value': this.name } );
           query_insert_obj.executeWithCB( db, insert_query_text, updateQueryCB );
         }
         else
@@ -282,18 +292,18 @@ class BitskinsObject extends ISerializable
         else
         {
 
-          var   insert_id = query_insert_result[0].insertId;
+          let   insert_id = query_insert_result[0].insertId;
           this.setRecordId( insert_id );
           //                                         requis ou optionnel ?
-          var assignement_value = this.getCoVaSeq( json_sell_order) ;
+          let assignement_value = this.getCoVaSeq( json_sell_order) ;
           if (assignement_value == Konst.NOTHING) 
           {
             afterUpdateQueryCB( null, Konst.NOTHING );
           }
           else 
           {
-            var query_update_obj  = BB_SqlQuery.Create();
-            var update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this._table, 'co-va-seq' : assignement_value, 'db-field' : 'name', 'db-field-value' : this.name });    
+            let query_update_obj  = BB_SqlQuery.Create();
+            let update_query_text = expand(SQL_TEMPLATE.UPDATE.value, { 'db-table': this._table, 'co-va-seq' : assignement_value, 'db-field' : 'name', 'db-field-value' : this.name });    
             query_update_obj.executeWithCB(db, update_query_text, afterUpdateQueryCB );
           }
         }
@@ -313,7 +323,7 @@ class BitskinsObject extends ISerializable
 
       //===============================================================================================
       // 1. UNKNOWN --> 2. PENDING --> 3. DONE / FAILED 
-      var item_type = json_sell_order.item_type;
+      let item_type = json_sell_order.item_type;
       if (item_type == "Container" || item_type == "Sticker" || item_type == "Agent" || item_type == "Gloves")
         end_of_waterfall_cb( this );
 

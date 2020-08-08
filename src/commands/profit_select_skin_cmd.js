@@ -29,15 +29,15 @@ class ProfitSelectSkinCmd extends Command
 
         const mkFilepath = ( file_name, ext ) =>
         {
-            var file_path = APP_ROOT_PATH + '\\data\\' + ext + '\\'+ file_name + '.' + ext;
+            let file_path = APP_ROOT_PATH + '\\data\\' + ext + '\\'+ file_name + '.' + ext;
             return file_path;
         };
 
         const executeCB = ( err, query_result ) =>
         {  
-            var file_type = Konst.NOTHING;
-            var csv_file_path  = mkFilepath( 'Query'+ timestamp('YYYY_MM_DD_HH_mm'), 'csv' );
-            var json_file_path = mkFilepath( 'test', 'json' );
+            let file_type = Konst.NOTHING;
+            let csv_file_path  = mkFilepath( 'Query'+ timestamp('YYYY_MM_DD_HH_mm'), 'csv' );
+            let json_file_path = mkFilepath( 'test', 'json' );
             
             if ( err )
             {
@@ -60,7 +60,7 @@ class ProfitSelectSkinCmd extends Command
                 file_type = file_type_arg;
                 if (file_type_arg=='csv')
                 {
-                    var csv_data = Konst.NOTHING;
+                    let csv_data = Konst.NOTHING;
                     jsonexport( query_result[0] , function(err, csv)
                     {
                         if(err) return console.error(err);
@@ -82,10 +82,10 @@ class ProfitSelectSkinCmd extends Command
         }; // executeCB()
 
 
-        var db = BB_Database.GetSingleton();
+        let db = BB_Database.GetSingleton();
         console.log ( "database:" + db.getName() );
 
-        var query_text  = 
+        let query_text  = 
             expand( SQL_TEMPLATE.PROFIT_SELCT_SKIN.value, 
             {   'select-parent-subquery-1': 
                 expand( SQL_TEMPLATE.PROFIT_SELCT_ORDER.value,
@@ -101,7 +101,7 @@ class ProfitSelectSkinCmd extends Command
                             'item-state-value': args.skin_state_value, 'skin-rarity-value' : args.skin_rarity_value +1 } ),    'p': 'B'}),
             } );
         konsole.log( query_text, LOG_LEVEL.CRITICAL );
-        var query_obj   = BB_SqlQuery.Create( query_text );
+        let query_obj   = BB_SqlQuery.Create( query_text );
         query_obj.executeWithCB( db, query_text, executeCB );
     } // execute()
 } // ProfitSelectSkinCmd class 

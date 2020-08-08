@@ -26,7 +26,7 @@ class ShowDevToolsCmd extends Command
         konsole.log ("YOOOOO222O", LOG_LEVEL.ERROR)
         if (event == GUI.EVENT.get(GUI.APP_VAR_CHANGED_EVT))
         {
-            var app_var_name = name_arg;
+            let app_var_name = name_arg;
             konsole.log ("APPVar '" + app_var_name + "'changed", LOG_LEVEL.MSG);
             if ( app_var_name = Session.MainWindow )
             {

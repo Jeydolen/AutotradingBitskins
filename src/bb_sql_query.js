@@ -41,7 +41,7 @@ const SQL_TEMPLATE = new Enum ({
     
 const statement2sqlTmpl = ( statement ) =>
 {
-    var sql_tmpl =  (
+    let sql_tmpl =  (
         statement ==    'DELETE'            ? SQL_TEMPLATE.DELETE :
         statement ==    'INSERT'            ? SQL_TEMPLATE.INSERT :
         statement ==    'SELECT'            ? SQL_TEMPLATE.SELECT :
@@ -93,14 +93,14 @@ class BB_SqlQuery
     //                       requis
     static _ExtractSQLTmpl( query_text )
     {
-        var sql_tmpl = SQL_TEMPLATE.NOTHING;
+        let sql_tmpl = SQL_TEMPLATE.NOTHING;
         if (query_text == undefined || query_text == '')
             return SQL_TEMPLATE;
 
-        var query_as_words = query_text.split(' ');
+        let query_as_words = query_text.split(' ');
         if (query_as_words.length > 0)
         {
-            var statement   = query_as_words[0];
+            let statement   = query_as_words[0];
             sql_tmpl        = statement2sqlTmpl( statement );
 
             if (query_text.search("#ALTER_RST_AI") != -1)
@@ -143,7 +143,7 @@ class BB_SqlQuery
             konsole.log("this.query_text is undefined !!", LOG_LEVEL.CRITICAL);
         else
         {
-            var sql_tmpl = BB_SqlQuery._ExtractSQLTmpl(query_text);
+            let sql_tmpl = BB_SqlQuery._ExtractSQLTmpl(query_text);
             if (sql_tmpl != SQL_TEMPLATE.NOTHING)   
                 this.sql_tmpl = sql_tmpl;
         }
@@ -181,12 +181,12 @@ class BB_SqlQuery
     {
         //konsole.log("BB_SqlQuery.Create()", LOG_LEVEL.MSG);
 
-        var sql_tmpl = SQL_TEMPLATE.NOTHING;
+        let sql_tmpl = SQL_TEMPLATE.NOTHING;
 
         if (query_text != undefined)  
             sql_tmpl = BB_SqlQuery._ExtractSQLTmpl( query_text );
 
-        var new_query = BB_SqlQuery.GetNullObject();
+        let new_query = BB_SqlQuery.GetNullObject();
         new_query = new BB_SqlQuery( sql_tmpl, query_text );            
               
         return new_query;   
