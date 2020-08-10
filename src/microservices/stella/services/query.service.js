@@ -1,4 +1,5 @@
 const assert = require("assert");
+const { resolveCname } = require("dns");
 
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js')
 const knex    = rekwire ('/src/bb_database.js').knex_conn;
@@ -78,48 +79,84 @@ module.exports =
             }; // logResult()
 
             
-            const  selectTradeUp = (subquery_1, subquery_2) =>
+            const  selectTradeUp =   async (subquery_1, subquery_2) =>
             {
-                return  knex.select().from  (subquery_1)
+                return  await knex.select().from  (subquery_1)
                             .innerJoin      ((subquery_2 ), knex.raw('(SQ1_price * 7.50) < (SQ2_price * 1.00)'));
             }; // selectTradeUp()
 
 
-            const selectSellOrder_old = async (subquery, tmp_table) => 
+            const selectSellOrderID =  async  (subquery, tmp_table) => 
             {
-                return await  knex.select('name as ' + tmp_table +'_name', 'price as ' + tmp_table +'_price', 'skin', 'market_name as ' + tmp_table +'_market_name').from('skin_sell_order')
-                     .where(  {'item_state' : state, 'has_StatTrak': stattrak } )
-                     .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) ).as( tmp_table ) ;
-            }; // selectSellOrder
-
-            const selectSellOrderID =  (subquery, tmp_table) => 
-            {
-                return  knex.select('id as ' + tmp_table + '_id', 'price as ' + tmp_table + '_price').from('skin_sell_order')
+                return  await  knex.select('id as ' + tmp_table + '_id', 'price as ' + tmp_table + '_price').from('skin_sell_order')
                      .where(  {'item_state' : state, 'has_StatTrak': stattrak } )
                      .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) ).as( tmp_table ) ;
             }; // selectSellOrderID
 
 
-            const selectSkin  = () => 
+            //                  vvvvv
+            const selectSkin  =  async () => 
             {
-                return query = knex.select('id').from('skin').where(
+                //             vvvvv
+                return query =  await knex.select('id').from('skin').where(
                     {   
                         'skin_set' : skin_set, 
                         'skin_rarity': rarity++         
                     }
                 );
             }; // selectSkin
+
+
+            const fillOutputMsg = async ( ) =>
+            {
+                await TradeUp.Instances.forEach(   
+                async ( trade_up_obj, trade_up_key, map ) =>
+                    {
+                        console.log( trade_up_key );
+                        msg = JSON.stringify( trade_up_obj.toJSON() )
+                        let rarity = trade_up_obj.getSourceRarity();
+
+                        let target_map  = TradeUp.Rarity2TargetIdToSourceIds.get( rarity );
+                        assert( target_map != undefined, "target map undefined");
+
+                        let target_id_2_source_ids = target_map.get( trade_up_obj.getTargetId() );
+                        assert( target_id_2_source_ids != undefined, "target_id_2_source_ids undefined");
+
+                        source_ids = target_id_2_source_ids.getSourceIds();
+
+                        await source_ids.forEach( 
+                            async ( source_id ) =>
+                            {
+                                let source_sell_order_obj = await SkinSellOrder.GetFromRecordId( source_id, SkinSellOrder );
+                                assert( source_sell_order_obj != null  &&  source_sell_order_obj != undefined );
+                                let price = source_sell_order_obj.price;
+                                console.log ( 'price : ' + price )
+                                prices.push( price );
+                            }
+                        ); // forEech( source_ids )
+
+                        output += "</ul></li>";
+           
+                        output += "<li>" + msg
+                                     + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + source_ids 
+                                     + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp; Prices " + prices 
+                                     + "</li>";
+                    } 
+                ); // TradeUp.Instances.forEach
+            }; // fillOutputMsg
        
+
             //--------------------------------------------------------
-            let selectSkin_subquery_1       =  selectSkin();
-            let selectSkin_subquery_2       =  selectSkin();
+            let selectSkin_subquery_1       =   null;// selectSkin();
+            let selectSkin_subquery_2       =   null;// selectSkin();
             /*
             let selectSellOrder_subquery_1  = selectSellOrder_old( selectSkin_subquery_1, 'SQ1'  );
             let selectSellOrder_subquery_2  = selectSellOrder_old( selectSkin_subquery_2, 'SQ2'  );
             */
-            let selectSellOrder_subquery_1  =  selectSellOrderID( selectSkin_subquery_1, 'SQ1'  );
-            let selectSellOrder_subquery_2  =  selectSellOrderID( selectSkin_subquery_2, 'SQ2'  );
+            let selectSellOrder_subquery_1  =   null; // selectSellOrderID( selectSkin_subquery_1, 'SQ1'  );
+            let selectSellOrder_subquery_2  =   null; // selectSellOrderID( selectSkin_subquery_2, 'SQ2'  );
             
+            /*
             await selectTradeUp( selectSellOrder_subquery_1, selectSellOrder_subquery_2)
             .then( async (rows) => 
             {
@@ -132,8 +169,82 @@ module.exports =
                     } 
                 );
             });
+            */
 
-            // AVANT
+           let prices = [];
+           let source_ids = []; 
+           let msg        = null; 
+
+           let selectSellOrder_subquery = null;
+
+           const  getMoulaga =    (subquery_1, subquery_2 ) =>
+           {
+               return  knex.select().from  (subquery_1)
+                           .innerJoin      ((subquery_2 ), knex.raw('(SQ1_price * 7.50) < (SQ2_price * 1.00)'));
+           }; // getMoulaga()
+
+           // getMoulaga
+           //    |
+           //    +--> selectSellOrder_subquery_1
+           //    |        |   
+           //    |        +--> selectSkin_subquery_1
+           //    |                 |
+           //    |                 +--> selectSkin
+           //    |
+           //    +--> selectSellOrder_subquery_2
+           //             |   
+           //             +--> selectSkin_subquery_2
+           //                      |
+           //                      +--> selectSkin
+           selectSkin_subquery_1 = await selectSkin()
+           .then( async () =>
+             {
+                selectSellOrder_subquery_1 = await selectSellOrderID( selectSkin_subquery_1, 'SQ1'  );
+                return selectSellOrder_subquery_1;
+             }
+           )
+           .then ( (rows ) => logResult (rows) );
+           /*
+           .then( async () =>
+             {
+                selectSkin_subquery_2 = await selectSkin(); // rarity + 1
+                return selectSkin_subquery_2;
+             }
+           )
+           .then( async () =>
+             {
+                selectSellOrder_subquery_2 = await selectSellOrderID( selectSkin_subquery_2, 'SQ2'  );
+                return selectSellOrder_subquery_2;
+             }
+           )
+           .then( async () =>
+             {
+                return await getMoulaga( selectSellOrder_subquery_1, selectSellOrder_subquery_2 );
+             }
+           )
+           .then( (rows) => 
+           {
+               rows.map
+               ( async (row) => 
+                   {   
+                       //let trade_up_obj = new TradeUp( row );
+                       let trade_up_obj = TradeUp.Create( row, rarity );
+                       await trade_up_obj.init();
+                   } 
+               );
+               //return new Promise( fillOutputMsg );
+           })
+           .then( async () =>
+            {
+                await fillOutputMsg();
+            }
+           );
+           */
+
+           
+
+
+            /*
             await TradeUp.Instances.forEach( 
                 async (trade_up_obj, trade_up_key, map) =>
                 {
@@ -164,18 +275,17 @@ module.exports =
                             prices.push( price );
                         }
                     )
-
-                    output += "</ul></li>";
-
-
-                    console.log( msg );
                     
-                    output += "<li>" + msg
-                                 + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + source_ids 
-                                 + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + prices 
-                                 + "</li>";
+
                 }
+                output += "</ul></li>";
+           
+            output += "<li>" + msg
+                        + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + source_ids 
+                        + "<br>&nbsp;&nbsp;-->&nbsp;&nbsp;" + prices 
+                        + "</li>";
             );
+            */
 
 
 
