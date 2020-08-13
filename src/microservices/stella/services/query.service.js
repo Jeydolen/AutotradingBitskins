@@ -58,21 +58,24 @@ module.exports =
             let state       = ctx.params.state      != undefined ? ctx.params.state     : 4;
             let stattrak    = ctx.params.stattrak   != undefined ? ctx.params.stattrak  : 1;
 
-            const logResult = (rows, msg, attribute_name) =>
+
+            const defaultExtractSellOrderAttribute_CB = ( sell_order, attribute_name = 'id' ) => { return sell_order[attribute_name]; };
+
+            const logResult = ( sell_orders, msg, cb = defaultExtractSellOrderAttribute_CB ) =>
             {
-                    console.log (rows)
+                    console.log ( sell_orders )
                     output += "<p>" + msg + "</p><ol>";
-                    rows.map
-                    ( row => 
-                        {   console.log(row) ;
+                    sell_orders.map
+                    ( sell_order => 
+                        {   console.log(sell_order) ;
                             output += "<li>";
-                            output += row[attribute_name] + "</li>";
-                            //output += JSON.stringify(row) + "-- '" + attribute_name + "'</li>";
-                            //output +=   row.SQ1_id + "==>" + row.SQ2_id + "</li>";
+                            output += cb ( sell_order ) + "</li>";
                         } 
                     );
                     output += "</ol>";
             }; // logResult()
+
+            
 
             
             const  selectTradeUp =   async (subquery_1, subquery_2) =>
@@ -186,11 +189,11 @@ module.exports =
            }; // selectSellOrderID_w_1st_where
 
 
-           const selectSellOrderID_w_where_subquery =  async  ( subquery, tmp_table) => 
+           const selectSellOrderID_w_where_subquery =  async  ( subquery) => 
            {
-               return  await  knex.select('id as ' + tmp_table + '_id', 'price as ' + tmp_table + '_price').from('skin_sell_order')
+               return  await  knex.select('id', 'price', 'market_name' ).from('skin_sell_order')
                     .where(  {'item_state' : state, 'has_StatTrak': stattrak } )
-                    .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) ).as( tmp_table ) ;
+                    .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) ) ;
            }; // selectSellOrderID_w_where_subquery
 
            const selectSellOrderID_w_where_subquery_wo_async =   ( subquery, tmp_table) => 
@@ -250,58 +253,38 @@ module.exports =
             let mkSelectSkinPromise_wo_log = async () =>
             {
                 return await selectSkin();
-                //.then ( ( rows ) => { logResult (rows, "selectSkin() -- 1er then", "id") ; return rows; }  )  
-                //.then ( ( rows ) => { logResult (rows, "selectSkin() -- 2e then", "id") } );
+                //.then ( ( rows ) => { logResult (rows, "selectSkin() -- 1er then") ; return rows; }  )  
+                //.then ( ( rows ) => { logResult (rows, "selectSkin() -- 2e then") } );
             }; // mkSelectSkinPromise_wo_log
 
             let mkSelectSkinPromise = async () =>
             {
                 return await selectSkin()
-                .then ( ( rows ) => { logResult (rows, "selectSkin() -- 1er then", "id") ; return rows; }  )  
-                .then ( ( rows ) => { logResult (rows, "selectSkin() -- 2e then", "id") } );
+                .then ( ( rows ) => { logResult (rows, "selectSkin() -- 1er then") ; return rows; }  )  
+                .then ( ( rows ) => { logResult (rows, "selectSkin() -- 2e then") } );
             };
 
             //let selectSkin_result_test = await mkSelectSkinPromise();
             //================ OK 3  ==============
-
-
-            //================ OK 4 ==============
-            //await selectSellOrderID_wo_where( await mkSelectSkinPromise(), 'SQ1' ) 
-            //.then ( ( rows ) => { logResult (rows, "selectSellOrderID_wo_where", "SQ1_id") } ); 
-            //================ OK 4 ==============
-
-
-            //================ OK 5 ==============
-            //await selectSellOrderID_w_1st_where( await mkSelectSkinPromise(), 'SQ1' )  OK 
-            //await selectSellOrderID_w_1st_where( selectSkin_wo_async(), 'SQ1' )          // OK aussi !!
-            //.then ( ( rows ) => { logResult (rows, "selectSellOrderID_w_1st_where", "SQ1_id") } ); 
-            //================ OK 5 ==============
-
-
-            //================ OK 6 ================
-            //await selectSellOrderID_w_where_subquery(  selectSkin_wo_async(), 'SQ1' ) 
-            //.then ( ( rows ) => { logResult (rows, "selectSellOrderID_w_where_subquery", "SQ1_id") } ); 
-            //================ OK 6 ================
-
 
             //================ TEST 0 ================
             // Alexandre connait le type "String" et "Char"
             let source_rows = null;
             let target_rows = null;
 
-            selectSellOrder_subquery_1 = await selectSellOrderID_w_where_subquery(  selectSkin_wo_async(), 'SQ1' )
+            selectSellOrder_subquery_1 = await selectSellOrderID_w_where_subquery(  selectSkin_wo_async() )
             .then ( ( rows ) => 
                 { 
-                    logResult (rows, "selectSellOrderID_w_where_subquery 1", "SQ1_id");
+                    logResult (rows, "selectSellOrderID_w_where_subquery 1");
                     source_rows = rows;
                 } 
             )
             .catch( ( error ) => { konsole.error(  "selectSellOrderID_w_where_subquery 1 "+ error )} );
 
-            selectSellOrder_subquery_2 = await selectSellOrderID_w_where_subquery(  selectSkin_wo_async(), 'SQ2' )
+            selectSellOrder_subquery_2 = await selectSellOrderID_w_where_subquery(  selectSkin_wo_async() )
             .then ( ( rows ) => 
             { 
-                logResult (rows, "selectSellOrderID_w_where_subquery 1", "SQ2_id");
+                logResult (rows, "selectSellOrderID_w_where_subquery 2");
                 target_rows = rows;
             } )
             .catch( ( error ) => { konsole.error(  "selectSellOrderID_w_where_subquery 2 "+ error )} );
@@ -309,63 +292,15 @@ module.exports =
             konsole.msg( JSON.stringify(source_rows) );
             konsole.msg( JSON.stringify(target_rows) );
 
-            let trade_up_profit_ratio = 10.0;
-            let trade_ups = new Map();
+            let potential_profitable_trade_ups = TradeUp.ExtractPotentialProfitableTradeUps ( target_rows, source_rows );
 
-            const sortSourcesByPrice = ( source_1, source_2 ) =>
-            {
-                if      ( source_1.SQ1_price > source_2.SQ1_price ) return  ;
-                else if ( source_1.SQ1_price < source_2.SQ1_price ) return -1;
-                else                                                return 0;
-            }; // sortSourcesByPrice
- 
-            let source_ids  = null;
 
-            target_rows.map
-            (
-                ( target ) =>
-                {
-                    source_rows.map
-                    (
-                        ( source ) =>
-                        {
-                            if ( source.SQ1_price * trade_up_profit_ratio <= target.SQ2_price  )
-                            {
-                                konsole.warn( source.SQ1_id + " (" + source.SQ1_price + ")  =>  " + target.SQ2_id + " (" + target.SQ2_price + ")");
-
-                                if ( ! trade_ups.has( target.SQ2_id ) )
-                                {
-                                    // konsole.log(" adding id: " + target.SQ2_id );
-                                    trade_ups.set( target.SQ2_id, [] );
-                                }
-
-                                source_ids = trade_ups.get( target.SQ2_id );
-
-                                if ( source_ids.indexOf( source.SQ1_id ) == -1 )
-                                    source_ids.push( source.SQ1_id );
-                            }
-                        }
-                    ); // source_rows.map()
-
-                    source_ids = trade_ups.get( target.SQ2_id );
-
-                    source_ids.map
-                    (
-                        (source) =>
-                        { 
-                            konsole.log( "id: " + source.SQ2_id + " price: " + source.SQ1_price );
-                        }
-                    )
-                    //source_ids.sort( () );
-                }
-            ); // target_rows.map
-
-            konsole.msg( JSON.stringify(Array.from(trade_ups.keys())), LOG_LEVEL.INFO );
+            //konsole.msg( JSON.stringify(Array.from(trade_ups.keys())), LOG_LEVEL.INFO );
             //================ TEST 0 ==========
 
-
             /*
-            await TradeUp.Instances.forEach( 
+            await 
+            .Instances.forEach( 
                 async (trade_up_obj, trade_up_key, map) =>
                 {
                     console.log( trade_up_key );
@@ -414,77 +349,7 @@ module.exports =
         
             output += "</ol></body></html>";
             return output;
-        }, // 'profit' action
-
-
-
-        async profit_1 (ctx)
-        {
-            let skin_set    = ctx.params.skinset    != undefined ? ctx.params.skinset   : 4;
-            let rarity      = ctx.params.rarity     != undefined ? ctx.params.rarity    : 4;
-            let state       = ctx.params.state      != undefined ? ctx.params.state     : 1;
-            let stattrak    = ctx.params.stattrak   != undefined ? ctx.params.stattrak  : 0;
-
-            let output = "";
-            let store_rows = '';
-
-            const logResult = (rows) =>
-            {
-               rows.map
-                    ( row => 
-                        { console.log(row) ;
-                        output += "<li>" + JSON.stringify(row) + "</li>";  
-                        } 
-                    );
-            }; // logResult()
-
-
-            const selectSellOrder = (subquery) => 
-            {
-                return  knex.select('name', 'price', 'skin', 'market_name').from('skin_sell_order')
-                     .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) )
-            }; // selectSellOrder
-
-            let query = null;
-
-            const selectSkin  = () => 
-            {
-                return query = knex.select('id').from('skin').where(
-                    {   'skin_set' : skin_set, 
-                        'skin_rarity': rarity++,
-                        //'item_state': state,
-                        //'has_StatTrak': stattrak             
-                    }
-                );
-            }; // selectSkin
-       
-            output = '<p>selectSkin: ' + rarity + '</p>';
-            //await selectSkin().then( (rows) => logResult(rows) );
-
-            await selectSkin().then(
-                                (rows) =>
-                                    {
-                                        rows.map
-                                        ( row => 
-                                            { console.log(row) ;
-                                            output += "<p>" + JSON.stringify(row) + "</p>";  
-                                            } 
-                                        );
-                                    }
-            );
-
-            output += '<br><p>selectSkin +1: ' + rarity + '</p>';
-            let subquery = selectSkin();
-            
-
-            output += '<br><p>selectSellOrder</p>';
-            await selectSellOrder(subquery).then( (rows) => logResult(rows) );
-
-            // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types
-            ctx.meta.$responseType = "text/html ; charset=utf-8";
-
-            return output;
-        } // 'profit_1' action
+        } // 'profit' action
 
     } // query service actions
 };

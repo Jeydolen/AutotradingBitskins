@@ -39,6 +39,7 @@
     "jquery": "^3.5.1",
     "jsonexport": "^3.0.1",
     "knex": "^0.21.2",
+    "lodash": "^4.17.19",
     "mixin-interface": "^4.9.3",
     "mixin-interface-api": "^0.1.32",
     "moleculer": "^0.14.8",

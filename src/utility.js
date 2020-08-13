@@ -53,7 +53,6 @@ const getFunctionName = (f) =>
     return ret;
 }; // getFunctionName()
 
-  
 exports.objToString = objToString;
 exports.mapToObj    = mapToObj;
 exports.mapToJSON   = mapToJSON;

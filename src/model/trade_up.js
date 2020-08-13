@@ -8,6 +8,8 @@ const Konst                         = rekwire ('/src/constants.js') ;
 const Session                       = rekwire ('/src/session.js').Session ;
 const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js'); 
 
+const _ = require('lodash');
+
 const DataFormat = new Enum( [ 'MySql', 'Json', 'CSV' ] );
 const RarityUpgrade   = new Enum ({ 'Unknown' : 0, '1->2': 1, '2->3': 2, '3->4' : 3, '4->5' : 4, '5->6' : 5, '6-7' : 6 })
 
@@ -95,7 +97,116 @@ class TradeUp extends BitskinsObject
     //this._broker.call( "skin_sell_order.list", { id: this.source_sell_order_id + "|" + this.target_sell_order_id } );
     let ids = [ this.source_sell_order_id, this.target_sell_order_id ];
     await BitskinsObject.GetObjectsFromRecordIDs( ids, SkinSellOrder );
-  } // init
+  } // init.
+
+
+  static SortSellOrderByPrice = ( sell_order_1, sell_order_2 ) =>
+  {
+      if      ( sell_order_1.price > sell_order_2.price ) return  ;
+      else if ( sell_order_1.price < sell_order_2.price ) return -1;
+      else                                                return 0;
+  }; // SortSourcesByPrice
+
+
+
+  static ExtractPotentialProfitableTradeUps ( target_rows, source_rows)
+  {
+      let trade_ups = new Map();
+      let potential_profitable_trade_ups = new Map();
+      let sources = null;
+
+      target_rows.map
+      (
+          ( target ) =>
+          {
+              sources = [];
+              source_rows.map
+              (
+                  ( source ) =>
+                  {
+                      //if ( source.price * trade_up_profit_ratio <= target.price  )
+                      {
+                          //konsole.warn( source.id + " (" + source.price + ")  =>  " + target.id + " (" + target.price + ")");
+
+                          if ( ! trade_ups.has( target.id ) )
+                          {
+                              // konsole.log(" adding id: " + target.SQ2_id );
+                              trade_ups.set( target.id, [] );
+                          }
+
+                          let source_ids = trade_ups.get( target.id );
+
+                          if ( source_ids.indexOf( source.id ) == -1 )
+                          {
+                              source_ids.push( source.id );
+                              sources.push( source );
+                          }
+                      }
+                  }
+              ); // source_rows.map()
+
+              sources.sort ( TradeUp.SortSellOrderByPrice );
+
+              if ( sources.length >= 10)
+              {
+                  let total_investment = 0.00;
+
+                  for ( let i = 0; i < 10; i++)
+                  {
+                      let source = sources[1];
+                      total_investment += source.price;
+                  }
+                  if ( total_investment <= target.price )
+                  {
+                      let profit_margin = ( target.price - total_investment )/ total_investment * 100.00;
+                      console.log ( "C'est bien, rentabilité potentielle :" + profit_margin +' % ' + target.market_name );
+                      potential_profitable_trade_ups.set( target, sources.slice( 0, 10 ) ) ;
+                      console.log (' --------------------------------------------------- \n' );
+                  }
+                  else 
+                  {
+                      potential_profitable_trade_ups.set( target, [] ) ;
+                  }
+                      
+              }
+              else { console.log ('Pas assez de source sellOrder' )}
+          }
+      ); // target_rows.map
+
+      return potential_profitable_trade_ups;
+  } // ExtractPotentialProfitableTradeUps()
+
+
+  static getRealTradeUps( target_rows )
+  {
+      //                           R1-R2 / StatTrak etc...
+      //                       ex: 2->3 : [ alternative_targets ]             
+      let real_trade_ups = new Map();
+
+      target_rows.map
+      (
+          ( target ) =>
+          {
+            let target_sources = potential_profitable_trade_ups.get ( target );
+
+            target_rows.map
+            (
+              ( alternative_target ) =>
+              {
+                  if ( alternative_target != target )
+                  {
+                    let alternative_target_sources = potential_profitable_trade_ups.get ( alternative_target );
+                    if ( _.isEqual ( target_sources, alternative_target_sources) )
+                    {
+                      real_trade_ups.set( )
+                    }
+                  }
+
+              }
+            )
+          }
+      )
+  }; // getRealTradeUps()
 
 
   getTradeUpKey()
