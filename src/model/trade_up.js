@@ -10,7 +10,7 @@ const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js');
 
 const _ = require('lodash');
 
-const DataFormat = new Enum( [ 'MySql', 'Json', 'CSV' ] );
+const DataFormat      = new Enum( [ 'MySql', 'Json', 'CSV' ] );
 const RarityUpgrade   = new Enum ({ 'Unknown' : 0, '1->2': 1, '2->3': 2, '3->4' : 3, '4->5' : 4, '5->6' : 5, '6-7' : 6 })
 
 
@@ -35,25 +35,11 @@ class TargetIdToSourceIds
       return this.source_ids;
   } // getSourceIds()
 
-  /*
-  getSourceIdCount()
-  {
-    return this.source_ids.length;
-  } // getSourceIdCount
-
-  getSourceId( index )
-  {
-    if ( index > 0  &&  index < this.getSourceIdCount() )
-    {
-      return this.source_ids[ index ];
-    }
-  } // getSourceId()
-  */
 
   sort()
   {
     this.source_ids = this.source_ids.sort( this.compare );
-  } // getSourceId()
+  } // sort()
 
 
   // https://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value
@@ -68,7 +54,9 @@ class TargetIdToSourceIds
   } // compare()
 } // TargetToSources
 
-
+// * rarity, skinset, state, statTrak
+// * source_sell_orders         [    0..9   ]     
+// * target_sell_order_siblings [    0,->   ]                     
 class TradeUp extends BitskinsObject
 {
   //                                      tradup_key -> trade_up_obj  
@@ -78,109 +66,31 @@ class TradeUp extends BitskinsObject
   static Rarity2TargetIdToSourceIds = new Map();
 
   //   arg =    input_item ou name (pour NULL_SKIN)
-  constructor( json_data, source_rarity ) 
+  constructor( ctx, target_sell_order_arg, source_sell_order_decade_arg, siblings_args = [] ) 
   {     
-    super ( json_data )
-    this.source_rarity = source_rarity;
-    this.source_sell_order_id = json_data.SQ1_id;
-    this.target_sell_order_id = json_data.SQ2_id;
+    super ( null );
+
+    this.target_sell_order                  = target_sell_order_arg;
+    this.target_sell_order_siblings         = siblings_args
+
+    this.source_sell_order_decade           = source_sell_order_decade_arg;  
+    
+    this.skin_set    = ctx.params.skinset    != undefined ? ctx.params.skinset   : 5;
+    this.rarity      = ctx.params.rarity     != undefined ? ctx.params.rarity    : 4;
+    this.state       = ctx.params.state      != undefined ? ctx.params.state     : 4;
+    this.stattrak    = ctx.params.stattrak   != undefined ? ctx.params.stattrak  : 1;
+
     this._broker = Session.GetSingleton().getAppVar( Session.Broker );
   } // constructor()
 
-  getSourceRarity() { return this.source_rarity; }
-  getSourceId()     { return this.source_sell_order_id; }
-  getTargetId()     { return this.target_sell_order_id; }
 
-  
-  async init()
-  {
-    //this._broker.call( "skin_sell_order.list", { id: this.source_sell_order_id + "|" + this.target_sell_order_id } );
-    let ids = [ this.source_sell_order_id, this.target_sell_order_id ];
-    await BitskinsObject.GetObjectsFromRecordIDs( ids, SkinSellOrder );
-  } // init.
-
-
-  static SortSellOrderByPrice = ( sell_order_1, sell_order_2 ) =>
-  {
-      if      ( sell_order_1.price > sell_order_2.price ) return  ;
-      else if ( sell_order_1.price < sell_order_2.price ) return -1;
-      else                                                return 0;
-  }; // SortSourcesByPrice
-
-
-
-  static ExtractPotentialProfitableTradeUps ( target_rows, source_rows)
-  {
-      let trade_ups = new Map();
-      let potential_profitable_trade_ups = new Map();
-      let sources = null;
-
-      target_rows.map
-      (
-          ( target ) =>
-          {
-              sources = [];
-              source_rows.map
-              (
-                  ( source ) =>
-                  {
-                      //if ( source.price * trade_up_profit_ratio <= target.price  )
-                      {
-                          //konsole.warn( source.id + " (" + source.price + ")  =>  " + target.id + " (" + target.price + ")");
-
-                          if ( ! trade_ups.has( target.id ) )
-                          {
-                              // konsole.log(" adding id: " + target.SQ2_id );
-                              trade_ups.set( target.id, [] );
-                          }
-
-                          let source_ids = trade_ups.get( target.id );
-
-                          if ( source_ids.indexOf( source.id ) == -1 )
-                          {
-                              source_ids.push( source.id );
-                              sources.push( source );
-                          }
-                      }
-                  }
-              ); // source_rows.map()
-
-              sources.sort ( TradeUp.SortSellOrderByPrice );
-
-              if ( sources.length >= 10)
-              {
-                  let total_investment = 0.00;
-
-                  for ( let i = 0; i < 10; i++)
-                  {
-                      let source = sources[1];
-                      total_investment += source.price;
-                  }
-                  if ( total_investment <= target.price )
-                  {
-                      let profit_margin = ( target.price - total_investment )/ total_investment * 100.00;
-                      console.log ( "C'est bien, rentabilité potentielle :" + profit_margin +' % ' + target.market_name );
-                      potential_profitable_trade_ups.set( target, sources.slice( 0, 10 ) ) ;
-                      console.log (' --------------------------------------------------- \n' );
-                  }
-                  else 
-                  {
-                      potential_profitable_trade_ups.set( target, [] ) ;
-                  }
-                      
-              }
-              else { console.log ('Pas assez de source sellOrder' )}
-          }
-      ); // target_rows.map
-
-      return potential_profitable_trade_ups;
-  } // ExtractPotentialProfitableTradeUps()
-
+  getSourceRarity() { return this.rarity; }
 
   static getRealTradeUps( target_rows )
   {
       //                           R1-R2 / StatTrak etc...
-      //                       ex: 2->3 : [ alternative_targets ]             
+      //                       ex: 2->3 : [ alternative_targets ]  
+      // key:            
       let real_trade_ups = new Map();
 
       target_rows.map
@@ -215,29 +125,14 @@ class TradeUp extends BitskinsObject
     return trade_up_key;
   } // getTradeUpKey()
 
-  //                             source_rarity      target_rarity = source_rarity + 1
+
+  //                            rarity      target_rarity = rarity + 1
   //                         ex: 1              ==> 2
-  static Create ( json_data, source_rarity  )
+  // static Create ( json_data, rarity  )
+  static Create( ctx, target_sell_order, source_sell_order_decade )
   {
-    let trade_up_obj = new TradeUp( json_data, source_rarity )
+    let trade_up_obj = new TradeUp( ctx, target_sell_order, source_sell_order_decade );
     TradeUp.Instances.set ( trade_up_obj.getTradeUpKey(), trade_up_obj );
- 
-    // Rarity -> Target2Sources
-    if ( ! TradeUp.Rarity2TargetIdToSourceIds.has ( source_rarity ) ) 
-        TradeUp.Rarity2TargetIdToSourceIds.set ( source_rarity, new Map() ) ;
-
-    // 2. target_sell_order_id --> [ source_target_ids ]-
-    let target_map  = TradeUp.Rarity2TargetIdToSourceIds.get ( source_rarity );
-    let target_id   = trade_up_obj.target_sell_order_id;
-    let source_id   = trade_up_obj.source_sell_order_id;
-
-    if ( ! target_map.has ( target_id ) ) 
-      target_map.set ( target_id, new TargetIdToSourceIds( target_id ) ) ;
-
-    //  target_id -> [ source_id1, source_id2, ...]
-    let target_id_2_source_ids = target_map.get ( target_id )
-    target_id_2_source_ids.addSourceId( source_id );            
-
     return trade_up_obj;  
   } // Create() 
 
