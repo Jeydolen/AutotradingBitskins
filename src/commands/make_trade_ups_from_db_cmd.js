@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const knex                   = rekwire ('/src/bb_database.js').knex_conn;
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js');
 const Command                = rekwire ('/src/commands/command.js').Command;
@@ -11,78 +13,22 @@ class MakeTradeUpsFromDBCmd extends Command
         super (name); 
         this.name = name;
         this.output = null;
-    }
+    } // constructor
 
-    extractPotentialProfitableTradeUps ( target_rows, source_rows)
+
+    async execute ( ctx )
     {
-      //              target : [ sources ]
-      let trade_ups = new Map();
+        let source_and_target_rows= await this.extractSourceAndTargetRowsFromDB( ctx );
 
-      //                                     10 cheapest
-      //  filtered 'trade_ups'    target : [   sources    ]
-      let potential_profitable_trade_ups = new Map();
-      let sources = null;
+        let source_rows = source_and_target_rows.sources;
+        let target_rows = source_and_target_rows.targets;
 
-      target_rows.map
-      (
-          ( target ) =>
-          {
-              sources = [];
-              source_rows.map
-              (
-                  ( source ) =>
-                  {
-                      //if ( source.price * trade_up_profit_ratio <= target.price  )
-                      {
-                          //konsole.warn( source.id + " (" + source.price + ")  =>  " + target.id + " (" + target.price + ")");
+        let potential_profitable_trade_ups = this.extractPotentialProfitableTradeUps (  source_rows, target_rows );
+        let siblings_target_of_source_decade = this.extractSiblingTargetsOfSourceDecade ( ctx, target_rows, potential_profitable_trade_ups );
+        //this.createTradeUps(ctx, potential_profitable_trade_ups );
 
-                          if ( ! trade_ups.has( target.id ) )
-                          {
-                              // konsole.log(" adding id: " + target.SQ2_id );
-                              trade_ups.set( target.id, [] );
-                          }
-
-                          let source_ids = trade_ups.get( target.id );
-
-                          if ( source_ids.indexOf( source.id ) == -1 )
-                          {
-                              source_ids.push( source.id );
-                              sources.push( source );
-                          }
-                      }
-                  }
-              ); // source_rows.map()
-
-              sources.sort ( this.sortSellOrderByPrice );
-
-              if ( sources.length >= 10)
-              {
-                  let total_investment = 0.00;
-
-                  for ( let i = 0; i < 10; i++)
-                  {
-                      let source = sources[1];
-                      total_investment += source.price;
-                  }
-                  if ( total_investment <= target.price )
-                  {
-                      let profit_margin = ( target.price - total_investment )/ total_investment * 100.00;
-                      console.log ( "C'est bien, rentabilité potentielle :" + profit_margin +' % ' + target.market_name );
-                      potential_profitable_trade_ups.set( target, sources.slice( 0, 10 ) ) ;
-                      console.log (' --------------------------------------------------- \n' );
-                  }
-                  else 
-                  {
-                      potential_profitable_trade_ups.set( target, [] ) ;
-                  }
-                      
-              }
-              else { console.log ('Pas assez de source sellOrder' )}
-          }
-      ); // target_rows.map
-
-      return potential_profitable_trade_ups;
-    } // extractPotentialProfitableTradeUps()
+        return  this.output;
+    } // execute()
 
 
     async extractSourceAndTargetRowsFromDB( ctx )
@@ -126,7 +72,7 @@ class MakeTradeUpsFromDBCmd extends Command
 
         const selectSellOrderID_w_where_subquery =  async  ( subquery) => 
         {
-            return  await  knex.select('id', 'price', 'market_name' ).from('skin_sell_order')
+            return  await  knex.select('id', 'price', 'market_name', 'skin' ).from('skin_sell_order')
                     .where(  {'item_state' : state, 'has_StatTrak': stattrak } )
                     .where( (builder) => builder.whereIn( 'skin_sell_order.skin', subquery ) ) ;
         }; // selectSellOrderID_w_where_subquery
@@ -168,6 +114,112 @@ class MakeTradeUpsFromDBCmd extends Command
     } // extractSourceAndTargetRowsFromDB
 
 
+    extractPotentialProfitableTradeUps ( source_rows, target_rows )
+    {
+      //             target : [ sources ]
+      let trade_ups = new Map();
+      //                                     10 cheapest
+      //  filtered 'trade_ups'    target : [   sources    ]
+      let potential_profitable_trade_ups = new Map();
+      let source_rows_of_target = null;
+
+      target_rows.map
+      (
+          ( target_row ) =>
+          {
+              source_rows_of_target = [];
+              source_rows.map
+              (
+                  ( source_row ) =>
+                  {
+                        if ( ! trade_ups.has ( target_row ) )   trade_ups.set ( target_row, [] );
+
+                        source_rows_of_target = trade_ups.get( target_row );
+
+                        if ( source_rows_of_target.indexOf ( source_row ) == -1 )   source_rows_of_target.push( source_row ); 
+                  }
+              ); // source_rows.map()
+
+              source_rows_of_target.sort ( this.sortSellOrderByPrice );
+
+              if ( source_rows_of_target.length >= 10)
+              {
+                  let total_investment = 0.00;
+
+                  for ( let i = 0; i < 10; i++)
+                  {
+                      let source_row_of_target = source_rows_of_target[1];
+                      total_investment += source_row_of_target.price;
+                  }
+                  if ( total_investment <= target_row.price )
+                  {
+                      let profit_margin = ( target_row.price - total_investment )/ total_investment * 100.00;
+                      console.log ( "C'est bien, rentabilité potentielle :" + profit_margin +' % ' + target_row.market_name );
+                      potential_profitable_trade_ups.set( target_row, source_rows_of_target.slice( 0, 10 ) ) ;
+                      console.log (' --------------------------------------------------- \n' );
+                  }
+                  else 
+                  {
+                      potential_profitable_trade_ups.set( target_row, [] ) ;
+                  }
+                      
+              }
+              else { console.log ('Pas assez de source sellOrder' )}
+          }
+      ); // target_rows.map
+
+      return potential_profitable_trade_ups;
+    } // extractPotentialProfitableTradeUps()
+
+
+    extractSiblingTargetsOfSourceDecade ( ctx, target_rows, potential_profitable_trade_ups_arg )
+    {
+        let sibling_targets_of_source_decade = new Map();
+
+        let trade_up_key = TradeUp.BuildTradeUpKey( ctx );
+        sibling_targets_of_source_decade.set ( trade_up_key, [] );
+
+        let potential_profitable_trade_ups = potential_profitable_trade_ups_arg;
+        let source_rows_of_target = null;
+
+        target_rows.map
+        (
+            ( target_row ) =>
+            {
+                let siblings = sibling_targets_of_source_decade.get( trade_up_key );
+                if ( siblings.indexOf( target_row ) == -1 )
+                    siblings.push ( target_row );
+
+                let current_source_decade = potential_profitable_trade_ups.get ( target_row );
+                target_rows.map
+                (
+                    ( sibling_target_row ) =>
+                    {
+                        if ( target_row != sibling_target_row  &&   target_row.skin != sibling_target_row.skin )
+                        {
+                            let sibling_source_decade = potential_profitable_trade_ups.get ( sibling_target_row )
+
+                            if ( _.isEqual ( current_source_decade, sibling_source_decade) )
+                            {
+                                let siblings = sibling_targets_of_source_decade.get (trade_up_key);
+
+                                if ( siblings.indexOf( sibling_target_row ) == -1 )
+                                {
+                                    siblings.push ( sibling_target_row );
+                                    konsole.log( " Moulaga !!! ", LOG_LEVEL.INFO )
+                                }
+                            }
+                        }
+                    }
+                ); // target_rows.map
+            }
+        ); // target_rows.map
+
+        return sibling_targets_of_source_decade;
+
+    } // extractSiblingTargetsOfSourceDecade()
+
+
     sortSellOrderByPrice( sell_order_1, sell_order_2 )
     {
         if      ( sell_order_1.price > sell_order_2.price ) return  ;
@@ -189,19 +241,7 @@ class MakeTradeUpsFromDBCmd extends Command
     } // createTradeUps
 
 
-    async execute ( ctx )
-    {
-        let source_and_target_rows= await this.extractSourceAndTargetRowsFromDB( ctx );
-
-        let source_rows = source_and_target_rows.sources;
-        let target_rows = source_and_target_rows.targets;
-
-        let potential_profitable_trade_ups = this.extractPotentialProfitableTradeUps ( target_rows, source_rows );
-
-        this.createTradeUps(ctx, potential_profitable_trade_ups );
-
-        return  this.output;
-    } // execute()
+    
 
 } // MakeTradeUpsFromDBCmd
 exports.MakeTradeUpsFromDBCmd = MakeTradeUpsFromDBCmd;

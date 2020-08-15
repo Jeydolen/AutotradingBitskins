@@ -8,8 +8,6 @@ const Konst                         = rekwire ('/src/constants.js') ;
 const Session                       = rekwire ('/src/session.js').Session ;
 const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js'); 
 
-const _ = require('lodash');
-
 const DataFormat      = new Enum( [ 'MySql', 'Json', 'CSV' ] );
 const RarityUpgrade   = new Enum ({ 'Unknown' : 0, '1->2': 1, '2->3': 2, '3->4' : 3, '4->5' : 4, '5->6' : 5, '6-7' : 6 })
 
@@ -66,13 +64,11 @@ class TradeUp extends BitskinsObject
   static Rarity2TargetIdToSourceIds = new Map();
 
   //   arg =    input_item ou name (pour NULL_SKIN)
-  constructor( ctx, target_sell_order_arg, source_sell_order_decade_arg, siblings_args = [] ) 
+  constructor( ctx, source_sell_order_decade_arg, siblings_args = [] ) 
   {     
     super ( null );
 
-    this.target_sell_order                  = target_sell_order_arg;
     this.target_sell_order_siblings         = siblings_args
-
     this.source_sell_order_decade           = source_sell_order_decade_arg;  
     
     this.skin_set    = ctx.params.skinset    != undefined ? ctx.params.skinset   : 5;
@@ -119,11 +115,18 @@ class TradeUp extends BitskinsObject
   }; // getRealTradeUps()
 
 
-  getTradeUpKey()
+  static BuildTradeUpKey( ctx )
   {
-    let trade_up_key = this.source_sell_order_id + '==>' + this.target_sell_order_id;
+    
+    let skin_set    = ctx.params.skinset    != undefined ? ctx.params.skinset   : 5;
+    let rarity      = ctx.params.rarity     != undefined ? ctx.params.rarity    : 4;
+    let state       = ctx.params.state      != undefined ? ctx.params.state     : 4;
+    let stattrak    = ctx.params.stattrak   != undefined ? ctx.params.stattrak  : 1;
+
+    //                  SourceRarity->TargetRarity/SkinSet/SkinState/HasStatTrak
+    let trade_up_key = rarity + '->' + (rarity + 1) +'/' + skin_set + '/' + state + '/' + stattrak;
     return trade_up_key;
-  } // getTradeUpKey()
+  } // BuildTradeUpKey()
 
 
   //                            rarity      target_rarity = rarity + 1
