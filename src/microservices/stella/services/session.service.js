@@ -13,16 +13,16 @@ module.exports =
 
     actions: 
     { 
-        getapplet ( ctx ) 
+        get_app_var ( ctx ) 
         {
             let app_var_value = Session.GetSingleton().getAppVar(ctx.params.name);
             console.log("app_var_value " + app_var_value);
             return app_var_value;
-        }, // getAppVar()
+        }, // get_app_var()
 
         log ( ctx ) 
         {
-            console.log("api/session/log " + ctx.params.msg);
+            console.log("stella/session/log " + ctx.params.msg);
             return "log";
         } // log()
     }

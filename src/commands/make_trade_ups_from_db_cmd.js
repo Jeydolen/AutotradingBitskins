@@ -27,7 +27,8 @@ class MakeTradeUpsFromDBCmd extends Command
         let siblings_target_of_source_decade = this.extractSiblingTargetsOfSourceDecade ( ctx, target_rows, potential_profitable_trade_ups );
         //this.createTradeUps(ctx, potential_profitable_trade_ups );
 
-        return  this.output;
+        return siblings_target_of_source_decade;
+        //return  this.output;
     } // execute()
 
 
@@ -175,40 +176,46 @@ class MakeTradeUpsFromDBCmd extends Command
     extractSiblingTargetsOfSourceDecade ( ctx, target_rows, potential_profitable_trade_ups_arg )
     {
         let sibling_targets_of_source_decade = new Map();
-
         let trade_up_key = TradeUp.BuildTradeUpKey( ctx );
-        sibling_targets_of_source_decade.set ( trade_up_key, [] );
+        sibling_targets_of_source_decade.set ( trade_up_key, new Map() );
 
         let potential_profitable_trade_ups = potential_profitable_trade_ups_arg;
-        let source_rows_of_target = null;
+        let skin_id_to_siblings = sibling_targets_of_source_decade.get( trade_up_key );
+
+        const storeBySkinId = ( sell_order, skin_id_to_siblings ) =>
+        {
+            let skin_id = sell_order.skin;
+            //if ( skin_id_to_siblings.indexOf( target_row ) == -1 )
+            //skin_id_to_siblings.push ( target_row );
+            if ( ! skin_id_to_siblings.has( skin_id )  )
+                skin_id_to_siblings.set ( skin_id, [] );
+
+            let siblings = skin_id_to_siblings.get ( skin_id );
+
+            if ( siblings.indexOf (sell_order) == -1 )
+                siblings.push(sell_order);
+            return siblings;
+        }; // storeBySkinId
+
 
         target_rows.map
         (
             ( target_row ) =>
             {
-                let siblings = sibling_targets_of_source_decade.get( trade_up_key );
-                if ( siblings.indexOf( target_row ) == -1 )
-                    siblings.push ( target_row );
-
+                
+                let siblings = storeBySkinId ( target_row, skin_id_to_siblings );
                 let current_source_decade = potential_profitable_trade_ups.get ( target_row );
+
                 target_rows.map
                 (
                     ( sibling_target_row ) =>
                     {
-                        if ( target_row != sibling_target_row  &&   target_row.skin != sibling_target_row.skin )
+                        if ( target_row != sibling_target_row )
                         {
                             let sibling_source_decade = potential_profitable_trade_ups.get ( sibling_target_row )
 
                             if ( _.isEqual ( current_source_decade, sibling_source_decade) )
-                            {
-                                let siblings = sibling_targets_of_source_decade.get (trade_up_key);
-
-                                if ( siblings.indexOf( sibling_target_row ) == -1 )
-                                {
-                                    siblings.push ( sibling_target_row );
-                                    konsole.log( " Moulaga !!! ", LOG_LEVEL.INFO )
-                                }
-                            }
+                                storeBySkinId ( sibling_target_row, skin_id_to_siblings );
                         }
                     }
                 ); // target_rows.map

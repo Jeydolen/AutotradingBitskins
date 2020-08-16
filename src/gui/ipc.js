@@ -62,15 +62,16 @@ const onServiceCall = ( service_name, action_name, args ) =>
 }
 
 
-const ipcGetAppVar = async url => {
-    try {
+const ipcGetAppVar = async url => 
+{
+    try 
+    {
       const response = await fetch(url);
       const json = await response.json();
       console.log(json);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    } 
+    catch (error) { console.log(error); }
+}; // ipcGetAppVar
 
 
 const onCheckSkin = () =>

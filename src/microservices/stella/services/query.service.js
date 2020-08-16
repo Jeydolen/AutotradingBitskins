@@ -1,5 +1,6 @@
 
 const { MakeTradeUpsFromDBCmd } = rekwire("/src/commands/make_trade_ups_from_db_cmd.js");
+const { mapToString } = rekwire ('/src/utility.js')
 
 
 module.exports =
@@ -47,11 +48,14 @@ module.exports =
         async profit (ctx)
         {           
             // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types
-            ctx.meta.$responseType = "text/html ; charset=utf-8";
-        
+            //ctx.meta.$responseType = "text/html ; charset=utf-8";
+            ctx.meta.$responseType = "text/json ; charset=utf-8";
+
+
             let output = await MakeTradeUpsFromDBCmd.GetSingleton().execute( ctx );
-            output += "</ol></body></html>";
-            return output;
+            //output += "</ol></body></html>";
+            
+            return mapToString(output);
         } // 'profit' action
 
     } // query service actions

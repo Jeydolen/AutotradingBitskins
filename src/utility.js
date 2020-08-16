@@ -13,9 +13,15 @@ const objToString = (obj) =>
 const mapToObj = (map) =>
 {
     let obj = {}
-    map.forEach(function(v, k){
-      obj[k] = v
-    })
+    map.forEach( 
+        (v,k) =>
+            {
+            if ( v.constructor.name == "Map" )
+                obj[k] = mapToObj(v);
+            else
+                obj[k] = v;
+            })
+
     return obj
 }; // mapToObj()
 
@@ -32,6 +38,13 @@ const mapToString = (map) =>
     let json_str = JSON.stringify(json_obj);
     return json_str;
 }; // mapToString()
+
+const recursiveMapToString = (map) =>
+{
+    let json_obj = mapToJSON(map);
+    let json_str = JSON.stringify(json_obj);
+    return json_str;
+}; // recursiveMapToString()
 
 const pause = (delay_msec) =>
 {
