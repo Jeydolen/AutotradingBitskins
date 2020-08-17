@@ -23,9 +23,12 @@ class MakeTradeUpsFromDBCmd extends Command
         let source_rows = source_and_target_rows.sources;
         let target_rows = source_and_target_rows.targets;
 
-        let potential_profitable_trade_ups = this.extractPotentialProfitableTradeUps (  source_rows, target_rows );
-        let siblings_target_of_source_decade = this.extractSiblingTargetsOfSourceDecade ( ctx, target_rows, potential_profitable_trade_ups );
-        //this.createTradeUps(ctx, potential_profitable_trade_ups );
+        // target: [ source_decade ]
+        let target_to_source_decade = this.extractPotentialProfitableTradeUps (  source_rows, target_rows );
+
+        // trade_up_key : { skin_id : [ targets ] }
+        let siblings_target_of_source_decade    = this.extractSiblingTargetsOfSourceDecade ( ctx, target_rows, target_to_source_decade );
+        this.createTradeUps(ctx, target_to_source_decade, siblings_target_of_source_decade );
 
         return siblings_target_of_source_decade;
         //return  this.output;
@@ -121,7 +124,7 @@ class MakeTradeUpsFromDBCmd extends Command
       let trade_ups = new Map();
       //                                     10 cheapest
       //  filtered 'trade_ups'    target : [   sources    ]
-      let potential_profitable_trade_ups = new Map();
+      let target_to_source_decade = new Map();
       let source_rows_of_target = null;
 
       target_rows.map
@@ -156,12 +159,12 @@ class MakeTradeUpsFromDBCmd extends Command
                   {
                       let profit_margin = ( target_row.price - total_investment )/ total_investment * 100.00;
                       console.log ( "C'est bien, rentabilité potentielle :" + profit_margin +' % ' + target_row.market_name );
-                      potential_profitable_trade_ups.set( target_row, source_rows_of_target.slice( 0, 10 ) ) ;
+                      target_to_source_decade.set( target_row, source_rows_of_target.slice( 0, 10 ) ) ;
                       console.log (' --------------------------------------------------- \n' );
                   }
                   else 
                   {
-                      potential_profitable_trade_ups.set( target_row, [] ) ;
+                    target_to_source_decade.set( target_row, [] ) ;
                   }
                       
               }
@@ -169,17 +172,17 @@ class MakeTradeUpsFromDBCmd extends Command
           }
       ); // target_rows.map
 
-      return potential_profitable_trade_ups;
+      return target_to_source_decade;
     } // extractPotentialProfitableTradeUps()
 
 
-    extractSiblingTargetsOfSourceDecade ( ctx, target_rows, potential_profitable_trade_ups_arg )
+    extractSiblingTargetsOfSourceDecade ( ctx, target_rows, target_to_source_decade_arg )
     {
         let sibling_targets_of_source_decade = new Map();
         let trade_up_key = TradeUp.BuildTradeUpKey( ctx );
         sibling_targets_of_source_decade.set ( trade_up_key, new Map() );
 
-        let potential_profitable_trade_ups = potential_profitable_trade_ups_arg;
+        let target_to_source_decade = target_to_source_decade_arg;
         let skin_id_to_siblings = sibling_targets_of_source_decade.get( trade_up_key );
 
         const storeBySkinId = ( sell_order, skin_id_to_siblings ) =>
@@ -197,14 +200,13 @@ class MakeTradeUpsFromDBCmd extends Command
             return siblings;
         }; // storeBySkinId
 
-
+        // 1. extract siblings
         target_rows.map
         (
             ( target_row ) =>
             {
-                
                 let siblings = storeBySkinId ( target_row, skin_id_to_siblings );
-                let current_source_decade = potential_profitable_trade_ups.get ( target_row );
+                let current_source_decade = target_to_source_decade.get ( target_row );
 
                 target_rows.map
                 (
@@ -212,7 +214,7 @@ class MakeTradeUpsFromDBCmd extends Command
                     {
                         if ( target_row != sibling_target_row )
                         {
-                            let sibling_source_decade = potential_profitable_trade_ups.get ( sibling_target_row )
+                            let sibling_source_decade = target_to_source_decade.get ( sibling_target_row );
 
                             if ( _.isEqual ( current_source_decade, sibling_source_decade) )
                                 storeBySkinId ( sibling_target_row, skin_id_to_siblings );
@@ -221,6 +223,19 @@ class MakeTradeUpsFromDBCmd extends Command
                 ); // target_rows.map
             }
         ); // target_rows.map
+
+
+        // 2. sort siblings
+        
+        Array.from( skin_id_to_siblings.keys() ).map
+        (
+            ( skin_id ) =>
+            {
+                let siblings = skin_id_to_siblings.get ( skin_id );
+                siblings.sort ( this.sortSellOrderByPrice );
+            }
+        )
+        // target_rows.map
 
         return sibling_targets_of_source_decade;
 
@@ -235,20 +250,22 @@ class MakeTradeUpsFromDBCmd extends Command
     } // sortSellOrderByPrice
 
 
-    createTradeUps(ctx, potential_profitable_trade_ups_arg )
+    createTradeUps( ctx, target_to_source_decade_arg, sibling_targets_of_source_decade_arg )
     {
-        Array.from( potential_profitable_trade_ups_arg.keys() ).map
+        let trade_up_key = TradeUp.BuildTradeUpKey( ctx );
+
+        Array.from( target_to_source_decade_arg.keys() ).map
         (
             ( target_sell_order ) =>
             {
-                let source_sell_orders = potential_profitable_trade_ups_arg.get( target_sell_order );
-                TradeUp.Create( ctx, target_sell_order, source_sell_orders );
+                konsole.error( "createTradeUps : " + target_sell_order);
+                let source_decade               = target_to_source_decade_arg.get( target_sell_order );
+                let target_siblings_by_skin_id  = sibling_targets_of_source_decade_arg.get ( trade_up_key );
+                
+                TradeUp.Create( ctx, source_decade, target_siblings_by_skin_id );
             }
         )
     } // createTradeUps
-
-
-    
 
 } // MakeTradeUpsFromDBCmd
 exports.MakeTradeUpsFromDBCmd = MakeTradeUpsFromDBCmd;

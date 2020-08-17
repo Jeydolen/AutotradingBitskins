@@ -154,7 +154,7 @@ class BitskinsObject extends ISerializable
   //            optionnel (les 2)
   getCoVaSeq( json_sell_order, options_arg ) { return  Konst.NOTHING;            } // Column - value - sequence
 
-
+  // Via DB
   static async GetObjectsFromRecordIDs ( record_ids_arg, klass_arg )
   {
     let klass = klass_arg;
@@ -173,14 +173,31 @@ class BitskinsObject extends ISerializable
   } // GetObjectsFromRecordIDs()
 
 
+  static GetInstanceByIndex ( index = 0  )
+  {
+    let klass = this;
+    let instance = klass.NULL;
+    if ( index < (klass.Instances.size + 1) )
+    {
+      let key = Array.from( klass.Instances.keys() )[ index ];
+      instance = klass.Instances.get(key);
+    }
+      
+    return instance;
+  } // GetInstanceByIndex()
+
+
   static _GetTableName( klass_name )
   {
-    //console.log ('klass_name ' + klass_name );
-    let table_name = klass_name == 
-      "SkinSellOrder" ? 'skin_sell_order' :
-      "SkinSet"       ? 'skin_set'        :
-      "Skin"          ? 'skin'            :
-      "Weapon"        ? 'weapon'          : null;
+    konsole.msg ('klass_name ' + klass_name );
+    let table_name = 
+      klass_name == "SkinSellOrder" ? "skin_sell_order" :
+      klass_name ==  "SkinSet"      ? "skin_set"        :
+      klass_name == "Skin"          ? "skin"            :
+      klass_name == "Weapon"        ? "weapon"          :        
+      klass_name == "TradeUp"       ? "trade_up"        : null;
+
+      konsole.error ( 'GetTableName : ' + table_name)
 
     return table_name;
   } // _GetTableName()

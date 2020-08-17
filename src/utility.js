@@ -10,6 +10,7 @@ const objToString = (obj) =>
     return str;
 }; // objToString()
 
+
 const mapToObj = (map) =>
 {
     let obj = {}
@@ -25,12 +26,14 @@ const mapToObj = (map) =>
     return obj
 }; // mapToObj()
 
+
 const mapToJSON = (map) =>
 {
     let json_obj = {};
     json_obj.map = mapToObj(map);
     return json_obj;
 }; // mapToJSON()
+
 
 const mapToString = (map) =>
 {
@@ -39,24 +42,6 @@ const mapToString = (map) =>
     return json_str;
 }; // mapToString()
 
-const recursiveMapToString = (map) =>
-{
-    let json_obj = mapToJSON(map);
-    let json_str = JSON.stringify(json_obj);
-    return json_str;
-}; // recursiveMapToString()
-
-const pause = (delay_msec) =>
-{
-    const cb = () => 
-    {
-        // your code to run after the timeout
-        console.log("utility.pause("  + delay_msec/1000 + " sec ) finished");
-    }
-    
-    // stop for sometime if needed
-    setTimeout(cb, delay_msec);
-} // pause
 
 const getFunctionName = (f) =>
 {
@@ -66,9 +51,9 @@ const getFunctionName = (f) =>
     return ret;
 }; // getFunctionName()
 
+
 exports.objToString = objToString;
 exports.mapToObj    = mapToObj;
 exports.mapToJSON   = mapToJSON;
 exports.mapToString = mapToString;
-exports.pause       = pause;
 exports.getFunctionName = getFunctionName ;
