@@ -1,11 +1,12 @@
-const Service = require("moleculer").Service;
+const Service               = require ("moleculer").Service;
 const assert                = require ('assert');
+const clone                 = require ('clone');
 
 
 
 const { TradeUp  }                  = rekwire ('/src/model/trade_up.js') ;
 const BitskinsObject                = rekwire ('/src/model/bb_obj.js').BitskinsObject;
-const { mapToString, mapToJSON }    = rekwire ('/src/utility.js');
+const { mapToString, mapToJSON, mapToObj }    = rekwire ('/src/utility.js');
 
 
 console.log ( TradeUp.name)
@@ -59,14 +60,24 @@ class TradeUpService extends Service
     list ( ctx ) 
     {
         let id = ctx.params.id != undefined ?  ctx.params.id : 0;
+        console.log ('trade_up/list:  id=' + id  );
         let trade_up = this.klass.GetInstanceByIndex( id );
+        console.log ('trade_up/list:  name=' + trade_up.getName()  );
 
-        trade_up.target_siblings = mapToJSON (trade_up.target_siblings);
+        //trade_up.target_siblings = mapToJSON (trade_up.target_siblings);
+        let obj_clone = clone ( trade_up );
+
+        let target_siblings_as_JSON = mapToJSON (obj_clone.target_siblings);
+        obj_clone.target_siblings = mapToJSON (target_siblings_as_JSON);
+
+        //let test = mapToJSON (obj_clone.target_siblings);
+        //let test_map = new Map () 
+        //test_map.set ( 'porououtoeuteotepute', 'jesuis une gentiille map' )
+        //obj_clone.target_siblings = mapToObj ( test_map );
 
         ctx.meta.$responseType = "text/json ; charset=utf-8";
-        return trade_up ;   
-              
-        //return "Error /stella/" + this.klass + "_sell_order/list";// + rows_count; 
+        //return target_siblings_as_JSON;
+        return obj_clone;   
 
     } // list()
 

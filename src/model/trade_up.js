@@ -31,27 +31,24 @@ class TradeUp extends BitskinsObject
   constructor( ctx, source_decade_arg, target_siblings_arg ) 
   {     
     super ( null );
+    console.log ( 'COUCOU ')
 
     if (arguments.length == 3  )
     {
       this.target_siblings                      = target_siblings_arg;
-      //this.target_siblings_readable             = mapToJSON (target_siblings_arg);
       this.source_decade                        = source_decade_arg;  
-
       this.name                                 = TradeUp.BuildTradeUpKey ( ctx );
-
       this.skin_set    = ctx.params.skinset    != undefined ? ctx.params.skinset   : 5;
       this.rarity      = ctx.params.rarity     != undefined ? ctx.params.rarity    : 4;
       this.state       = ctx.params.state      != undefined ? ctx.params.state     : 4;
       this.stattrak    = ctx.params.stattrak   != undefined ? ctx.params.stattrak  : 1;
-  
-      this._broker = Session.GetSingleton().getAppVar( Session.Broker );
+      //this._broker = Session.GetSingleton().getAppVar( Session.Broker );
     }
     else
     { // NULL object
-      this.name = arguments[0];
-      this.target_siblings                      = new Map()
-      this.target_siblings.set ( 'Null_map', 'Null_trade_ups_targets_siblings_prout_prout')
+      this.name             = NULL_TRADE_UP;
+      this.target_siblings  = new Map()
+      this.target_siblings.set ( 'Null_key', 'Null_trade_ups_targets_siblings_prout_prout_value' )
     }
    
   } // constructor()

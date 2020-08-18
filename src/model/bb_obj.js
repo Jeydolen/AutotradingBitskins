@@ -176,12 +176,19 @@ class BitskinsObject extends ISerializable
   static GetInstanceByIndex ( index = 0  )
   {
     let klass = this;
+    console.log ('GetInstanceByIndex Class_name :' + klass.name )
     let instance = klass.NULL;
-    if ( index < (klass.Instances.size + 1) )
+    console.log ('GetInstanceByIndex instance_name :' + instance.name )
+
+    // Faut pas mettre +1
+    if ( index < klass.Instances.size )
     {
+      konsole.msg ( ' GetInstanceByIndex index size : ' +  klass.Instances.size + ' index : ' + index )
       let key = Array.from( klass.Instances.keys() )[ index ];
       instance = klass.Instances.get(key);
     }
+    else
+      konsole.warn ( ' GetInstanceByIndex index size > klass.Instances.size + 1 : ' +  klass.Instances.size + ' index : ' + index )
       
     return instance;
   } // GetInstanceByIndex()
