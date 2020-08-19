@@ -1,6 +1,9 @@
-const _ = require('lodash');
+const _                      = require('lodash');
+const assert                 = require ('assert');
 
 const knex                   = rekwire ('/src/bb_database.js').knex_conn;
+const Konst                  = rekwire ('/src/constants.js');
+const SkinSet                = rekwire ('/src/model/skin_set').SkinSet;
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js');
 const Command                = rekwire ('/src/commands/command.js').Command;
 const TradeUp = rekwire ('/src/model/trade_up.js').TradeUp;
@@ -16,12 +19,15 @@ class MakeTradeUpsFromDBCmd extends Command
     } // constructor
 
 
-    async execute ( ctx )
+    async extractTradeUpsFromDB ( ctx )
     {
-        let source_and_target_rows= await this.extractSourceAndTargetRowsFromDB( ctx );
+        let source_and_target_rows = await this.extractSourceAndTargetRowsFromDB( ctx );
 
         let source_rows = source_and_target_rows.sources;
+        //assert( source_rows.length != 0 );
+
         let target_rows = source_and_target_rows.targets;
+        //assert( target_rows.length != 0 );
 
         // target: [ source_decade ]
         let target_to_source_decade = this.extractPotentialProfitableTradeUps (  source_rows, target_rows );
@@ -31,7 +37,46 @@ class MakeTradeUpsFromDBCmd extends Command
         this.createTradeUps(ctx, target_to_source_decade, siblings_target_of_source_decade );
 
         return siblings_target_of_source_decade;
-        //return  this.output;
+    } // extractTradeUpsFromDB
+
+
+    // Creer une table pour les enregistrer dans la db ( peut etre MONGO car + rapide )
+    async execute ( ctx )
+    {       
+        let result = null;
+        console.log ( 'ctx.params : ' + JSON.stringify( ctx.params ) )
+        if ( Object.keys(ctx.params).length != 0 )
+            return await this.extractTradeUpsFromDB ( ctx );
+        else
+        {
+            let skin_set_count = await SkinSet.GetRecordCount();
+            konsole.log ( 'Ctx.params.length == 0, record_count : ' + skin_set_count, LOG_LEVEL.INFO);
+            let ctx = { params : { skin_set : Konst.NULL_RECORD_ID +1, rarity : 1, state : 1, stattrak : false } }
+            for ( let rarity_i = 1; rarity_i < 7; rarity_i++ )
+            {
+                ctx.params.rarity = rarity_i;
+
+                for ( let state_i = 1; state_i < 6; state_i++)
+                {
+                    ctx.params.state = state_i;
+                    for ( let skin_set_i = Konst.NULL_RECORD_ID +1; skin_set_i < skin_set_count; skin_set_i++)
+                    {
+                        ctx.params.skin_set = skin_set_i;
+                        ctx.params.stattrak = false;
+                        await this.extractTradeUpsFromDB ( ctx );
+        
+                        ctx.params.stattrak = true;
+                        await this.extractTradeUpsFromDB ( ctx );
+                    }
+                }
+               
+            }
+
+        }
+
+        result = TradeUp.GetInstanceCount();
+
+        return "TradeUps count: " + result;
     } // execute()
 
 
@@ -111,8 +156,8 @@ class MakeTradeUpsFromDBCmd extends Command
         } )
         .catch( ( error ) => { konsole.error(  "selectSellOrderID_w_where_subquery 2 "+ error )} );
 
-        konsole.msg( JSON.stringify(source_rows) );
-        konsole.msg( JSON.stringify(target_rows) );
+        konsole.msg( "extractSourceAndTargetRowsFromDB source_rows: " +JSON.stringify(source_rows) );
+        konsole.msg( "extractSourceAndTargetRowsFromDB target_rows: " +JSON.stringify(target_rows) );
 
         return { sources: source_rows, targets: target_rows };
     } // extractSourceAndTargetRowsFromDB

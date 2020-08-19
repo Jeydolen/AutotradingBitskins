@@ -62,11 +62,11 @@ const objToJSON = ( obj_arg ) =>
 }; // objToJSON()
 
 
-const mapToJSON = ( map_arg ) =>
+const mapToJSON = ( obj_arg ) =>
 {
-    console.log ('mapToJSON ! map_arg is :' + map_arg.constructor.name + "\n" + JSON.stringify( map_arg ));
+    console.log ('mapToJSON ! map_arg is :' + obj_arg.constructor.name + "\n" + JSON.stringify( obj_arg ));
     let json_obj = null;
-    if ( map_arg.constructor.name == "Map" )
+    if ( obj_arg.constructor.name == "Map" )
     {
         json_obj = {};
         json_obj.map = mapToObj( obj_arg );
@@ -74,9 +74,9 @@ const mapToJSON = ( map_arg ) =>
     else if ( obj_arg.constructor.name == "Array" )
         json_obj = arrayToObj( obj_arg );
     else if ( obj_arg.constructor.name == "Object" )
-        json_obj = map_arg;
+        json_obj = obj_arg;
     else if ( obj_arg.constructor.name == "String" )
-        json_obj = map_arg;
+        json_obj = obj_arg;
 
     return json_obj;
 }; // mapToJSON()

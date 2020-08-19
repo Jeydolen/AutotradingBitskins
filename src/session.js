@@ -64,11 +64,10 @@ class Session extends Singleton
 
         if (this.AppVars.has(name_arg ))
         {
-           console.log ('1sfsqfsq')
             let previous_value = this.AppVars.get( name_arg );
             if ( previous_value != value_arg )
             {
-                console.log ('2')
+                
                 if (name_arg == Session.PageIndexStart )
                 {
                     value_arg = Number(value_arg);

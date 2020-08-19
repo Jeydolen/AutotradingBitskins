@@ -57,6 +57,7 @@ class TradeUpService extends Service
 
 
     // Uniquement via instances (mem) pour le moment 
+    // https://www.npmjs.com/package/stringify-object
     list ( ctx ) 
     {
         let id = ctx.params.id != undefined ?  ctx.params.id : 0;

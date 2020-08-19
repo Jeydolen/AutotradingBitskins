@@ -225,8 +225,10 @@ class BitskinsObject extends ISerializable
          console.log( "result_rows: " + JSON.stringify(result_rows) );
       } 
     );
+    // [{"count(*)":61}]
+    let record_count = result_rows[0]['count(*)']
 
-    return result_rows;
+    return record_count;
   } // GetRecordCount()
 
 
