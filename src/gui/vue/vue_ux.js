@@ -7,7 +7,9 @@
 global.rekwire = require('app-root-path').require;
 if (! window.rekwire)       window[rekwire] = rekwire;
 
-const { vertical_menu       }     = rekwire ('/src/gui/vue/vertical_menu_component.js'      );
+const { PhobosServiceBroker }     = rekwire('/src/microservices/phobos/phobos_service_broker');
+
+const { vertical_menu       }     = rekwire ('/src/gui/vue/vertical_menu_component.js'       );
 
 
 const { home_panel          }     = rekwire ('/src/gui/vue/home_panel_component.js'         );
@@ -87,3 +89,5 @@ let app = new Vue
     }
   }
 ); // app 'Vue View'
+
+PhobosServiceBroker.GetSingleton().start();

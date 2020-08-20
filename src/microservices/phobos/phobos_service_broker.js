@@ -15,7 +15,7 @@ const { Singleton }     = rekwire("/src/singleton.js");
 
 
 //https://medium.com/moleculer/moleculer-a-modern-microservices-framework-for-nodejs-bc4065e6b7ba
-class StellaServiceBroker extends Singleton
+class PhobosServiceBroker extends Singleton
 {
 
     static Singleton = null;
@@ -25,7 +25,7 @@ class StellaServiceBroker extends Singleton
         super (args);
         this.broker = new ServiceBroker
         ({
-            nodeID: 'Stella',
+            nodeID: 'Phobos',
             metrics: true,
             logger:  true,
             logFormatter: "short",
@@ -34,22 +34,23 @@ class StellaServiceBroker extends Singleton
         // Create a service
         this.broker.createService
         ({
-            name: "stella",
+            name: "phobos",
             mixins: [ApiService],
             settings: 
             {
-                port: 51374,
-                assets: { folder: APP_ROOT_PATH + '/src/microservices/stella/assets/'},
+                // https://fr.wikipedia.org/wiki/Intel_8080
+                port: 8080,
+                assets: { folder: APP_ROOT_PATH + '/src/microservices/phobos/assets/'},
                 routes: 
                 [{ 
-                    path: "stella",
+                    path: "phobos",
                 }]
             },
             actions: 
             {
             }
         });
-        this.broker.loadServices( APP_ROOT_PATH + "/src/microservices/stella/services/", "*.service.js");
+        this.broker.loadServices( APP_ROOT_PATH + "/src/microservices/phobos/services/", "*.service.js");
     } // Constructor
     
 
@@ -67,4 +68,4 @@ const unitTest = () =>
 }; 
 
 //unitTest();
-exports.StellaServiceBroker = StellaServiceBroker;
+exports.PhobosServiceBroker = PhobosServiceBroker;

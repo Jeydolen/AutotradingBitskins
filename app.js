@@ -3,8 +3,6 @@ const fetch         = require ('node-fetch');
 const { app, BrowserWindow, Menu, dialog, ipcMain, session } = require( 'electron' );
 const { EventDispatcher } = require('./src/event_dispatcher');
 const APP_ROOT_PATH            = require ('app-root-path');
-const { konsole } = require('./src/bb_log');
-const { Session } = require('./src/session');
 
 // https://github.com/inxilpro/node-app-root-path 
 // Permet d'enregistrer au niveau de global rekwire (pck ipcMain)
@@ -20,6 +18,8 @@ const Boostrap            = rekwire ('/src/boostrap.js').Boostrap;
 const CommandRegistry     = rekwire ('/src/commands/command_registry.js').CommandRegistry;
 const ShowDevToolsCmd     = rekwire ('/src/commands/show_dev_tools_cmd.js').ShowDevToolsCmd;
 const CMD_KONST           = rekwire ('/src/commands/command_constants.js').CMD_KONST;
+const { konsole, LOG_LEVEL } = rekwire('/src/bb_log');
+const { Session } = rekwire('/src/session.js');
 
 
 const MENU_LABELS = 
@@ -81,6 +81,7 @@ const ParseCommandLineArgs = (args) =>
   if (commander.admin)
   {
     StellaServiceBroker.GetSingleton().start();
+
     app.whenReady().then( createWindow ).then( createMenu );
   }
   
@@ -108,6 +109,7 @@ const createWindow = () =>
   main_window.webContents.openDevTools();
 
   Session.GetSingleton().setAppVar( Session.MainWindow, main_window );
+
   
 }; // createWindow()
 
