@@ -26,7 +26,7 @@ let app = new Vue
     data: 
     {
       menu_displayed: false,
-      currentComponent : db_panel,
+      currentComponent : home_panel,
       width : { 'menu': '0.5%', 'panel': '98%' },
       menu_item_class: { 'home': 'home-active', 'config': 'config', 'db': 'db'}
     },
@@ -89,5 +89,3 @@ let app = new Vue
     }
   }
 ); // app 'Vue View'
-
-PhobosServiceBroker.GetSingleton().start();

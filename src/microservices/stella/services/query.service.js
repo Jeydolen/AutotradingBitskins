@@ -49,13 +49,11 @@ module.exports =
         {           
             // https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types
             //ctx.meta.$responseType = "text/html ; charset=utf-8";
-            ctx.meta.$responseType = "text/json ; charset=utf-8";
-
-
             let output = await MakeTradeUpsFromDBCmd.GetSingleton().execute( ctx );
             //output += "</ol></body></html>";
             
-            return mapToString(output);
+            ctx.meta.$responseType = "text/plain ; charset=utf-8";
+            return output;
         } // 'profit' action
 
     } // query service actions

@@ -1,6 +1,6 @@
 const Enum  = require('enum');
 
-const DataFormat = new Enum( [ 'Json', 'MySQL', 'CSV' ] );
+const DataFormat = new Enum( [ 'JSON', 'MySQL', 'CSV' ] );
 
 //==================== 'ISerializable' interface class ====================
 class ISerializable 

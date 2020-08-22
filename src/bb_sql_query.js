@@ -25,17 +25,6 @@ const SQL_TEMPLATE = new Enum ({
     'ALTER_RST_AI'      : "ALTER TABLE {db-table}                                   AUTO_INCREMENT = 0          ;     #ALTER_RST_AI",
     'ALTER'             : "ALTER TABLE {db-table}                                   {db-alter-value}            ;"                  ,
 
-    'SELECT_SKIN'       : `SELECT id FROM {database}.skin \n`                          
-                        + `WHERE skin_set = {skin-set-value} AND item_state = {item-state-value} AND skin_rarity = {skin-rarity-value} AND has_StatTrak = 1 #SELECT_SKIN\n`,
-
-    'PROFIT_SELCT_ORDER': `SELECT name as {p}_name, price as {p}_price, skin as {p}_skin, market_name as {p}_market_name \n`
-                        + `FROM {database}.skin_sell_order WHERE skin_sell_order.skin  IN ({select-subquery}) #PROFIT_SELCT_ORDER\n`,
-
-                                                                                  
-    'PROFIT_SELCT_SKIN' : `SELECT * FROM ( {select-parent-subquery-1} ) SQ_A \n`
-                        + `INNER JOIN ( {select-parent-subquery-2} ) SQ_B \n `
-                        + `ON  ((A_price * 1.00) * 10.00) < (B_price * 1.00); #PROFIT_SELCT_SKIN\n`,
-
     'SHOW'              : "SHOW TABLES ;" });
 
     

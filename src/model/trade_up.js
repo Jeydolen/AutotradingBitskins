@@ -1,16 +1,15 @@
 const assert                        = require ('assert');
 const Enum                          = require ('enum');
+const fs                            = require ('fs')
 
 const { BitskinsObject  }           = rekwire ('/src/model/bb_obj.js') ;
-const { SkinSellOrder  }            = rekwire ('/src/model/skin_sell_order.js') ;
+const { DataFormat      }           = rekwire ('/src/ISerializable.js')
+const knex                          = rekwire ('/src/bb_database.js').knex_conn;
 
 const Konst                         = rekwire ('/src/constants.js') ;
 const Session                       = rekwire ('/src/session.js').Session ;
 const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js'); 
 const { mapToString, mapToJSON }    = rekwire ('/src/utility.js')
-
-const DataFormat      = new Enum( [ 'MySql', 'Json', 'CSV' ] );
-const RarityUpgrade   = new Enum ({ 'Unknown' : 0, '1->2': 1, '2->3': 2, '3->4' : 3, '4->5' : 4, '5->6' : 5, '6-7' : 6 })
 
 
 // * rarity, skinset, state, statTrak
@@ -22,7 +21,8 @@ class TradeUp extends BitskinsObject
 {
   //                                      tradup_key -> trade_up_obj  
   static Instances                  = new Map();
-  static NULL = TradeUp.GetNullObject();
+  static NULL                       = TradeUp.GetNullObject();
+  static LastTradeUp                = null; 
 
   //                                      rarity -> TargetIdToSourceIds ( target_id -> [ source_id1, source_id2, ...] )  
   static Rarity2TargetIdToSourceIds = new Map();
@@ -31,7 +31,7 @@ class TradeUp extends BitskinsObject
   constructor( ctx, source_decade_arg, target_siblings_arg ) 
   {     
     super ( null );
-    console.log ( 'COUCOU ')
+    //console.log ( 'COUCOU ')
 
     if (arguments.length == 3  )
     {
@@ -48,13 +48,61 @@ class TradeUp extends BitskinsObject
     { // NULL object
       this.name             = NULL_TRADE_UP;
       this.target_siblings  = new Map()
-      this.target_siblings.set ( 'Null_key', 'Null_trade_ups_targets_siblings_prout_prout_value' )
+      this.target_siblings.set ( Konst.NOTHING, 'Null_target_siblings_value' );
+      this.source_decade = [Konst.NOTHING];
     }
-   
   } // constructor()
 
 
+  static UnitTest( ctx )
+  {
+    let method_name = ctx.params.method == "toJSON" ? ctx.params.method : "toJSON";
+    let result = "TradeUp UnitTest OK";
+
+    console.log( "method : '" + method_name + "'");
+
+    if ( method_name == "toJSON" )
+      try 
+      {
+        result =  TradeUp.NULL.toString();
+        console.log ( TradeUp.NULL)
+      }
+      catch( err )
+      {
+        result = err;
+      }
+      
+    return result;
+  } // UnitTest
+
+
   getTradeUpKey ()  { return this.trade_up_key; }
+
+  async save ( data_format = DataFormat.JSON , target = Konst.DEFAULT_JSON_OUTPUT_FILE)
+  {                                   
+    if ( data_format == DataFormat.MySQL )                               // array                                                     
+      await knex('trade_up').insert({name : this.trade_up_obj.name, source_decade : '{ ids : ' + JSON.stringify(this.trade_up_obj.source_decade) + '}' ,
+                                     target_siblings : JSON.stringify(this.trade_up_obj.target_siblings) })
+    else if ( data_format == DataFormat.JSON)
+    {
+      if ( TradeUp.LastTradeUp == null )
+      {
+        let keys      = Array.from(TradeUp.Instances.keys());
+        let last_key  = keys[ keys.length -1 ];
+        if (last_key != undefined )
+          TradeUp.LastTradeUp = TradeUp.Instances.get( last_key );
+        console.log ( 'last_key : ' + last_key + ' -- LastTradeUp :' + TradeUp.LastTradeUp + 'keys.length : ' + keys.length )
+      }
+ 
+      let last_char  = ',\n';
+      if ( this == TradeUp.LastTradeUp )
+        last_char = ' \n]';
+
+      fs.appendFileSync ( target, JSON.stringify(this.toJSON()) + last_char );
+    }
+  } // createInDBTable
+
+
 
 
   static BuildTradeUpKey( ctx )
@@ -77,35 +125,17 @@ class TradeUp extends BitskinsObject
 
     if ( !  TradeUp.Instances.has ( name ) )
       TradeUp.Instances.set ( name, trade_up_obj );
-    else
-      konsole.error( "TradeUp.Create Duplicate TradeUp name: " + name );
+    //else konsole.error( "TradeUp.Create Duplicate TradeUp name: " + name );
+
     return trade_up_obj;  
   } // Create() 
-
-
-  static GetRarityUpgradeFromValue ( value )
-  {
-    let rarity_upgrade_key = RarityUpgrade.get(value)
-    return  rarity_upgrade_key;
-  } // GetRarityUpgradeFromValue()
-
-
-  load( data ) 
-  {   
-    assert( data != undefined  &&  data != null );
-  } // load()
-
-
-  save( data_format, data  ) 
-  { 
-  } // save()
 
 
   static GetNullObject() 
   {
       if ( TradeUp.NULL == undefined )
       {
-        TradeUp.NULL   = new TradeUp( NULL_TRADE_UP );
+        TradeUp.NULL       = new TradeUp( NULL_TRADE_UP );
         TradeUp.Instances.set           ( TradeUp.NULL.name, TradeUp.NULL );
         TradeUp.InstancesByRecordID.set ( 1, TradeUp.NULL );
       }

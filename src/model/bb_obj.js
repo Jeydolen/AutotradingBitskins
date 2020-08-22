@@ -5,8 +5,7 @@ const Konst                         = rekwire ('/src/constants.js') ;
 const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js'); 
 const { BB_SqlQuery, SQL_TEMPLATE } = rekwire ('/src/bb_sql_query.js') ;
 const { BB_Database, knex_conn }    = rekwire ('/src/bb_database.js') ;
-const { ISerializable }             = rekwire ('/src/ISerializable.js') ;
-
+const { ISerializable, DataFormat } = rekwire ('/src/ISerializable.js') ;
 
 
 /*$$$$$$$  /$$   /$$              /$$       /$$                      /$$$$$$  /$$                                 /$$    
@@ -37,18 +36,48 @@ class BitskinsObject extends ISerializable
   } // constructor()
 
 
-  toJSON = ( access_type = Konst.AccessType.Public ) => 
+  static UnitTest( ctx )
+  {
+    return "BitskinsObject UnitTest OK";
+  } // UnitTest
+
+  // https://github.com/joegesualdo/object-to-json/blob/master/index.js
+  toJSON( access_type = Konst.AccessType.Public )
+  {
+      let keys = [];
+      for (var k in this) 
+      {
+        if (Object.hasOwnProperty(k))
+          keys.push(k)
+        
+      }
+  
+      let new_obj = {};
+      for(var i = 0; i < keys.length; i++){
+        new_obj[keys[i]] = this[keys[i]]
+        // console.log(object[keys[0]])
+      }
+      let json_obj = JSON.parse(JSON.stringify(new_obj))
+    return json_obj;
+  } // toJSON
+
+
+  toJSON_old ( access_type = Konst.AccessType.Public )
   {
     let json_data = {} ;
-    for (let attribute in this) 
-    {
-      if ( ! attribute.startsWith('_'))
-        {
-          json_data[attribute] = this[attribute];
-        }
-    }
+    let property_names = Object.getOwnPropertyNames( this );
+    //for (let attribute in this) 
+    property_names.map(
+      ( property_name ) =>
+      {
+        if ( ! property_name.startsWith('_'))
+          {
+            json_data[property_name] = this[property_name];
+          }
+      }
+    );
     return json_data;
-  }; // toJSON()
+  } // toJSON_old()
 
 
   getIsJustCreated    ()      { return this._is_just_created;     } // getIsJustCreated()
@@ -142,7 +171,7 @@ class BitskinsObject extends ISerializable
   setRecordId         ( record_id )      
   { 
     let klass = this.constructor;
-    konsole.msg ( record_id)
+    //konsole.msg ( record_id)
     assert ( record_id != undefined && record_id != Konst.NULL_RECORD_ID)
     this._record_id = record_id; 
 
@@ -249,9 +278,8 @@ class BitskinsObject extends ISerializable
 
 
   // implementation of 'save' service  
-  save( data_format = Konst.DataFormat.Json  ) 
+  save( data_format = DataFormat.JSON, target = Konst.DEFAULT_JSON_OUTPUT_FILE) 
   {  
-    
   } // ISerializable.save()
 
 

@@ -145,7 +145,6 @@ class SkinSellOrder extends BitskinsObject
         {
             assert( json_data.item_id != undefined && json_data.item_id != null,  'Create: json_data.item_id arg ' + JSON.stringify( json_data.item_id ) );
             obj_key     = json_data.item_id ;
-            console.log ( 'obj_key :' + obj_key );
         }       
         else if ( reason == Konst.Reason.Deserialize )
         {
@@ -166,12 +165,9 @@ class SkinSellOrder extends BitskinsObject
             assert ( sell_order_obj._record_id != undefined && sell_order_obj._record_id != null )
             if ( reason == Konst.Reason.Deserialize )
                 sell_order_obj.setRecordId ( sell_order_obj._record_id )
-
-            else console.log ('Petit populate oklm')
         }
         else 
         {
-            //console.log("SkinSellOrder.create obj " + obj_key + " found");
             sell_order_obj = SkinSellOrder.Instances.get ( obj_key ) ;
             sell_order_obj._is_just_created = false; 
         }

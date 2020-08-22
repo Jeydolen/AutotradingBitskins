@@ -1,7 +1,4 @@
 const Enum      = require('enum');
-const expand    = require ('expand-template')();
-
-const objToString = rekwire ('/src/utility.js').objToString;
 
 class GUI
 {
@@ -49,22 +46,6 @@ class GUI
     }; // SubmitValueEventObj klass
 
     static EVT_ARGS  = { POPULATE_DB_PROGRESS_EVT : GUI.PopulateDBEventObj, SUBMIT_VALUE_EVT : GUI.SubmitValueEventObj };
-} // GUI klass
-
-
-const test_2 = () =>
-{
-   let obj_func = GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT]
-   console.log (obj_func);
-   let obj = new obj_func ('Weapon', 256, 480, 64 );
-   console.log ("object:" +JSON.stringify(obj))
-};
-
-const test = () =>
-{
-   console.log (objToString(GUI.EVENT));
-};
-
-//test();
+} // GUI Class
 
 exports.GUI = GUI;

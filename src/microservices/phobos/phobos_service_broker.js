@@ -1,6 +1,5 @@
 
 const  ServiceBroker            = require("moleculer").ServiceBroker;
-const  ApiService               = require("moleculer-web");
 const  fs                       = require("fs");
 const  APP_ROOT_PATH            = require ('app-root-path');
 
@@ -31,25 +30,6 @@ class PhobosServiceBroker extends Singleton
             logFormatter: "short",
         });
 
-        // Create a service
-        this.broker.createService
-        ({
-            name: "phobos",
-            mixins: [ApiService],
-            settings: 
-            {
-                // https://fr.wikipedia.org/wiki/Intel_8080
-                port: 8080,
-                assets: { folder: APP_ROOT_PATH + '/src/microservices/phobos/assets/'},
-                routes: 
-                [{ 
-                    path: "phobos",
-                }]
-            },
-            actions: 
-            {
-            }
-        });
         this.broker.loadServices( APP_ROOT_PATH + "/src/microservices/phobos/services/", "*.service.js");
     } // Constructor
     

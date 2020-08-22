@@ -132,8 +132,9 @@ class BitskinsFetcher extends Singleton
             db.clearTables();
         }  
     
-        const populate_finished_cb = ( reason_arg ) =>
+        const populate_finished_cb = ( reason_arg = Konst.Reason.Populate) =>
         {
+            console.log ( "Reason : " + reason_arg )
             assert (! this._is_last_page);
             this.fetchItems( this._page_index, { cb: this.parseOnReady_CB, reason: reason_arg }, populate_finished_cb  );    
             konsole.log ("Boucle du populate: " + this._page_index, LOG_LEVEL.OK);

@@ -1,5 +1,7 @@
 const _                      = require('lodash');
 const assert                 = require ('assert');
+const { DataFormat }         = require('../ISerializable');
+const fs                     = require('fs');
 
 const knex                   = rekwire ('/src/bb_database.js').knex_conn;
 const Konst                  = rekwire ('/src/constants.js');
@@ -24,7 +26,6 @@ class MakeTradeUpsFromDBCmd extends Command
         let source_and_target_rows = await this.extractSourceAndTargetRowsFromDB( ctx );
 
         let source_rows = source_and_target_rows.sources;
-        //assert( source_rows.length != 0 );
 
         let target_rows = source_and_target_rows.targets;
         //assert( target_rows.length != 0 );
@@ -42,9 +43,16 @@ class MakeTradeUpsFromDBCmd extends Command
 
     // Creer une table pour les enregistrer dans la db ( peut etre MONGO car + rapide )
     async execute ( ctx )
-    {       
+    {      
         let result = null;
-        console.log ( 'ctx.params : ' + JSON.stringify( ctx.params ) )
+
+        let data_format = ctx.params.data_format != undefined ? ctx.params.data_format : 'json';
+        data_format = DataFormat.get( data_format.toUpperCase() );
+
+        let file   = ctx.params.file != undefined ? ctx.params.file : Konst.DEFAULT_JSON_OUTPUT_FILE;
+        let output_path = Konst.DEFAULT_JSON_OUTPUT_PATH + "/" + file;
+
+        //console.log ( 'ctx.params : ' + JSON.stringify( ctx.params ) )
         if ( Object.keys(ctx.params).length != 0 )
             return await this.extractTradeUpsFromDB ( ctx );
         else
@@ -74,10 +82,39 @@ class MakeTradeUpsFromDBCmd extends Command
 
         }
 
+        await this.storeTradeUps ( data_format, output_path );
+
         result = TradeUp.GetInstanceCount();
 
         return "TradeUps count: " + result;
     } // execute()
+
+                        // requis dans le cas de data_format = JSON
+    async storeTradeUps ( data_format, output_path )
+    {
+        console.log ( data_format)
+        if ( data_format == DataFormat.JSON )
+        {
+            try 
+            {
+                fs.unlinkSync ( output_path );
+                console.log ( 'File successfully removed' + output_path);
+            } // try
+            catch (err)
+            {
+                console.log (" File isn't created yet " + output_path)
+            }
+            fs.appendFileSync ( output_path, '[\n')
+        }
+            
+        
+        TradeUp.Instances.forEach( (trade_up, key ) =>
+        {
+            trade_up.save( data_format, output_path ); 
+        }
+        ); // forEach
+    
+    } // storeTradeUps
 
 
     async extractSourceAndTargetRowsFromDB( ctx )
@@ -97,11 +134,11 @@ class MakeTradeUpsFromDBCmd extends Command
 
         const logResult = ( sell_orders, msg, cb = defaultExtractSellOrderAttribute_CB ) =>
         {
-            console.log ( sell_orders )
+            //console.log ( sell_orders )
             this.output += "<p>" + msg + "</p><ol>";
             sell_orders.map
             ( sell_order => 
-                {   console.log(sell_order) ;
+                {   //console.log(sell_order) ;
                     this.output += "<li>";
                     this.output += cb ( sell_order ) + "</li>";
                 } 
@@ -156,8 +193,7 @@ class MakeTradeUpsFromDBCmd extends Command
         } )
         .catch( ( error ) => { konsole.error(  "selectSellOrderID_w_where_subquery 2 "+ error )} );
 
-        konsole.msg( "extractSourceAndTargetRowsFromDB source_rows: " +JSON.stringify(source_rows) );
-        konsole.msg( "extractSourceAndTargetRowsFromDB target_rows: " +JSON.stringify(target_rows) );
+        //konsole.msg( "extractSourceAndTargetRowsFromDB source_rows: " +JSON.stringify(source_rows) );
 
         return { sources: source_rows, targets: target_rows };
     } // extractSourceAndTargetRowsFromDB
@@ -213,7 +249,7 @@ class MakeTradeUpsFromDBCmd extends Command
                   }
                       
               }
-              else { console.log ('Pas assez de source sellOrder' )}
+              else { /*console.log ('Pas assez de source sellOrder' )*/}
           }
       ); // target_rows.map
 
@@ -303,7 +339,7 @@ class MakeTradeUpsFromDBCmd extends Command
         (
             ( target_sell_order ) =>
             {
-                konsole.error( "createTradeUps : " + target_sell_order);
+                //konsole.error( "createTradeUps : " + target_sell_order);
                 let source_decade               = target_to_source_decade_arg.get( target_sell_order );
                 let target_siblings_by_skin_id  = sibling_targets_of_source_decade_arg.get ( trade_up_key );
                 
