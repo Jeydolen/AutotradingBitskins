@@ -26,6 +26,7 @@ class MakeTradeUpsFromDBCmd extends Command
         let source_and_target_rows = await this.extractSourceAndTargetRowsFromDB( ctx );
 
         let source_rows = source_and_target_rows.sources;
+        //console.log ( 'extractTradeUpsFromDB source_rows' + source_rows)
 
         let target_rows = source_and_target_rows.targets;
         //assert( target_rows.length != 0 );
@@ -112,6 +113,10 @@ class MakeTradeUpsFromDBCmd extends Command
         else if ( data_format == DataFormat.SQL)
         {
             await knex('trade_up').del();
+            knex.schema.alterTable('trade_up', function(t) {
+                t.notNullable().defaultTo(0).alter() })
+
+
         } 
         
         await TradeUp.Instances.forEach( async (trade_up, key ) =>
@@ -131,30 +136,8 @@ class MakeTradeUpsFromDBCmd extends Command
         let state       = ctx.params.state      != undefined ? ctx.params.state     : 4;
         let stattrak    = ctx.params.stattrak   != undefined ? ctx.params.stattrak  : 1;
 
-        let selectSellOrder_subquery_1  =   null;
-        let selectSellOrder_subquery_2  =   null;
-
         this.output = "<html><body><p>Results:</p><ol>";
 
-
-        const defaultExtractSellOrderAttribute_CB = ( sell_order, attribute_name = 'id' ) => { return sell_order[attribute_name]; };
-
-        const logResult = ( sell_orders, msg, cb = defaultExtractSellOrderAttribute_CB ) =>
-        {
-            //console.log ( sell_orders )
-            this.output += "<p>" + msg + "</p><ol>";
-            sell_orders.map
-            ( sell_order => 
-                {   //console.log(sell_order) ;
-                    this.output += "<li>";
-                    this.output += cb ( sell_order ) + "</li>";
-                } 
-            );
-            this.output += "</ol>";
-        }; // logResult()
-
-       
-        
         //    +--> selectSellOrder_subquery_1
         //    |        |   
         //    |        +--> selectSkin()
@@ -183,7 +166,7 @@ class MakeTradeUpsFromDBCmd extends Command
         let source_rows = null;
         let target_rows = null;
 
-        selectSellOrder_subquery_1 = await selectSellOrderID_w_where_subquery(  selectSkin_wo_async() )
+        await selectSellOrderID_w_where_subquery(  selectSkin_wo_async() )
         .then ( ( rows ) => 
             { 
                 //logResult (rows, "selectSellOrderID_w_where_subquery 1");
@@ -192,7 +175,7 @@ class MakeTradeUpsFromDBCmd extends Command
         )
         .catch( ( error ) => { konsole.error(  "selectSellOrderID_w_where_subquery 1 "+ error )} );
 
-        selectSellOrder_subquery_2 = await selectSellOrderID_w_where_subquery(  selectSkin_wo_async() )
+        await selectSellOrderID_w_where_subquery(  selectSkin_wo_async() )
         .then ( ( rows ) => 
         { 
             //logResult (rows, "selectSellOrderID_w_where_subquery 2");
@@ -243,6 +226,7 @@ class MakeTradeUpsFromDBCmd extends Command
                       let source_row_of_target = source_rows_of_target[1];
                       total_investment += source_row_of_target.price;
                   }
+                  
                   if ( total_investment <= target_row.price )
                   {
                       let profit_margin = ( target_row.price - total_investment )/ total_investment * 100.00;
@@ -250,10 +234,11 @@ class MakeTradeUpsFromDBCmd extends Command
                       target_to_source_decade.set( target_row, source_rows_of_target.slice( 0, 10 ) ) ;
                       //console.log (' --------------------------------------------------- \n' );
                   }
+                  /*
                   else 
                   {
-                    target_to_source_decade.set( target_row, [] ) ;
-                  }
+                    //target_to_source_decade.set( target_row, [] ) ;
+                  }*/
                       
               }
               else { /*console.log ('Pas assez de source sellOrder' )*/}
