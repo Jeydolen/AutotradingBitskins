@@ -6,6 +6,7 @@ const { konsole, LOG_LEVEL }        = rekwire ('/src/bb_log.js');
 const { BB_SqlQuery, SQL_TEMPLATE } = rekwire ('/src/bb_sql_query.js') ;
 const { BB_Database, knex_conn }    = rekwire ('/src/bb_database.js') ;
 const { ISerializable, DataFormat } = rekwire ('/src/ISerializable.js') ;
+const { mapToJSON }                 = rekwire ('/src/utility.js');
 
 
 /*$$$$$$$  /$$   /$$              /$$       /$$                      /$$$$$$  /$$                                 /$$    
@@ -42,42 +43,26 @@ class BitskinsObject extends ISerializable
   } // UnitTest
 
   // https://github.com/joegesualdo/object-to-json/blob/master/index.js
-  toJSON( access_type = Konst.AccessType.Public )
-  {
-      let keys = [];
-      for (var k in this) 
-      {
-        if (Object.hasOwnProperty(k))
-          keys.push(k)
-        
-      }
-  
-      let new_obj = {};
-      for(var i = 0; i < keys.length; i++){
-        new_obj[keys[i]] = this[keys[i]]
-        // console.log(object[keys[0]])
-      }
-      let json_obj = JSON.parse(JSON.stringify(new_obj))
-    return json_obj;
-  } // toJSON
 
 
-  toJSON_old ( access_type = Konst.AccessType.Public )
+  toJSON ( access_type = Konst.AccessType.Public )
   {
     let json_data = {} ;
     let property_names = Object.getOwnPropertyNames( this );
-    //for (let attribute in this) 
     property_names.map(
       ( property_name ) =>
       {
-        if ( ! property_name.startsWith('_'))
-          {
-            json_data[property_name] = this[property_name];
-          }
+        if  ( ( access_type == Konst.AccessType.Full ) || ( access_type == Konst.AccessType.Public  &&  ! property_name.startsWith('_') ) )
+        {
+          let value = this[ property_name ];
+          if (value.constructor.name == Map.name )
+            value = mapToJSON( value )['map'];
+          json_data[ property_name ] = value; 
+        }     
       }
     );
     return json_data;
-  } // toJSON_old()
+  } // toJSON()
 
 
   getIsJustCreated    ()      { return this._is_just_created;     } // getIsJustCreated()

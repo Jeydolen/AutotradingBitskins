@@ -62,14 +62,35 @@ class TradeUpService extends Service
     {
         let id = ctx.params.id != undefined ?  ctx.params.id : 0;
         console.log ('trade_up/list:  id=' + id  );
-        let trade_up = this.klass.GetInstanceByIndex( id );
-        console.log ('trade_up/list:  name=' + trade_up.getName()  );
+
+        let trade_ups = [];
+        let trade_up  = null;
+
+        if ( id.constructor.name == String.name)
+        {
+            id = id.toLowerCase()
+            if ( id == 'all')
+            {     
+                trade_ups = Array.from (this.klass.Instances.values());
+                console.log( "trade_ups: " + trade_ups );
+            }
+            else 
+                console.log ( "id non reconnu ( ! all ou d'un entier");
+        }
+        else
+        {
+            trade_up = this.klass.GetInstanceByIndex( id );
+            trade_ups.push( trade_up );
+            console.log ('trade_up/list:  name=' + trade_up.getName()  );
+            console.log( "trade_ups: " + trade_ups );
+        }
+           
 
         //trade_up.target_siblings = mapToJSON (trade_up.target_siblings);
-        let obj_clone = clone ( trade_up );
+        //let obj_clone = clone ( trade_up );
 
-        let target_siblings_as_JSON = mapToJSON (obj_clone.target_siblings);
-        obj_clone.target_siblings = mapToJSON (target_siblings_as_JSON);
+        //let target_siblings_as_JSON = mapToJSON (obj_clone.target_siblings);
+        //obj_clone.target_siblings = mapToJSON (target_siblings_as_JSON);
 
         //let test = mapToJSON (obj_clone.target_siblings);
         //let test_map = new Map () 
@@ -77,8 +98,18 @@ class TradeUpService extends Service
         //obj_clone.target_siblings = mapToObj ( test_map );
 
         ctx.meta.$responseType = "text/json ; charset=utf-8";
-        //return target_siblings_as_JSON;
-        return obj_clone;   
+        let separator = '';
+        let last_item = trade_ups[ trade_ups.length - 1 ];
+        if ( trade_ups.length > 1) separator = "\n";
+        let json_data = '[' + separator;
+        trade_ups.map( (trade_up) => 
+            {
+                json_data += JSON.stringify(trade_up.toJSON()) 
+                if ( trade_up != last_item )
+                    json_data += ',/n';
+            }
+        );
+        return json_data     + separator + ']';
 
     } // list()
 

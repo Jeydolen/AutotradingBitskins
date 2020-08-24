@@ -53,7 +53,7 @@ const onServiceCall = ( service_name, action_name, args ) =>
     fetch('http://localhost:51374/stella/'+ service_name +'/' + action_name )
     .then ( (res) => 
     {
-     console.log('Call ' + service_name + '.' + action_name);
+     //console.log('Call ' + service_name + '.' + action_name);
      let action_button          = document.getElementById(action_name + "-button");
      if ( action_button != null && action_button != undefined)
      action_button.disabled = true ;
@@ -105,7 +105,7 @@ const onFocus = (entity_arg) =>
 const onSubmit = () =>
 {
     let value = document.getElementById(focused_entity).value
-    console.log('Coucou')
+    //console.log('Coucou')
     ipcRenderer.send (GUI.EVENT.get(GUI.SUBMIT_VALUE_EVT).value, new GUI.SubmitValueEventObj ( focused_entity, value ) );
 }
 

@@ -49,7 +49,7 @@ class TradeUp extends BitskinsObject
       this.name             = NULL_TRADE_UP;
       this.target_siblings  = new Map()
       this.target_siblings.set ( Konst.NOTHING, 'Null_target_siblings_value' );
-      this.source_decade = [Konst.NOTHING];
+      this.source_decade = [{'Konst.NOTHING' : 'petsurtoi'}, Konst.NOTHING];
     }
   } // constructor()
 
@@ -64,7 +64,7 @@ class TradeUp extends BitskinsObject
     if ( method_name == "toJSON" )
       try 
       {
-        result =  TradeUp.NULL.toString();
+        result =  TradeUp.NULL.toJSON();
         console.log ( TradeUp.NULL)
       }
       catch( err )
@@ -79,10 +79,22 @@ class TradeUp extends BitskinsObject
   getTradeUpKey ()  { return this.trade_up_key; }
 
   async save ( data_format = DataFormat.JSON , target = Konst.DEFAULT_JSON_OUTPUT_FILE)
-  {                                   
-    if ( data_format == DataFormat.MySQL )                               // array                                                     
-      await knex('trade_up').insert({name : this.trade_up_obj.name, source_decade : '{ ids : ' + JSON.stringify(this.trade_up_obj.source_decade) + '}' ,
-                                     target_siblings : JSON.stringify(this.trade_up_obj.target_siblings) })
+  {  
+   
+    konsole.log ( 'data_format ' + data_format + 'target = ' + target, LOG_LEVEL.INFO)
+    let json_data  = this.toJSON();
+    //konsole.error ( JSON.stringify(obj.toJSON()) + ' obj.name :' + obj.name + obj.target_siblings );
+
+    if ( data_format == DataFormat.SQL )      
+    { 
+      //fs.appendFileSync ( target, JSON.stringify(this.toJSON()) + last_char );
+      await knex('trade_up').insert({ name : json_data.name, source_decade : '{ \"ids\" : ' + JSON.stringify(json_data.source_decade) + '}',
+                                      target_siblings : '{ \"target_siblings\" : ' + JSON.stringify(json_data.target_siblings) + '}'  })
+            .catch ( (err) => konsole.error( err ) ) ;
+
+    }                         // array                                                     
+      
+
     else if ( data_format == DataFormat.JSON)
     {
       if ( TradeUp.LastTradeUp == null )
@@ -122,6 +134,8 @@ class TradeUp extends BitskinsObject
   {
     let trade_up_obj = new TradeUp( ctx, source_decade, target_siblings_by_skin_id );
     let name = trade_up_obj.getName();
+    // ça caca
+    //console.log ( target_siblings_by_skin_id )
 
     if ( !  TradeUp.Instances.has ( name ) )
       TradeUp.Instances.set ( name, trade_up_obj );

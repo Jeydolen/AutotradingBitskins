@@ -109,9 +109,10 @@ const replaceByValue = ( json, field, oldvalue, newvalue ) =>
 }
 
 
-exports.objToString = objToString;
-exports.mapToObj    = mapToObj;
-exports.mapToJSON   = mapToJSON;
-exports.mapToString = mapToString;
-exports.getFunctionName = getFunctionName ;
-exports.replaceByValue = replaceByValue ;
+exports.objToString         = objToString;
+exports.objToJSON           = objToJSON;
+exports.mapToObj            = mapToObj;
+exports.mapToJSON           = mapToJSON;
+exports.mapToString         = mapToString;
+exports.getFunctionName     = getFunctionName ;
+exports.replaceByValue      = replaceByValue ;

@@ -8,7 +8,7 @@ const Konst                  = rekwire ('/src/constants.js');
 const SkinSet                = rekwire ('/src/model/skin_set').SkinSet;
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js');
 const Command                = rekwire ('/src/commands/command.js').Command;
-const TradeUp = rekwire ('/src/model/trade_up.js').TradeUp;
+const TradeUp                = rekwire ('/src/model/trade_up.js').TradeUp;
 
 
 class MakeTradeUpsFromDBCmd extends Command
@@ -48,14 +48,16 @@ class MakeTradeUpsFromDBCmd extends Command
 
         let data_format = ctx.params.data_format != undefined ? ctx.params.data_format : 'json';
         data_format = DataFormat.get( data_format.toUpperCase() );
+        let file   = Konst.NOTHING;
+        let output_path = Konst.NOTHING;
+        if ( data_format != DataFormat.SQL)
+        {
+            file            = ctx.params.file != undefined ? ctx.params.file : Konst.DEFAULT_JSON_OUTPUT_FILE;
+            output_path     = Konst.DEFAULT_JSON_OUTPUT_PATH + "/" + file;
+        }
+        
 
-        let file   = ctx.params.file != undefined ? ctx.params.file : Konst.DEFAULT_JSON_OUTPUT_FILE;
-        let output_path = Konst.DEFAULT_JSON_OUTPUT_PATH + "/" + file;
-
-        //console.log ( 'ctx.params : ' + JSON.stringify( ctx.params ) )
-        if ( Object.keys(ctx.params).length != 0 )
-            return await this.extractTradeUpsFromDB ( ctx );
-        else
+        console.log ( 'ctx.params : ' + JSON.stringify( ctx.params ) + 'data_format :' + data_format )
         {
             let skin_set_count = await SkinSet.GetRecordCount();
             konsole.log ( 'Ctx.params.length == 0, record_count : ' + skin_set_count, LOG_LEVEL.INFO);
@@ -89,6 +91,7 @@ class MakeTradeUpsFromDBCmd extends Command
         return "TradeUps count: " + result;
     } // execute()
 
+
                         // requis dans le cas de data_format = JSON
     async storeTradeUps ( data_format, output_path )
     {
@@ -106,11 +109,15 @@ class MakeTradeUpsFromDBCmd extends Command
             }
             fs.appendFileSync ( output_path, '[\n')
         }
-            
-        
-        TradeUp.Instances.forEach( (trade_up, key ) =>
+        else if ( data_format == DataFormat.SQL)
         {
-            trade_up.save( data_format, output_path ); 
+            await knex('trade_up').del();
+        } 
+        
+        await TradeUp.Instances.forEach( async (trade_up, key ) =>
+        {
+            konsole.msg ( 'storeTradeUps forEach dataformat :' + data_format + ' output_path' + output_path );
+            await trade_up.save( data_format, output_path ); 
         }
         ); // forEach
     
@@ -179,7 +186,7 @@ class MakeTradeUpsFromDBCmd extends Command
         selectSellOrder_subquery_1 = await selectSellOrderID_w_where_subquery(  selectSkin_wo_async() )
         .then ( ( rows ) => 
             { 
-                logResult (rows, "selectSellOrderID_w_where_subquery 1");
+                //logResult (rows, "selectSellOrderID_w_where_subquery 1");
                 source_rows = rows;
             } 
         )
@@ -188,7 +195,7 @@ class MakeTradeUpsFromDBCmd extends Command
         selectSellOrder_subquery_2 = await selectSellOrderID_w_where_subquery(  selectSkin_wo_async() )
         .then ( ( rows ) => 
         { 
-            logResult (rows, "selectSellOrderID_w_where_subquery 2");
+            //logResult (rows, "selectSellOrderID_w_where_subquery 2");
             target_rows = rows;
         } )
         .catch( ( error ) => { konsole.error(  "selectSellOrderID_w_where_subquery 2 "+ error )} );
@@ -239,9 +246,9 @@ class MakeTradeUpsFromDBCmd extends Command
                   if ( total_investment <= target_row.price )
                   {
                       let profit_margin = ( target_row.price - total_investment )/ total_investment * 100.00;
-                      console.log ( "C'est bien, rentabilité potentielle :" + profit_margin +' % ' + target_row.market_name );
+                      //console.log ( "C'est bien, rentabilité potentielle :" + profit_margin +' % ' + target_row.market_name );
                       target_to_source_decade.set( target_row, source_rows_of_target.slice( 0, 10 ) ) ;
-                      console.log (' --------------------------------------------------- \n' );
+                      //console.log (' --------------------------------------------------- \n' );
                   }
                   else 
                   {

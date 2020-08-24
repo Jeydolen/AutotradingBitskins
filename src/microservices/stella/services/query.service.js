@@ -18,9 +18,9 @@ module.exports =
             // /quety/knex?table=XX&fields=AB,C
             let table  = ctx.params.table != undefined ? ctx.params.table : 'skin_sell_order';
             let fields = ctx.params.fields != undefined ? ctx.params.fields : 'id';
-            console.log ( fields )
+            //console.log ( fields )
             let field_items = fields.split('|');
-            console.log ( fields )
+            //console.log ( fields )
             let id     = ctx.params.id != undefined ? ctx.params.id : 1;
 
             let output = [];
@@ -32,7 +32,7 @@ module.exports =
                     rows.map
                     ( row => 
                         { 
-                            console.log(row) ;
+                            //console.log(row) ;
                             output.push(row);  
                         } 
                     );

@@ -27,6 +27,16 @@ const CONNECTION_ARGS =
 
 let knex_conn = require('knex')({
     client: 'mysql',
+    log: {
+        warn(message) {
+        },
+        error(message) {
+            konsole.error ( message )
+        },
+        deprecate(message) {
+        },
+        debug(message) {
+        }},
     connection: {
         host      :     'localhost',
         port      :     3308,

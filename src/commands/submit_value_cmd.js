@@ -17,7 +17,7 @@ class SubmitValueCmd extends Command
 
     execute ( args )
     {
-        console.log ('C4EST BIEN T4ES ARRIV2 JUSQU4ICI' + JSON.stringify(args) );
+        //console.log ('C4EST BIEN T4ES ARRIV2 JUSQU4ICI' + JSON.stringify(args) );
 
         if (args.entity_name == Session.PageIndexStart)
             Session.GetSingleton().setAppVar( args.entity_name, args.entity_value );

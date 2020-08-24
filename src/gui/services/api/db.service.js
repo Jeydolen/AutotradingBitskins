@@ -44,7 +44,7 @@ module.exports =
             ( result => 
             {
                 if ( result.canceled ) return;
-                console.log (JSON.stringify(result));
+                //console.log (JSON.stringify(result));
                 if ( result.filePath != undefined )
                 {
                 let output_sql_file_path = result.filePath;

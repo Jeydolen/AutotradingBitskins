@@ -156,7 +156,7 @@ const unitTest = (db) =>
                     expand( SQL_TEMPLATE.SELECT_SKIN.value, { 'skin-set-value': 5, 'item-state-value': 4, 'skin-rarity-value': 3 } ) ,
                     'p': 'B'} ),
             } );
-    konsole.log( query_text );
+    //konsole.log( query_text );
     let query_obj   = BB_SqlQuery.Create( query_text );
     query_obj.executeWithCB( db, query_text,UnitTestCB );
 }
