@@ -60,7 +60,7 @@ class TradeUpService extends Service
     // https://www.npmjs.com/package/stringify-object
     list ( ctx ) 
     {
-        let id = ctx.params.id != undefined ?  ctx.params.id : 0;
+        let id = ctx.params.id != undefined ?  ctx.params.id : 'all';
         console.log ('trade_up/list:  id=' + id  );
 
         let trade_ups = [];
@@ -98,18 +98,17 @@ class TradeUpService extends Service
         //obj_clone.target_siblings = mapToObj ( test_map );
 
         ctx.meta.$responseType = "text/json ; charset=utf-8";
-        let separator = '';
         let last_item = trade_ups[ trade_ups.length - 1 ];
-        if ( trade_ups.length > 1) separator = "\n";
-        let json_data = '[' + separator;
+        
+        let json_data = '[' 
         trade_ups.map( (trade_up) => 
             {
                 json_data += JSON.stringify(trade_up.toJSON()) 
                 if ( trade_up != last_item )
-                    json_data += ',/n';
+                    json_data += ',';
             }
         );
-        return json_data     + separator + ']';
+        return json_data + ']';
 
     } // list()
 

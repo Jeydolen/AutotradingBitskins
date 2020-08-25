@@ -19,7 +19,7 @@ const mapToObj = ( map_arg ) =>
         map_arg.forEach( 
             (v,k) =>
                 { 
-                    console.log ( 'v.constructor.name : ' + v.constructor.name + ' k ' + k);
+                    //console.log ( 'v.constructor.name : ' + v.constructor.name + ' k ' + k);
 
                     if ( v.constructor.name == "Map" )
                         obj[k] = mapToObj( v );
@@ -30,7 +30,7 @@ const mapToObj = ( map_arg ) =>
                 });
     else
     {
-        console.log( " mapToObj is a " +  map_arg.constructor.name );
+        //console.log( " mapToObj is a " +  map_arg.constructor.name );
         obj = map_arg;
     }
 
@@ -64,7 +64,7 @@ const objToJSON = ( obj_arg ) =>
 
 const mapToJSON = ( obj_arg ) =>
 {
-    console.log ('mapToJSON ! map_arg is :' + obj_arg.constructor.name + "\n" + JSON.stringify( obj_arg ));
+    //console.log ('mapToJSON ! map_arg is :' + obj_arg.constructor.name + "\n" + JSON.stringify( obj_arg ));
     let json_obj = null;
     if ( obj_arg.constructor.name == "Map" )
     {

@@ -81,7 +81,7 @@ class TradeUp extends BitskinsObject
   async save ( data_format = DataFormat.JSON , target = Konst.DEFAULT_JSON_OUTPUT_FILE)
   {  
    
-    konsole.log ( 'data_format ' + data_format + 'target = ' + target, LOG_LEVEL.INFO)
+    //konsole.log ( 'data_format ' + data_format + 'target = ' + target, LOG_LEVEL.INFO)
     let json_data  = this.toJSON();
     //konsole.error ( JSON.stringify(obj.toJSON()) + ' obj.name :' + obj.name + obj.target_siblings );
 
@@ -134,15 +134,19 @@ class TradeUp extends BitskinsObject
   {
     let trade_up_obj = new TradeUp( ctx, source_decade, target_siblings_by_skin_id );
     let name = trade_up_obj.getName();
-    // ça caca
-    //console.log ( target_siblings_by_skin_id )
 
     if ( !  TradeUp.Instances.has ( name ) )
       TradeUp.Instances.set ( name, trade_up_obj );
-    //else konsole.error( "TradeUp.Create Duplicate TradeUp name: " + name );
 
     return trade_up_obj;  
-  } // Create() 
+  } // Create()
+  
+  static ClearInstances ()
+  {
+    TradeUp.Instances.clear()
+    TradeUp.NULL = undefined;
+    TradeUp.GetNullObject()
+  }
 
 
   static GetNullObject() 
@@ -151,7 +155,7 @@ class TradeUp extends BitskinsObject
       {
         TradeUp.NULL       = new TradeUp( NULL_TRADE_UP );
         TradeUp.Instances.set           ( TradeUp.NULL.name, TradeUp.NULL );
-        TradeUp.InstancesByRecordID.set ( 1, TradeUp.NULL );
+        TradeUp.InstancesByRecordID.set ( Konst.NULL_RECORD_ID, TradeUp.NULL );
       }
 
       return TradeUp.NULL;

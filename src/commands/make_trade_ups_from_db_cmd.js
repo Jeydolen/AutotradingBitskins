@@ -1,7 +1,8 @@
 const _                      = require('lodash');
 const assert                 = require ('assert');
-const { DataFormat }         = require('../ISerializable');
+
 const fs                     = require('fs');
+const { data } = require('jquery');
 
 const knex                   = rekwire ('/src/bb_database.js').knex_conn;
 const Konst                  = rekwire ('/src/constants.js');
@@ -9,6 +10,9 @@ const SkinSet                = rekwire ('/src/model/skin_set').SkinSet;
 const { konsole, LOG_LEVEL } = rekwire ('/src/bb_log.js');
 const Command                = rekwire ('/src/commands/command.js').Command;
 const TradeUp                = rekwire ('/src/model/trade_up.js').TradeUp;
+const { DataFormat }         = rekwire ('/src/ISerializable.js');
+const { BB_Database }        = rekwire ('/src/bb_database.js')
+const db                     = rekwire ('/src/db.js');
 
 
 class MakeTradeUpsFromDBCmd extends Command
@@ -56,6 +60,9 @@ class MakeTradeUpsFromDBCmd extends Command
             file            = ctx.params.file != undefined ? ctx.params.file : Konst.DEFAULT_JSON_OUTPUT_FILE;
             output_path     = Konst.DEFAULT_JSON_OUTPUT_PATH + "/" + file;
         }
+
+
+        TradeUp.ClearInstances();
         
 
         console.log ( 'ctx.params : ' + JSON.stringify( ctx.params ) + 'data_format :' + data_format )
@@ -84,7 +91,7 @@ class MakeTradeUpsFromDBCmd extends Command
             }
 
         }
-
+        
         await this.storeTradeUps ( data_format, output_path );
 
         result = TradeUp.GetInstanceCount();
@@ -111,18 +118,15 @@ class MakeTradeUpsFromDBCmd extends Command
             fs.appendFileSync ( output_path, '[\n')
         }
         else if ( data_format == DataFormat.SQL)
-        {
-            await knex('trade_up').del();
-            knex.schema.alterTable('trade_up', function(t) {
-                t.notNullable().defaultTo(0).alter() })
-
-
+        { 
+            await db.restoreDefaultDBStateWithKnex ( TradeUp )
         } 
         
         await TradeUp.Instances.forEach( async (trade_up, key ) =>
         {
-            konsole.msg ( 'storeTradeUps forEach dataformat :' + data_format + ' output_path' + output_path );
-            await trade_up.save( data_format, output_path ); 
+            //konsole.msg ( 'storeTradeUps forEach dataformat :' + data_format + ' output_path' + output_path );
+            if ( trade_up != TradeUp.NULL)
+                await trade_up.save( data_format, output_path ); 
         }
         ); // forEach
     

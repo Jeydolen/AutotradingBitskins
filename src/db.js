@@ -1,15 +1,16 @@
-const expand                = require ('expand-template')();
-const app_root_path         = require('app-root-path');
-const path                  = require('path');
-const timestamp             = require('time-stamp');
+const expand                        = require ('expand-template')();
+const app_root_path                 = require('app-root-path');
+const path                          = require('path');
+const timestamp                     = require('time-stamp');
 
-const { konsole, LOG_LEVEL} = rekwire ('/src/bb_log.js');
-const { DB_NAME }           = rekwire ('/src/bb_database.js');
-const BB_Database           = rekwire('/src/bb_database.js').BB_Database;
-const BB_SqlQuery           = rekwire('/src/bb_sql_query.js').BB_SqlQuery;
-const SQL_TEMPLATE          = rekwire('/src/bb_sql_query.js').SQL_TEMPLATE;
-const Konst                 = rekwire('/src/constants.js');
-const CommandRegistry       = rekwire('/src/commands/command_registry.js').CommandRegistry;
+const { konsole, LOG_LEVEL}         = rekwire ('/src/bb_log.js');
+const { DB_NAME }                   = rekwire ('/src/bb_database.js');
+const { BB_Database, knex_conn }    = rekwire('/src/bb_database.js');
+const BB_SqlQuery                   = rekwire('/src/bb_sql_query.js').BB_SqlQuery;
+const { BitskinsObject }            = rekwire('/src/model/bb_obj.js');
+const SQL_TEMPLATE                  = rekwire('/src/bb_sql_query.js').SQL_TEMPLATE;
+const Konst                         = rekwire('/src/constants.js');
+const CommandRegistry               = rekwire('/src/commands/command_registry.js').CommandRegistry;
 
 const mkDBFullPath = (args) =>
 {
@@ -40,14 +41,14 @@ const mkDBFullPath = (args) =>
 //===================================================================================================================================================
 // https://stackoverflow.com/questions/1142472/how-to-force-mysql-to-take-0-as-a-valid-auto-increment-value
 // SET GLOBAL sql_mode='NO_AUTO_VALUE_ON_ZERO'
-const restoreDefaultDBState =  (db, table) =>
+const restoreDefaultDBState = (db, table) =>
 {
     const executeDeleteQuery = () =>
     {
         let query_text  = expand(SQL_TEMPLATE.DELETE.value, { 'db-table': table});
         let query_obj   = BB_SqlQuery.Create( query_text );
         konsole.log(query_obj.getCommand() + "\t\t Trying DELETE in '" + table + "'", LOG_LEVEL.INFO);
-         query_obj.executeWithCB( db,query_text, executeAlterRstAiQuery_CB );
+        query_obj.executeWithCB( db,query_text, executeAlterRstAiQuery_CB );
 
     }; // executeDeleteQuery()
     
@@ -127,6 +128,31 @@ const clearTables = () =>
    restoreDefaultDBState (db, "weapon");
     
 }; // clearTables()
+
+
+const restoreDefaultDBStateWithKnex = async (klass) =>
+{
+    let table_name = BitskinsObject._GetTableName ( klass.name )
+    let knex = knex_conn;
+    await knex.del().table(table_name)
+    .then   ( 
+            async (result) => 
+                { 
+                    await knex.raw('ALTER TABLE ' + table_name + ' AUTO_INCREMENT = 0;');
+                }
+            )
+        .then   (
+                async (result) => 
+                    {
+                        await knex.insert( { name : klass.NULL.name } ).table( table_name )
+                    }
+                )   
+
+} // restoreDefaultDBStateWithKnex()
+
+
+
+
 //=================================================================================================================================================== 
 
 const UnitTestCB =  ( err, query_select_result ) =>
@@ -164,6 +190,7 @@ const unitTest = (db) =>
 
 exports.clearTables             = clearTables ;
 exports.restoreDefaultDBState   = restoreDefaultDBState;
+exports.restoreDefaultDBStateWithKnex = restoreDefaultDBStateWithKnex;
 exports.backupDB        = backupDB ;
 exports.restoreDB       = restoreDB ;
 exports.mkDBFullPath    = mkDBFullPath ;
