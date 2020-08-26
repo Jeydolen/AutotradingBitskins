@@ -31,6 +31,7 @@ class TradeUp extends BitskinsObject
   constructor( ctx, source_decade_arg, target_siblings_arg ) 
   {     
     super ( null );
+    this.profit      =  0;
     //console.log ( 'COUCOU ')
 
     if (arguments.length == 3  )

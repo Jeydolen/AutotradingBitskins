@@ -7,8 +7,6 @@
 global.rekwire = require('app-root-path').require;
 if (! window.rekwire)       window[rekwire] = rekwire;
 
-const { PhobosServiceBroker }     = rekwire('/src/microservices/phobos/phobos_service_broker');
-
 const { vertical_menu       }     = rekwire ('/src/gui/vue/vertical_menu_component.js'       );
 
 

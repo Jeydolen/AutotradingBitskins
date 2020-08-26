@@ -1,13 +1,11 @@
-const Service               = require ("moleculer").Service;
-const assert                = require ('assert');
-const clone                 = require ('clone');
+const Service                   = require ("moleculer").Service;
+const assert                    = require ('assert');
 
 
-
-const { TradeUp  }                  = rekwire ('/src/model/trade_up.js') ;
-const BitskinsObject                = rekwire ('/src/model/bb_obj.js').BitskinsObject;
-const { mapToString, mapToJSON, mapToObj }    = rekwire ('/src/utility.js');
-
+const { TradeUp  }              = rekwire ('/src/model/trade_up.js') ;
+const { BitskinsObject }        = rekwire ('/src/model/bb_obj.js');
+const { MakeTradeUpsFromDBCmd } = rekwire("/src/commands/make_trade_ups_from_db_cmd.js");
+const { MoulaSeekCmd }          = rekwire("/src/commands/moula_seek_cmd.js");
 
 console.log ( TradeUp.name)
 
@@ -37,20 +35,9 @@ class TradeUpService extends Service
             actions: 
             {
                 list: this.list, 
-
-                count : this.count
-               //update: this.update,
-
-               /*
-                save: this.save,
-                {
-                    let id = ctx.params.id != undefined ?  ctx.params.id : 1;
-                    ctx.meta.$responseType = "text/json ; charset=utf-8";            
-                    return "Error /stella/skin/save id= " + id;// + rows_count;  
-                }, // save
-                */
-        
-
+                extract : this.extract,
+                count : this.count,
+                moula_seek : this.moulaSeek
             },
         });
     } // constructor
@@ -83,19 +70,7 @@ class TradeUpService extends Service
             trade_ups.push( trade_up );
             console.log ('trade_up/list:  name=' + trade_up.getName()  );
             console.log( "trade_ups: " + trade_ups );
-        }
-           
-
-        //trade_up.target_siblings = mapToJSON (trade_up.target_siblings);
-        //let obj_clone = clone ( trade_up );
-
-        //let target_siblings_as_JSON = mapToJSON (obj_clone.target_siblings);
-        //obj_clone.target_siblings = mapToJSON (target_siblings_as_JSON);
-
-        //let test = mapToJSON (obj_clone.target_siblings);
-        //let test_map = new Map () 
-        //test_map.set ( 'porououtoeuteotepute', 'jesuis une gentiille map' )
-        //obj_clone.target_siblings = mapToObj ( test_map );
+        } 
 
         ctx.meta.$responseType = "text/json ; charset=utf-8";
         let last_item = trade_ups[ trade_ups.length - 1 ];
@@ -111,6 +86,14 @@ class TradeUpService extends Service
         return json_data + ']';
 
     } // list()
+
+
+    async extract (ctx)
+    {           
+        let output = await MakeTradeUpsFromDBCmd.GetSingleton().execute( ctx );
+        ctx.meta.$responseType = "text/plain ; charset=utf-8";
+        return output;
+    } // extract()
 
 
     async count ( ctx )
@@ -132,7 +115,19 @@ class TradeUpService extends Service
         ctx.meta.$responseType = "text/json ; charset=utf-8"; 
         return result; // + rows_count;  
 
-    } // CountAction()
+    } // count()
+
+    async moulaSeek ( ctx )
+    {
+        if (  TradeUp.Instances.size == 1)
+            await this.extract ( ctx );
+        
+        let result = MoulaSeekCmd.GetSingleton().execute(ctx);
+
+
+        ctx.meta.$responseType = "text/plain ; charset=utf-8"; 
+        return result ;
+    }
 
 } // TradeUpService Class
 
