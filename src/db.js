@@ -138,13 +138,13 @@ const restoreDefaultDBStateWithKnex = async (klass) =>
     .then   ( 
             async (result) => 
                 { 
-                    await knex.raw('ALTER TABLE ' + table_name + ' AUTO_INCREMENT = 0;');
+                    return await  knex.raw('ALTER TABLE ' + table_name + ' AUTO_INCREMENT = 0;');
                 }
             )
         .then   (
                 async (result) => 
                     {
-                        await knex.insert( { name : klass.NULL.name } ).table( table_name )
+                        return await knex.insert( { name : klass.NULL.name } ).table( table_name )
                     }
                 )   
 
