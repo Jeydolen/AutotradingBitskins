@@ -30,15 +30,8 @@ class MakeTradeUpsFromDBCmd extends Command
         let source_and_target_rows = await this.extractSourceAndTargetRowsFromDB( ctx );
 
         let source_rows = source_and_target_rows.sources;
-        //console.log ( 'extractTradeUpsFromDB source_rows' + source_rows)
-
         let target_rows = source_and_target_rows.targets;
-        //assert( target_rows.length != 0 );
-
-        // target: [ source_decade ]
         let target_to_source_decade = this.extractPotentialProfitableTradeUps (  source_rows, target_rows );
-
-        // trade_up_key : { skin_id : [ targets ] }
         let siblings_target_of_source_decade    = this.extractSiblingTargetsOfSourceDecade ( ctx, target_rows, target_to_source_decade );
         this.createTradeUps(ctx, target_to_source_decade, siblings_target_of_source_decade );
 
@@ -51,7 +44,7 @@ class MakeTradeUpsFromDBCmd extends Command
     {      
         let result = null;
 
-        let data_format = ctx.params.data_format != undefined ? ctx.params.data_format : 'json';
+        let data_format = ctx.params.data_format != undefined ? ctx.params.data_format : 'sql';
         data_format = DataFormat.get( data_format.toUpperCase() );
         let file   = Konst.NOTHING;
         let output_path = Konst.NOTHING;
@@ -233,16 +226,12 @@ class MakeTradeUpsFromDBCmd extends Command
                   
                   if ( total_investment <= target_row.price )
                   {
-                      let profit_margin = ( target_row.price - total_investment )/ total_investment * 100.00;
-                      //console.log ( "C'est bien, rentabilité potentielle :" + profit_margin +' % ' + target_row.market_name );
                       target_to_source_decade.set( target_row, source_rows_of_target.slice( 0, 10 ) ) ;
-                      //console.log (' --------------------------------------------------- \n' );
                   }
-                  /*
                   else 
                   {
-                    //target_to_source_decade.set( target_row, [] ) ;
-                  }*/
+                   konsole.warn ( 'Pas profitable de ' + ( total_investment - target_row.price ).toFixed(2) + ' euros ' + target_row.market_name)
+                  }
                       
               }
               else { /*console.log ('Pas assez de source sellOrder' )*/}

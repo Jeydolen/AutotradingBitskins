@@ -132,13 +132,19 @@ const clearTables = () =>
 
 const restoreDefaultDBStateWithKnex = async (klass) =>
 {
-    let table_name = BitskinsObject._GetTableName ( klass.name )
-    let knex = knex_conn;
-    await knex.del().table(table_name).raw('ALTER TABLE ' + table_name + ' AUTO_INCREMENT = 0')
+    let table_name = BitskinsObject._GetTableName ( klass.name );
+
+    await knex_conn.del().table(table_name)
+    .then   (
+        async (result) => 
+            {
+                return await knex_conn.raw('ALTER TABLE ' + table_name + ' AUTO_INCREMENT = 0')
+            }
+        )  
         .then   (
                 async (result) => 
                     {
-                        return await knex.insert( { name : klass.NULL.name } ).table( table_name )
+                        return await knex_conn.insert( { name : klass.NULL.name } ).table( table_name )
                     }
                 )   
 
