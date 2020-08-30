@@ -67,7 +67,7 @@ module.exports =
             let main_window = Session.GetSingleton().getAppVar(Session.MainWindow)
 
             dialog.showSaveDialog
-            ( main_window, 
+            (   main_window, 
             {   properties: ['saveFile'],
                 title:  'backup-as',
                 defaultPath : APP_ROOT_PATH + '\\data\\sql',

@@ -63,7 +63,7 @@ class MakeTradeUpsFromDBCmd extends Command
             let skin_set_count = await SkinSet.GetRecordCount();
             konsole.log ( 'Ctx.params.length == 0, record_count : ' + skin_set_count, LOG_LEVEL.INFO);
             let ctx = { params : { skin_set : Konst.NULL_RECORD_ID +1, rarity : 1, state : 1, stattrak : false } }
-            for ( let rarity_i = 1; rarity_i < 7; rarity_i++ )
+            for ( let rarity_i = 1; rarity_i < 6; rarity_i++ )
             {
                 ctx.params.rarity = rarity_i;
 

@@ -1,8 +1,9 @@
-const commander     = require ('commander');
-const fetch         = require ('node-fetch');
-const { app, BrowserWindow, Menu, dialog, ipcMain, session } = require( 'electron' );
+const commander           = require ('commander');
+const fetch               = require ('node-fetch');
+const { app, BrowserWindow, Menu, dialog } = require( 'electron' );
 const { EventDispatcher } = require('./src/event_dispatcher');
-const APP_ROOT_PATH            = require ('app-root-path');
+const APP_ROOT_PATH       = require ('app-root-path');
+const child_process       = require ('child_process')
 
 // https://github.com/inxilpro/node-app-root-path 
 // Permet d'enregistrer au niveau de global rekwire (pck ipcMain)
@@ -52,6 +53,8 @@ const ParseCommandLineArgs = (args) =>
   .option ('-r, --restore [sql_file]', 'Restore database')
   .option ('-a, --admin', 'Access to electron admin dashboard')
   .option ('--select [table]', 'Select all from the specified table')
+  .option ('-p, --phobos', 'Start Phobos Endpoint (client)')
+  .option ('-s, --stella', 'Start Stella Endpoint (server)')
   
 
 
@@ -81,9 +84,28 @@ const ParseCommandLineArgs = (args) =>
   if (commander.admin)
   {
     StellaServiceBroker.GetSingleton().start();
+    
+    app.whenReady().then( createWindow ).then( createMenu );
+  }
+
+  if (commander.phobos)
+  {
 
     app.whenReady().then( createWindow ).then( createMenu );
   }
+
+  if ( commander.stella)
+  {
+    console.log ('Process.argv : ' + process.argv)
+    let child = child_process.spawn( 'tree')
+    child.stdout.on('data', (data) => {
+      console.log(`Received chunk ${data}`);
+    });
+    child.title = 'Stella server'
+    StellaServiceBroker.GetSingleton().start();
+    //console.log("Stella PID: " + process.pid + " process title is " + process.title); 
+  }
+
   
   if (commander.clear)                               db.clearTables();
   
@@ -103,10 +125,11 @@ const createWindow = () =>
   ({
     width: 1200,
     height: 800,
-    webPreferences: { nodeIntegration: true, enableRemoteModule: true }
+    webPreferences: { nodeIntegration: true, enableRemoteModule: true },
+    title: 'Phobos'
   })
   main_window.loadFile( './src/gui/index.html' );
-  main_window.webContents.openDevTools();
+  //main_window.webContents.openDevTools();
 
   Session.GetSingleton().setAppVar( Session.MainWindow, main_window );
 
