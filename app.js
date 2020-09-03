@@ -96,12 +96,6 @@ const ParseCommandLineArgs = (args) =>
 
   if ( commander.stella)
   {
-    console.log ('Process.argv : ' + process.argv)
-    let child = child_process.spawn( 'tree')
-    child.stdout.on('data', (data) => {
-      console.log(`Received chunk ${data}`);
-    });
-    child.title = 'Stella server'
     StellaServiceBroker.GetSingleton().start();
     //console.log("Stella PID: " + process.pid + " process title is " + process.title); 
   }
