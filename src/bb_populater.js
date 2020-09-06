@@ -1,4 +1,6 @@
 const assert                = require ('assert');
+const fetch                 = require ('node-fetch');
+const { CounterArgs } = require('../../Phobos/src/model/counter_args');
 
 const BB_Database           = rekwire ('/src/bb_database.js').BB_Database;
 const Konst                 = rekwire ('/src/constants.js');
@@ -50,7 +52,7 @@ class DBPopulater extends Singleton
         let json_sell_orders = json_obj['data']['items'];
         let json_sell_order_count = json_sell_orders.length;
 
-        konsole.log(" JSON Sell Order count : " + json_sell_order_count, LOG_LEVEL.MSG);
+        //konsole.log(" JSON Sell Order count : " + json_sell_order_count, LOG_LEVEL.MSG);
 
         let db = BB_Database.GetSingleton();
 
@@ -72,7 +74,7 @@ class DBPopulater extends Singleton
         
         
         // Compte les query finies pour la page courante
-        const endOfWaterfallCB = ( bb_obj ) => 
+        const endOfWaterfallCB = async ( bb_obj ) => 
         {
             assert( bb_obj != undefined );
 
@@ -91,9 +93,7 @@ class DBPopulater extends Singleton
 
             assert (done_count <= json_sell_order_count, "Done count :" + done_count + " Json count: " + json_sell_order_count + " klass: " + klass.name);
 
-            konsole.log ( bb_obj.getType() + " name: '" + bb_obj.getName() + "' count: " 
-                        + done_count + " page: " + page_index, LOG_LEVEL.OK
-                        );
+            //konsole.log ( bb_obj.getType() + " name: '" + bb_obj.getName() + "' count: " + done_count + " page: " + page_index, LOG_LEVEL.OK    );
             
             if ( done_count >= json_sell_order_count - 1 )
             {
@@ -104,14 +104,26 @@ class DBPopulater extends Singleton
 
             done_count = this.create_in_db_done_count.get( klass ) + 1;
             this.create_in_db_done_count.set ( klass, done_count );
-            let values_obj = new GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT](bb_obj.getType(), done_count, json_sell_order_count, page_index);
-            EventDispatcher.GetSingleton().dispatch( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT), values_obj );
+            let bb_obj_type = bb_obj.getType()
+
+            let counter_args = new CounterArgs ( { type : bb_obj_type, value : done_count, max_value : json_sell_order_count, page_index : page_index } );
+            //console.log ( JSON.stringify(counter_args) + ' bb_obj_type ' + bb_obj_type + ' done_count ' );
+            
+            if ( counter_args.value % 3 == 0)
+            {
+                await fetch( Konst.Phobos_broker_url + "/gui/update?reason=counter&args=" + JSON.stringify(counter_args) )
+                .catch ( (err) =>   {   konsole.error ( err );  } )
+            }
+            
+
+            //let values_obj = new GUI.EVT_ARGS[GUI.POPULATE_DB_PROGRESS_EVT](bb_obj.getType(), done_count, json_sell_order_count, page_index);
+            //EventDispatcher.GetSingleton().dispatch( GUI.EVENT.get(GUI.POPULATE_DB_PROGRESS_EVT), values_obj );
         }; // endOfWaterfallCB()
 
 
         const populateDBWithWeapon = () =>
         {
-            konsole.log("----------------------------------------------------------------------------------------", LOG_LEVEL.MSG)
+            //konsole.log("----------------------------------------------------------------------------------------", LOG_LEVEL.MSG)
 
             let klass = Weapon;
 

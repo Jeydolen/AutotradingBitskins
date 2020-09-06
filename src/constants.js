@@ -11,6 +11,8 @@ const AccessType            = new Enum ({'None' : 0, 'Public' : 1, 'Full' : 2 })
 const DEFAULT_JSON_OUTPUT_FILE  = 'test_output.json' ;
 const DEFAULT_JSON_OUTPUT_PATH  = APP_ROOT_PATH + '/data/json/';
 const RC                    = new Enum (['OK', 'KO']);
+const Phobos_broker_url     = 'http://localhost:2222/phobos';
+
 
 exports.APP_ROOT_PATH = APP_ROOT_PATH;
 exports.DEFAULT_JSON_OUTPUT_PATH = DEFAULT_JSON_OUTPUT_PATH;
@@ -19,5 +21,6 @@ exports.RC = RC ;
 exports.NULL_RECORD_ID = NULL_RECORD_ID ;
 exports.NOTHING = NOTHING ;
 exports.AccessType = AccessType ;
-exports.Reason = Reason ;
+exports.Reason = Reason;
+exports.Phobos_broker_url = Phobos_broker_url;
 

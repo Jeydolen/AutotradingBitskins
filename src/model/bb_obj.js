@@ -84,8 +84,8 @@ class BitskinsObject extends ISerializable
     if ( rows_count == 1 )
     {
         let json_data = result_rows[ 0 ];
-        konsole.log ( JSON.stringify( json_data ), LOG_LEVEL.MSG );
-        konsole.log ( 'RestoreObjectFromDB , record id : ' + record_id )
+        //konsole.log ( JSON.stringify( json_data ), LOG_LEVEL.MSG );
+        //konsole.log ( 'RestoreObjectFromDB , record id : ' + record_id )
         bb_obj = klass.Create(  json_data,  Konst.Reason.Deserialize );
     }
     else 
@@ -190,9 +190,9 @@ class BitskinsObject extends ISerializable
   static GetInstanceByIndex ( index = 0  )
   {
     let klass = this;
-    console.log ('GetInstanceByIndex Class_name :' + klass.name )
+    //console.log ('GetInstanceByIndex Class_name :' + klass.name )
     let instance = klass.NULL;
-    console.log ('GetInstanceByIndex instance_name :' + instance.name )
+    //console.log ('GetInstanceByIndex instance_name :' + instance.name )
 
     // Faut pas mettre +1
     if ( index < klass.Instances.size )
@@ -210,15 +210,14 @@ class BitskinsObject extends ISerializable
 
   static _GetTableName( klass_name )
   {
-    konsole.msg ('klass_name ' + klass_name );
-    let table_name = 
-      klass_name == "SkinSellOrder" ? "skin_sell_order" :
-      klass_name ==  "SkinSet"      ? "skin_set"        :
-      klass_name == "Skin"          ? "skin"            :
-      klass_name == "Weapon"        ? "weapon"          :        
-      klass_name == "TradeUp"       ? "trade_up"        : null;
+    //konsole.msg ('klass_name ' + klass_name );
+    let table_name =  klass_name == "SkinSellOrder" ? "skin_sell_order" :
+                      klass_name ==  "SkinSet"      ? "skin_set"        :
+                      klass_name == "Skin"          ? "skin"            :
+                      klass_name == "Weapon"        ? "weapon"          :        
+                      klass_name == "TradeUp"       ? "trade_up"        : null;
 
-      konsole.error ( 'GetTableName : ' + table_name)
+    //konsole.error ( 'GetTableName : ' + table_name)
 
     return table_name;
   } // _GetTableName()
@@ -236,7 +235,7 @@ class BitskinsObject extends ISerializable
     .then( (rows) =>
       { 
          result_rows = rows;
-         console.log( "result_rows: " + JSON.stringify(result_rows) );
+         //console.log( "result_rows: " + JSON.stringify(result_rows) );
       } 
     );
     // [{"count(*)":61}]
@@ -249,7 +248,7 @@ class BitskinsObject extends ISerializable
   static GetInstanceCount()
   {
     let klass = this;
-    konsole.warn( "GetInstanceCount: InstancesByRecordID.keys: " + JSON.stringify( Array.from( klass.InstancesByRecordID.keys() ) ) + ' ' + klass.name) ;
+    //konsole.warn( "GetInstanceCount: InstancesByRecordID.keys: " + JSON.stringify( Array.from( klass.InstancesByRecordID.keys() ) ) + ' ' + klass.name) ;
     let instance_count = klass.Instances.size;
     return instance_count;
   } // GetInstanceCount()

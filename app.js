@@ -97,7 +97,8 @@ const ParseCommandLineArgs = (args) =>
   if ( commander.stella)
   {
     StellaServiceBroker.GetSingleton().start();
-    //console.log("Stella PID: " + process.pid + " process title is " + process.title); 
+    process.tile = "Stella Server";
+    console.log("Stella PID: " + process.pid + " process title is " + process.title); 
   }
 
   
