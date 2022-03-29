@@ -1,7 +1,7 @@
 {
   "name": "autotrading_bitskins",
-  "version": "1.0.0",
-  "description": "Bite",
+  "version": "0.1.0",
+  "description": "Software that fetch csgo skins offer from bitskins.com api to check if there is any profitable tradeups",
   "main": "app.js",
   "scripts": {
     "test": "cls && node app.js --update",
@@ -14,12 +14,7 @@
   "keywords": [
     "bitskins",
     "csgo",
-    "skins",
-    "argent",
-    "moula",
-    "trading",
-    "automatique",
-    "affrontelesarabes"
+    "trading"
   ],
   "author": "Jeydolen & Echopraxium",
   "license": "SEE LICENSE IN License.txt",

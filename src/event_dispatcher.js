@@ -27,7 +27,6 @@ class EventDispatcher extends Singleton
 
     init ()
     {
-        //konsole.log ('Salut toi !!!!!!!!xXXXXXXXXXXXXXXXXXXXXXXxXXXXXXXXXXXXXXXXXXXXx', LOG_LEVEL.OK)
         if (ipcMain != undefined)
         {  
             ipcMain.on( GUI.EVENT.get(GUI.START_POPULATE_DB_EVT).value, function (event, arg) 
@@ -43,19 +42,16 @@ class EventDispatcher extends Singleton
             { EventDispatcher.GetSingleton().dispatch ( GUI.EVENT[GUI.SUBMIT_VALUE_EVT], arg); });
         }
         else
-            konsole.log ("C'est pas electron", LOG_LEVEL.INFO);
+            konsole.log ("Not electron", LOG_LEVEL.INFO);
     }
 
     subscribe ( event_sink_obj, event ) 
     {
-
-        //konsole.log('Subscribe event_dispatcher : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
         assert ( GUI.EVENT.isDefined( event ), event);
 
         let evt_sink_get = this.event_sinks.get( event );
         if ( evt_sink_get.indexOf (event_sink_obj) == -1 )
         {
-           //konsole.log('T la : ' + JSON.stringify(event_sink_obj) + event, LOG_LEVEL.INFO);
             evt_sink_get.push( event_sink_obj );
         }
     } // Subscribe()
@@ -78,12 +74,10 @@ class EventDispatcher extends Singleton
 
         for ( let i=0; i< evt_sink_get.length; i++ )
         {
-            //console.log('Yo' + event.key);
             let event_sink_obj = this.event_sinks.get( event )[i];
 
             if (event_sink_obj != undefined) 
             { 
-                //console.log('Yolo event_sink_obj ' + event_sink_obj.name);
                 event_sink_obj.inform( event, args );
             }
    

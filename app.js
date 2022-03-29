@@ -85,13 +85,13 @@ const ParseCommandLineArgs = (args) =>
   {
     StellaServiceBroker.GetSingleton().start();
     
-    app.whenReady().then( createWindow ).then( createMenu );
+    app.whenReady().then( createWindow ).then( createMenu ).catch(err => console.error(err));
   }
 
   if (commander.phobos)
   {
 
-    app.whenReady().then( createWindow ).then( createMenu );
+    app.whenReady().then( createWindow ).then( createMenu ).catch(err => console.error(err));
   }
 
   if ( commander.stella)
@@ -219,4 +219,4 @@ const createMenu = () =>
 konsole.InitLogSinks();
 Boostrap.GetSingleton().init();
 Controller.GetSingleton( null );
-ParseCommandLineArgs()
+ParseCommandLineArgs();

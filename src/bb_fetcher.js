@@ -14,7 +14,7 @@ const DBPopulater           = rekwire ('/src/bb_populater.js').DBPopulater;
 
 
 const SECRET_BITSKINS               = "YHY3Y2DMUOCIGROQ";
-const API_KEY                       = "3c75df64-c4c1-4066-8e65-34de828dd08e";
+const API_KEY                       = process.env.API_KEY;
 const BITSKINS_FETCHER_SINGLETON    = "BITSKINS_FETCHER_SINGLETON";
 
 /*
